@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace Shefaa.Models
 {
     [PrimaryKey(nameof(DoctorId), nameof(BranchId))]
-    public class DoctorBranche
+    public class DoctorBranch
     {
         [Column(TypeName = "decimal(18, 2)")]
         public decimal ConsultionFee { get; set; }
