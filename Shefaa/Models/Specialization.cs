@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Shefaa.Model
+namespace Shefaa.Models
 {
     public class Specialization
     {

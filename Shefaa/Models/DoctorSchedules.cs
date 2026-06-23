@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace Shefaa.Model
+namespace Shefaa.Models
 {
     public class DoctorSchedule
     {
