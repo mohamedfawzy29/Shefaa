@@ -4,7 +4,7 @@ namespace Shefaa.Models
 {
     public class Organization
     {
-        public int Id { get; set; }
+        public Guid Id { get; set; }
         [StringLength(100)]
         public required string LegalName { get; set; }
         [StringLength(50)]

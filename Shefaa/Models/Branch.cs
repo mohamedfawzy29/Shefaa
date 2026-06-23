@@ -4,7 +4,7 @@ namespace Shefaa.Models
 {
     public class Branch
     {
-        public int Id { get; set; }
+        public Guid Id { get; set; }
         [StringLength(150)]
         public required string BranchName { get; set; }
 
@@ -26,7 +26,7 @@ namespace Shefaa.Models
 
         public bool IsActive { get; set; } = true;
 
-        public int OrganizationId { get; set; }
+        public Guid OrganizationId { get; set; }
         public Organization Organization { get; set; } = null!;
 
         public ICollection<BranchPhoneNumber> BranchPhoneNumbers { get; set; } = new List<BranchPhoneNumber>();
