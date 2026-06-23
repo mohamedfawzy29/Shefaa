@@ -7,7 +7,7 @@ namespace Shefaa.Models
     public class Doctor
     {
         [Key]
-        public int DoctorId { get; set; }
+        public Guid DoctorId { get; set; }
 
         [Required]
         public string Bio { get; set; }
@@ -26,10 +26,10 @@ namespace Shefaa.Models
 
         // Foreign Keys
         [Required]
-        public int UserId { get; set; }
+        public Guid UserId { get; set; }
 
         [Required]
-        public int SpecializationId { get; set; }
+        public Guid SpecializationId { get; set; }
 
         // Navigation Properties
         [ForeignKey("UserId")]

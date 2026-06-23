@@ -1,4 +1,6 @@
-﻿namespace Shefaa.Models
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace Shefaa.Models
 {
     public enum AppointmentStatus
     {
@@ -9,11 +11,13 @@
     public class Appointment
     {
         public Guid Id { get; set; }
-        public string VisitReason { get; set; }
+        [MaxLength(300)]
+        public string VisitReason { get; set; } = string.Empty;
         public DateOnly AppointmentDate { get; set; }
         public TimeOnly StartTime { get; set; }
         public TimeOnly EndTime { get; set; }
-        public string Notes { get; set; }
+        [MaxLength(500)]
+        public string Notes { get; set; } = string.Empty;
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
         public DateTime CancelledAt { get; set; }

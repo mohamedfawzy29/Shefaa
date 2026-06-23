@@ -7,7 +7,7 @@ namespace Shefaa.Models
     public class Patient
     {
         [Key]
-        public int PatientId { get; set; }
+        public Guid PatientId { get; set; }
 
         [MaxLength(255)]
         public string? Address { get; set; }
@@ -23,7 +23,7 @@ namespace Shefaa.Models
 
         // Foreign Key
         [Required]
-        public int UserId { get; set; }
+        public Guid UserId { get; set; }
 
         // Navigation Property
         [ForeignKey("UserId")]

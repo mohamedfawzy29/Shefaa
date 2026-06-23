@@ -4,11 +4,11 @@ namespace Shefaa.Models
 {
     public class BranchPhoneNumber
     {
-        public int Id { get; set; }
+        public Guid Id { get; set; }
 
         [StringLength(15)]
         public required string PhoneNumber { get; set; }
-        public int BranchId { get; set; }
+        public Guid BranchId { get; set; }
         public Branch Branch { get; set; } = null!;
     }
 }

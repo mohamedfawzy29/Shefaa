@@ -6,7 +6,7 @@ namespace Shefaa.Models
     public class DoctorSchedule
     {
         [Key]
-        public int Id { get; set; }
+        public Guid Id { get; set; }
 
         [Required]
         public DayOfWeek DayOfWeek { get; set; } // يفضل استخدام Enum لـ DayOfWeek في C#
@@ -29,10 +29,10 @@ namespace Shefaa.Models
 
         // Foreign Keys
         [Required]
-        public int BranchId { get; set; }
+        public Guid BranchId { get; set; }
 
         [Required]
-        public int DoctorId { get; set; }
+        public Guid DoctorId { get; set; }
 
         // Navigation Properties
         [ForeignKey("DoctorId")]
