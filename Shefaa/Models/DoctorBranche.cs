@@ -1,10 +1,11 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+﻿using Microsoft.EntityFrameworkCore;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Shefaa.Models
 {
+    [PrimaryKey(nameof(DoctorId), nameof(BranchId))]
     public class DoctorBranche
     {
-        public Guid Id { get; set; }
         [Column(TypeName = "decimal(18, 2)")]
         public decimal ConsultionFee { get; set; }
         public bool IsPrimary { get; set; } = true;

@@ -4,7 +4,6 @@ namespace Shefaa.Models
 {
     public class Specialization
     {
-        [Key]
         public Guid Id { get; set; }
 
         [Required]
@@ -17,7 +16,6 @@ namespace Shefaa.Models
         [MaxLength(255)]
         public string? IconImg { get; set; }
 
-        // Navigation Properties
         public ICollection<Doctor> Doctors { get; set; } = new List<Doctor>();
     }
 }

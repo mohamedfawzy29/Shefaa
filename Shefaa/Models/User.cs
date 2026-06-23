@@ -13,8 +13,11 @@
         public string? Gender { get; set; }
         public string? ProfileImg { get; set; } = "default.png";
         public DateOnly DateOfBirth { get; set; }
+        public ICollection<UserPhoneNumber> phoneNumbers { get; set; } = new List<UserPhoneNumber>();
+        public Guid? BranchId { get; set; }
+        public Branch? Branch { get; set; }
+        public ICollection<Notification> Notifications { get; set; } = new List<Notification>();
+        public ICollection<UserRole> Roles { get; set; } = new List<UserRole>();
 
-        public List<Role> Roles { get; set; }
-        public List<UserPhoneNumber> phoneNumbers { get; set; }
     }
 }

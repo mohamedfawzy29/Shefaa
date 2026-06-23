@@ -1,11 +1,12 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.EntityFrameworkCore;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Shefaa.Models
 {
+    [PrimaryKey(nameof(DayOfWeek), nameof(StartTime), nameof(DoctorId), nameof(BranchId))]
     public class DoctorSchedule
     {
-        public Guid Id { get; set; }
 
         [Required]
         public DayOfWeek DayOfWeek { get; set; } 

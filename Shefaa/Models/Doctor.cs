@@ -24,14 +24,12 @@ namespace Shefaa.Models
         [Required]
         public string Status { get; set; }
 
-        // Foreign Keys
         [Required]
         public Guid UserId { get; set; }
 
         [Required]
         public Guid SpecializationId { get; set; }
 
-        // Navigation Properties
         [ForeignKey("UserId")]
         public User User { get; set; }
 
@@ -39,5 +37,9 @@ namespace Shefaa.Models
         public Specialization Specialization { get; set; }
 
         public ICollection<DoctorSchedule> DoctorSchedules { get; set; } = new List<DoctorSchedule>();
+        public ICollection<Appointment> Appointments { get; set; } = new List<Appointment>();
+        public ICollection<DoctorBranche> DoctorBranches { get; set; } = new List<DoctorBranche>();
+        public ICollection<MedicalRecord> MedicalRecords { get; set; } = new List<MedicalRecord>();
+        public ICollection<Review> Reviews { get; set; } = new List<Review>();
     }
 }

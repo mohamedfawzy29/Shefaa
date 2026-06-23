@@ -21,12 +21,13 @@ namespace Shefaa.Models
         [MaxLength(5)]
         public string? BloodType { get; set; }
 
-        // Foreign Key
         [Required]
         public Guid UserId { get; set; }
 
-        // Navigation Property
         [ForeignKey("UserId")]
         public User User { get; set; }
+        public ICollection<Appointment> Appointments { get; set; } = new List<Appointment>();
+        public ICollection<MedicalRecord> MedicalRecords { get; set; } = new List<MedicalRecord>();
+        public ICollection<Review> Reviews { get; set; } = new List<Review>();
     }
 }
