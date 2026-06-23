@@ -1,4 +1,6 @@
-﻿namespace Shefaa.Models
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace Shefaa.Models
 {
     public enum NotificationType
     {
@@ -12,7 +14,8 @@
     public class Notification
     {
         public Guid Id { get; set; }
-        public string Title { get; set; }
+        [MaxLength(100)]
+        public required string Title { get; set; }
         public NotificationType Type { get; set; }
         public DateTime SendAt { get; set; }
         public DateTime CreatedAt { get; set; }

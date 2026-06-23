@@ -29,9 +29,10 @@ namespace Shefaa.Models
         public Guid OrganizationId { get; set; }
         public Organization Organization { get; set; } = null!;
 
+
         public ICollection<BranchPhoneNumber> BranchPhoneNumbers { get; set; } = new List<BranchPhoneNumber>();
         public ICollection<DoctorBranche> DoctorBranches { get; set; } = new List<DoctorBranche>();
-        //public ICollection<Appointment> Appointments { get; set; } = new List<Appointment>();
+        public ICollection<Appointment> Appointments { get; set; } = new List<Appointment>();
 
     }
 }
