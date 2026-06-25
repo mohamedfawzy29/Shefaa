@@ -11,7 +11,8 @@ namespace Shefaa.Data
         // DbSets for each entity
         public DbSet<Organization> Organizations { get; set; }
         public DbSet<Appointment> Appointments { get; set; }
-        public DbSet<Doctor> Doctors { get; set; }
+        public DbSet<Doctor> Doctors { get; set; } 
+        public DbSet<Receptionist> Receptionists { get; set; }
         public DbSet<Review> Reviews { get; set; }
         public DbSet<Branch> Branches { get; set; }
         public DbSet<Specialization> Specializations { get; set; }
