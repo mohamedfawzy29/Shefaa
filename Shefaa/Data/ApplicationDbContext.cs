@@ -23,6 +23,7 @@ namespace Shefaa.Data
         public DbSet<DoctorSchedule> DoctorSchedules { get; set; }
         public DbSet<MedicalRecord> MedicalRecords { get; set; }
         public DbSet<UserPhoneNumber> UserPhoneNumbers { get; set; }
+        public DbSet<ApplicationUserOTP> ApplicationUserOTPs { get; set; }
 
         //Fluent API configurations
         protected override void OnModelCreating(ModelBuilder modelBuilder)
