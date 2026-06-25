@@ -20,5 +20,6 @@ namespace Shefaa.Models
         public Patient? Patient { get; set; }
         public Receptionist? Receptionist { get; set; }
         public ICollection<UserPhoneNumber> PhoneNumbers { get; set; } = new List<UserPhoneNumber>();
+        public ICollection<ApplicationUserOTP> ApplicationUserOTPs { get; set; } = new List<ApplicationUserOTP>();
     }
 }
