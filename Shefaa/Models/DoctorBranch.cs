@@ -1,6 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
-using System.ComponentModel.DataAnnotations.Schema;
-
+﻿
 namespace Shefaa.Models
 {
     [PrimaryKey(nameof(DoctorId), nameof(BranchId))]

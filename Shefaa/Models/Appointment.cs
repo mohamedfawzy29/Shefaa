@@ -1,5 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-
+﻿
 namespace Shefaa.Models
 {
     public enum AppointmentStatus
