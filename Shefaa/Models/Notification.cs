@@ -1,5 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-
+﻿
 namespace Shefaa.Models
 {
     public enum NotificationType
@@ -22,6 +21,6 @@ namespace Shefaa.Models
         public string Body { get; set; }
         public bool IsRead { get; set; }
         public Guid UserId { get; set; }
-        public User User { get; set; }
+        public ApplicationUser User { get; set; }
     }
 }

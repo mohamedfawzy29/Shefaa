@@ -1,7 +1,4 @@
-﻿using Shefaa.Models;
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-
+﻿
 namespace Shefaa.Models
 {
     public class Patient
@@ -25,7 +22,7 @@ namespace Shefaa.Models
         public Guid UserId { get; set; }
 
         [ForeignKey("UserId")]
-        public User User { get; set; }
+        public ApplicationUser User { get; set; }
         public ICollection<Appointment> Appointments { get; set; } = new List<Appointment>();
         public ICollection<MedicalRecord> MedicalRecords { get; set; } = new List<MedicalRecord>();
         public ICollection<Review> Reviews { get; set; } = new List<Review>();

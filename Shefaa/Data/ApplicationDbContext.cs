@@ -1,15 +1,17 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Shefaa.Models;
-
+﻿
 namespace Shefaa.Data
 {
-    public class ApplicationDbContext : DbContext
+    public class ApplicationDbContext : IdentityDbContext<ApplicationUser, ApplicationRole, Guid>
     {
+        // Constructor
+        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
+        {
+        }
+
+        // DbSets for each entity
         public DbSet<Organization> Organizations { get; set; }
         public DbSet<Appointment> Appointments { get; set; }
         public DbSet<Doctor> Doctors { get; set; }
-        public DbSet<User> Users { get; set; }
-        public DbSet<Role> Roles { get; set; }
         public DbSet<Review> Reviews { get; set; }
         public DbSet<Branch> Branches { get; set; }
         public DbSet<Specialization> Specializations { get; set; }
@@ -20,13 +22,8 @@ namespace Shefaa.Data
         public DbSet<DoctorSchedule> DoctorSchedules { get; set; }
         public DbSet<MedicalRecord> MedicalRecords { get; set; }
         public DbSet<UserPhoneNumber> UserPhoneNumbers { get; set; }
-        public DbSet<UserRole> UserRoles { get; set; }
 
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        {
-            optionsBuilder.UseSqlServer("Data Source=.;Initial Catalog=ShefaaDB;Integrated Security=True;Connect Timeout=30;Encrypt=True;Trust Server Certificate=True;");
-        }
-
+        //Fluent API configurations
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -66,6 +63,26 @@ namespace Shefaa.Data
                 .WithMany() 
                 .HasForeignKey(r => r.DoctorId)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<UserPhoneNumber>()
+                .HasOne(up => up.User)
+                .WithMany(u => u.PhoneNumbers)
+                .HasForeignKey(up => up.UserId);
+
+            modelBuilder.Entity<Doctor>()
+                .HasOne(d => d.User)
+                .WithOne(u => u.Doctor)
+                .HasForeignKey<Doctor>(d => d.UserId);
+
+            modelBuilder.Entity<Patient>()
+                .HasOne(p => p.User)
+                .WithOne(u => u.Patient)
+                .HasForeignKey<Patient>(p => p.UserId);
+
+            modelBuilder.Entity<Receptionist>()
+                .HasOne(r => r.User)
+                .WithOne(u => u.Receptionist)
+                .HasForeignKey<Receptionist>(r => r.UserId);
 
         }
     }

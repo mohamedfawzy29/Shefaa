@@ -1,5 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-
+﻿
 namespace Shefaa.Models
 {
     public class Branch
@@ -33,7 +32,7 @@ namespace Shefaa.Models
         public ICollection<BranchPhoneNumber> BranchPhoneNumbers { get; set; } = new List<BranchPhoneNumber>();
         public ICollection<DoctorBranch> DoctorBranches { get; set; } = new List<DoctorBranch>();
         public ICollection<Appointment> Appointments { get; set; } = new List<Appointment>();
-        public ICollection<User> Users { get; set; } = new List<User>();
+        public ICollection<ApplicationUser> Users { get; set; } = new List<ApplicationUser>();
         public ICollection<DoctorSchedule> DoctorSchedules { get; set; } = new List<DoctorSchedule>();
     }
 }

@@ -1,6 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
-using System.ComponentModel.DataAnnotations;
-
+﻿
 namespace Shefaa.Models
 {
     [PrimaryKey(nameof(PhoneNumber), nameof(BranchId))]
