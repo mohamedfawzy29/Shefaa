@@ -8,3 +8,7 @@ global using System.ComponentModel.DataAnnotations.Schema;
 global using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 global using Microsoft.AspNetCore.Identity;
 global using Microsoft.AspNetCore.Identity.Data;
+global using Microsoft.AspNetCore.Identity.UI.Services;
+global using Shefaa.DTOs;
+global using Shefaa.Utilites;
+global using Shefaa.JwtFeatures;
