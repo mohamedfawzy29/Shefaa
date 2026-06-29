@@ -10,7 +10,8 @@ using Shefaa.JwtFeatures;
 
 namespace Shefaa.Areas.Identity.Controllers
 {
-    [Route("api/[controller]")]
+    [Area(CD.IDENTITY_AREA)]
+    [Route("api/[area]/[controller]")]
     [ApiController]
     public class AccountController : ControllerBase
     {
