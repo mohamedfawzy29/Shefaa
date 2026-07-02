@@ -49,7 +49,7 @@ namespace Shefaa
 
             StripeConfiguration.ApiKey = builder.Configuration["Stripe:SecretKey"];
             // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-            //builder.Services.AddOpenApi();
+            builder.Services.AddOpenApi();
 
 
             var jwtSettings = builder.Configuration.GetSection("JwtSettings");
@@ -83,8 +83,8 @@ namespace Shefaa
             // Configure the HTTP request pipeline.x
             if (app.Environment.IsDevelopment())
             {
-                //app.MapOpenApi();
-                //app.MapScalarApiReference();
+                app.MapOpenApi();
+                app.MapScalarApiReference();
             }
 
             app.UseHttpsRedirection();
