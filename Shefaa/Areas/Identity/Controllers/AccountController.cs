@@ -33,11 +33,18 @@ namespace Shefaa.Areas.Identity.Controllers
         [HttpPost("Register")]
         public async Task<IActionResult> Register( Shefaa.DTOs.Request.RegisterRequest registerVM)
         {
-            ApplicationUser user = new ApplicationUser();
-            user.FirstName = registerVM.FirstName;
-            user.UserName = registerVM.UserName;
-            user.Email = registerVM.Email;
-            
+            ApplicationUser user = new ApplicationUser
+            {
+                FirstName = registerVM.FirstName,
+                LastName = registerVM.LastName,
+                UserName = registerVM.UserName,
+                Email = registerVM.Email,
+                Gender = registerVM.Gender,
+                DateOfBirth = registerVM.DateOfBirth,
+                ProfileImg = registerVM.ProfileImg,
+                IsActive = true
+            };
+
 
             var result = await _userManager.CreateAsync(user, registerVM.Password);
 
@@ -50,7 +57,9 @@ namespace Shefaa.Areas.Identity.Controllers
                     Errors = result.Errors.Select(e => e.Description)
                 });
             }
+
             await _userManager.AddToRoleAsync(user, CD.CUSTOMER_ROLE);
+
             var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
             var link = Url.Action(nameof(ConfirmEmail), "Account", new { area = "Identity", userId = user.Id, token }, Request.Scheme);
             await _emailSender.SendEmailAsync(

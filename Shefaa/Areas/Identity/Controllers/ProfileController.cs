@@ -49,9 +49,12 @@ namespace Shefaa.Areas.Identity.Controllers
                     Message = "Invalid User"
                 });
             }
-            user.FirstName = applicationUserRequest.Name;
+            user.FirstName = applicationUserRequest.FirstName;
+            user.LastName = applicationUserRequest.LastName;
+            user.Gender = applicationUserRequest.Gender;
+            user.DateOfBirth = applicationUserRequest.DateOfBirth;
             user.PhoneNumber = applicationUserRequest.PhoneNumber;
-           // user.Address = applicationUserRequest.Address;
+
             var result = await _userManager.UpdateAsync(user);
 
             if (!result.Succeeded)
@@ -72,6 +75,15 @@ namespace Shefaa.Areas.Identity.Controllers
         [HttpPost("UpdatePassword")]
         public async Task<IActionResult> UpdatePassword(ApplicationUserRequest applicationUserVM)
         {
+            if (string.IsNullOrEmpty(applicationUserVM.CurrentPassword) || string.IsNullOrEmpty(applicationUserVM.NewPassword))
+            {
+                return BadRequest(new ApiResponse<object>()
+                {
+                    IsSuccess = false,
+                    Message = "Current password and new password are required."
+                });
+            }
+
             var user = await _userManager.GetUserAsync(User);
             if (user is null)
             {
@@ -81,7 +93,9 @@ namespace Shefaa.Areas.Identity.Controllers
                     Message = "Invalid User"
                 });
             }
+
             var result = await _userManager.ChangePasswordAsync(user, applicationUserVM.CurrentPassword, applicationUserVM.NewPassword);
+
             if (!result.Succeeded)
             {
                 return BadRequest(new ApiResponse<object>()
