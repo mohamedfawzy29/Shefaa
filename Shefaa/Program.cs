@@ -30,16 +30,16 @@ namespace Shefaa
             {
                 options.UseSqlServer(connectionString);
             });
-            builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
+            builder.Services.AddIdentity<ApplicationUser, ApplicationRole>(options =>
             {
                 options.User.RequireUniqueEmail = true;
                 options.SignIn.RequireConfirmedEmail = true;
             })
-          .AddEntityFrameworkStores<ApplicationDbContext>()
-          .AddDefaultTokenProviders();
+            .AddEntityFrameworkStores<ApplicationDbContext>()
+            .AddDefaultTokenProviders();
 
-           // AppConfiguration.RegisterConfig(builder.Services); 
-           // builder.Services.RegisterConfig();
+            // AppConfiguration.RegisterConfig(builder.Services); 
+            // builder.Services.RegisterConfig();
 
             builder.Services.ConfigureApplicationCookie(options =>
             {
@@ -49,7 +49,7 @@ namespace Shefaa
 
             StripeConfiguration.ApiKey = builder.Configuration["Stripe:SecretKey"];
             // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-            builder.Services.AddOpenApi();
+            //builder.Services.AddOpenApi();
 
 
             var jwtSettings = builder.Configuration.GetSection("JwtSettings");
@@ -83,8 +83,8 @@ namespace Shefaa
             // Configure the HTTP request pipeline.x
             if (app.Environment.IsDevelopment())
             {
-                app.MapOpenApi();
-                app.MapScalarApiReference();
+                //app.MapOpenApi();
+                //app.MapScalarApiReference();
             }
 
             app.UseHttpsRedirection();
