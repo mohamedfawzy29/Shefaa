@@ -210,7 +210,7 @@ namespace Shefaa.Areas.Identity.Controllers
                 IsSuccess = true,
                 Message = "Email Send with OTP successfully"
             });
-            //return RedirectToAction(nameof(VerifyOTP), new { userId = user.Id });
+           
         }
         [HttpPost("VerifyOTP")]
         public async Task<IActionResult> VerifyOTP(VerifyOTPRequest verifyOTPVM)
@@ -229,7 +229,7 @@ namespace Shefaa.Areas.Identity.Controllers
                 e.IsValid == true &&
                 DateTime.UtcNow < e.Validto
                 );
-            //var otp = otps.OrderBy(e => e.CreatedAt).LastOrDefault();
+           
             var otp = otps.OrderByDescending(e => e.CreatedAt).FirstOrDefault();
             if (otp == null || otp.OTP != verifyOTPVM.OTP)
             {
@@ -248,7 +248,7 @@ namespace Shefaa.Areas.Identity.Controllers
                 IsSuccess = true,
                 Message = "OTP Verfied Successfully"
             });
-            //return RedirectToAction(nameof(ResetPassword), new { userId = user.Id });
+           
         }
         [HttpPost("ResetPassword")]
         public async Task<IActionResult> ResetPassword( Shefaa.DTOs.Request.ResetPasswordRequest resetPasswordVM)
