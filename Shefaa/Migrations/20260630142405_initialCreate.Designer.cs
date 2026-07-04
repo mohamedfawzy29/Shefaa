@@ -12,8 +12,8 @@ using Shefaa.Data;
 namespace Shefaa.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260625055058_Initialcreate")]
-    partial class Initialcreate
+    [Migration("20260630142405_initialCreate")]
+    partial class initialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -253,6 +253,35 @@ namespace Shefaa.Migrations
                     b.ToTable("AspNetUsers", (string)null);
                 });
 
+            modelBuilder.Entity("Shefaa.Models.ApplicationUserOTP", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("ApplicationUserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsValid")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("OTP")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("Validto")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ApplicationUserId");
+
+                    b.ToTable("ApplicationUserOTPs");
+                });
+
             modelBuilder.Entity("Shefaa.Models.Appointment", b =>
                 {
                     b.Property<Guid>("Id")
@@ -265,7 +294,7 @@ namespace Shefaa.Migrations
                     b.Property<Guid>("BranchId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<DateTime>("CancelledAt")
+                    b.Property<DateTime?>("CancelledAt")
                         .HasColumnType("datetime2");
 
                     b.Property<DateTime>("CreatedAt")
@@ -434,21 +463,22 @@ namespace Shefaa.Migrations
 
                     b.HasIndex("BranchId");
 
-                    b.ToTable("DoctorBranchs");
+                    b.ToTable("DoctorBranches");
                 });
 
             modelBuilder.Entity("Shefaa.Models.DoctorSchedule", b =>
                 {
-                    b.Property<int>("DayOfWeek")
-                        .HasColumnType("int");
-
-                    b.Property<TimeSpan>("StartTime")
-                        .HasColumnType("time");
-
-                    b.Property<Guid>("DoctorId")
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid>("BranchId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("DayOfWeek")
+                        .HasColumnType("int");
+
+                    b.Property<Guid>("DoctorId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<TimeSpan>("EndTime")
@@ -463,7 +493,10 @@ namespace Shefaa.Migrations
                     b.Property<int>("SlotDurationMinutes")
                         .HasColumnType("int");
 
-                    b.HasKey("DayOfWeek", "StartTime", "DoctorId", "BranchId");
+                    b.Property<TimeSpan>("StartTime")
+                        .HasColumnType("time");
+
+                    b.HasKey("Id");
 
                     b.HasIndex("BranchId");
 
@@ -494,9 +527,6 @@ namespace Shefaa.Migrations
                     b.Property<Guid>("DoctorId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid?>("DoctorId1")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<string>("DoctorNotes")
                         .IsRequired()
                         .HasMaxLength(500)
@@ -508,9 +538,6 @@ namespace Shefaa.Migrations
                     b.Property<Guid>("PatientId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid?>("PatientId1")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<string>("TreatmentPlan")
                         .IsRequired()
                         .HasMaxLength(500)
@@ -518,15 +545,12 @@ namespace Shefaa.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("AppointmentId");
+                    b.HasIndex("AppointmentId")
+                        .IsUnique();
 
                     b.HasIndex("DoctorId");
 
-                    b.HasIndex("DoctorId1");
-
                     b.HasIndex("PatientId");
-
-                    b.HasIndex("PatientId1");
 
                     b.ToTable("MedicalRecords");
                 });
@@ -650,7 +674,7 @@ namespace Shefaa.Migrations
 
             modelBuilder.Entity("Shefaa.Models.Receptionist", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<Guid>("ReceptionistId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
@@ -660,14 +684,14 @@ namespace Shefaa.Migrations
                     b.Property<Guid>("UserId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.HasKey("Id");
+                    b.HasKey("ReceptionistId");
 
                     b.HasIndex("BranchId");
 
                     b.HasIndex("UserId")
                         .IsUnique();
 
-                    b.ToTable("Receptionist");
+                    b.ToTable("Receptionists");
                 });
 
             modelBuilder.Entity("Shefaa.Models.Review", b =>
@@ -687,16 +711,7 @@ namespace Shefaa.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<Guid>("DoctorId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid?>("DoctorId1")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<Guid>("PatientId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid?>("PatientId1")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<int>("Rating")
@@ -704,15 +719,10 @@ namespace Shefaa.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("AppointmentId");
-
-                    b.HasIndex("DoctorId");
-
-                    b.HasIndex("DoctorId1");
+                    b.HasIndex("AppointmentId")
+                        .IsUnique();
 
                     b.HasIndex("PatientId");
-
-                    b.HasIndex("PatientId1");
 
                     b.ToTable("Reviews");
                 });
@@ -811,6 +821,17 @@ namespace Shefaa.Migrations
                     b.HasOne("Shefaa.Models.Branch", null)
                         .WithMany("Users")
                         .HasForeignKey("BranchId");
+                });
+
+            modelBuilder.Entity("Shefaa.Models.ApplicationUserOTP", b =>
+                {
+                    b.HasOne("Shefaa.Models.ApplicationUser", "applicationUser")
+                        .WithMany("ApplicationUserOTPs")
+                        .HasForeignKey("ApplicationUserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("applicationUser");
                 });
 
             modelBuilder.Entity("Shefaa.Models.Appointment", b =>
@@ -920,30 +941,22 @@ namespace Shefaa.Migrations
             modelBuilder.Entity("Shefaa.Models.MedicalRecord", b =>
                 {
                     b.HasOne("Shefaa.Models.Appointment", "Appointment")
-                        .WithMany()
-                        .HasForeignKey("AppointmentId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .WithOne("MedicalRecord")
+                        .HasForeignKey("Shefaa.Models.MedicalRecord", "AppointmentId")
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("Shefaa.Models.Doctor", "Doctor")
-                        .WithMany()
+                        .WithMany("MedicalRecords")
                         .HasForeignKey("DoctorId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("Shefaa.Models.Doctor", null)
-                        .WithMany("MedicalRecords")
-                        .HasForeignKey("DoctorId1");
-
                     b.HasOne("Shefaa.Models.Patient", "Patient")
-                        .WithMany()
+                        .WithMany("MedicalRecords")
                         .HasForeignKey("PatientId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
-
-                    b.HasOne("Shefaa.Models.Patient", null)
-                        .WithMany("MedicalRecords")
-                        .HasForeignKey("PatientId1");
 
                     b.Navigation("Appointment");
 
@@ -996,34 +1009,18 @@ namespace Shefaa.Migrations
             modelBuilder.Entity("Shefaa.Models.Review", b =>
                 {
                     b.HasOne("Shefaa.Models.Appointment", "Appointment")
-                        .WithMany()
-                        .HasForeignKey("AppointmentId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Shefaa.Models.Doctor", "Doctor")
-                        .WithMany()
-                        .HasForeignKey("DoctorId")
+                        .WithOne("Review")
+                        .HasForeignKey("Shefaa.Models.Review", "AppointmentId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("Shefaa.Models.Doctor", null)
-                        .WithMany("Reviews")
-                        .HasForeignKey("DoctorId1");
-
                     b.HasOne("Shefaa.Models.Patient", "Patient")
-                        .WithMany()
+                        .WithMany("Reviews")
                         .HasForeignKey("PatientId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("Shefaa.Models.Patient", null)
-                        .WithMany("Reviews")
-                        .HasForeignKey("PatientId1");
-
                     b.Navigation("Appointment");
-
-                    b.Navigation("Doctor");
 
                     b.Navigation("Patient");
                 });
@@ -1041,6 +1038,8 @@ namespace Shefaa.Migrations
 
             modelBuilder.Entity("Shefaa.Models.ApplicationUser", b =>
                 {
+                    b.Navigation("ApplicationUserOTPs");
+
                     b.Navigation("Doctor");
 
                     b.Navigation("Patient");
@@ -1048,6 +1047,13 @@ namespace Shefaa.Migrations
                     b.Navigation("PhoneNumbers");
 
                     b.Navigation("Receptionist");
+                });
+
+            modelBuilder.Entity("Shefaa.Models.Appointment", b =>
+                {
+                    b.Navigation("MedicalRecord");
+
+                    b.Navigation("Review");
                 });
 
             modelBuilder.Entity("Shefaa.Models.Branch", b =>
@@ -1072,8 +1078,6 @@ namespace Shefaa.Migrations
                     b.Navigation("DoctorSchedules");
 
                     b.Navigation("MedicalRecords");
-
-                    b.Navigation("Reviews");
                 });
 
             modelBuilder.Entity("Shefaa.Models.Organization", b =>

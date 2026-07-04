@@ -19,7 +19,7 @@ namespace Shefaa.Data
         public DbSet<Patient> Patients { get; set; }
         public DbSet<Notification> Notifications { get; set; }
         public DbSet<BranchPhoneNumber> BranchPhoneNumbers { get; set; }
-        public DbSet<DoctorBranch> DoctorBranchs { get; set; }
+        public DbSet<DoctorBranch> DoctorBranches { get; set; }
         public DbSet<DoctorSchedule> DoctorSchedules { get; set; }
         public DbSet<MedicalRecord> MedicalRecords { get; set; }
         public DbSet<UserPhoneNumber> UserPhoneNumbers { get; set; }
@@ -44,26 +44,40 @@ namespace Shefaa.Data
 
             modelBuilder.Entity<MedicalRecord>()
                 .HasOne(m => m.Patient)
-                .WithMany() 
+                .WithMany(p => p.MedicalRecords)
                 .HasForeignKey(m => m.PatientId)
                 .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<MedicalRecord>()
                 .HasOne(m => m.Doctor)
-                .WithMany()
+                .WithMany(d => d.MedicalRecords)
                 .HasForeignKey(m => m.DoctorId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            modelBuilder.Entity<Review>()
-                .HasOne(r => r.Patient)
-                .WithMany() 
-                .HasForeignKey(r => r.PatientId)
-                .OnDelete(DeleteBehavior.Restrict); 
+            modelBuilder.Entity<MedicalRecord>()
+                .HasOne(m => m.Appointment)
+                .WithOne(a => a.MedicalRecord)
+                .HasForeignKey<MedicalRecord>(m => m.AppointmentId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<MedicalRecord>()
+                .HasIndex(m => m.AppointmentId)
+                .IsUnique();
 
             modelBuilder.Entity<Review>()
-                .HasOne(r => r.Doctor)
-                .WithMany() 
-                .HasForeignKey(r => r.DoctorId)
+                .HasIndex(r => r.AppointmentId)
+                .IsUnique();
+
+            modelBuilder.Entity<Review>()
+                .HasOne(r => r.Patient)
+                .WithMany(p => p.Reviews)
+                .HasForeignKey(r => r.PatientId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Review>()
+                .HasOne(r => r.Appointment)
+                .WithOne(a => a.Review)
+                .HasForeignKey<Review>(r => r.AppointmentId)
                 .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<UserPhoneNumber>()

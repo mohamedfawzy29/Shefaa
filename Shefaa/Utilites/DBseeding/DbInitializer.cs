@@ -4,10 +4,10 @@
     {
         private readonly ApplicationDbContext _context;
         private readonly ILogger<DbInitializer> _logger;
-        private readonly RoleManager<IdentityRole> _roleManager;
+        private readonly RoleManager<ApplicationRole> _roleManager;
         private readonly UserManager<ApplicationUser> _userManager;
 
-        public DbInitializer(ApplicationDbContext context, ILogger<DbInitializer> logger, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager)
+        public DbInitializer(ApplicationDbContext context, ILogger<DbInitializer> logger, UserManager<ApplicationUser> userManager, RoleManager<ApplicationRole> roleManager)
         {
             _context = context;
             _logger = logger;
@@ -25,10 +25,10 @@
                 }
                 if (!_roleManager.Roles.Any())
                 {
-                    await _roleManager.CreateAsync(new IdentityRole(CD.SUPER_ADMIN_ROLE));
-                    await _roleManager.CreateAsync(new IdentityRole(CD.ADMIN_ROLE));
-                    await _roleManager.CreateAsync(new IdentityRole(CD.EMPLOYEE_ROLE));
-                    await _roleManager.CreateAsync(new IdentityRole(CD.CUSTOMER_ROLE));
+                    await _roleManager.CreateAsync(new ApplicationRole { Name = CD.ADMIN_ROLE});
+                    await _roleManager.CreateAsync(new ApplicationRole { Name = CD.DOCTOR_ROLE });
+                    await _roleManager.CreateAsync(new ApplicationRole { Name = CD.RECEPTIONIST_ROLE });
+                    await _roleManager.CreateAsync(new ApplicationRole { Name = CD.PATIENT_ROLE });
 
                     await _userManager.CreateAsync(new ApplicationUser()
                     {
@@ -41,7 +41,7 @@
 
                     var user = await _userManager.FindByEmailAsync("superadmin@eraasoft.com");
 
-                    await _userManager.AddToRoleAsync(user, CD.SUPER_ADMIN_ROLE);
+                    await _userManager.AddToRoleAsync(user, CD.ADMIN_ROLE);
                 }
             }
             catch (Exception ex)

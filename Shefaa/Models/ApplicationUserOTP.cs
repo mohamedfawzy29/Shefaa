@@ -2,7 +2,7 @@
 {
     public class ApplicationUserOTP
     {
-        public string Id { get; set; }
+        public Guid Id { get; set; }
         public Guid ApplicationUserId { get; set; }
         public ApplicationUser applicationUser { get; set; }
         public string OTP { get; set; }
@@ -21,7 +21,7 @@
         {
             this.OTP = OTP;
             this.ApplicationUserId = ApplicationUserId;
-            Id = Guid.NewGuid().ToString();
+            Id = Guid.NewGuid();
             CreatedAt = DateTime.Now;
             IsValid = true;
             Validto = DateTime.UtcNow.AddMinutes(30);
