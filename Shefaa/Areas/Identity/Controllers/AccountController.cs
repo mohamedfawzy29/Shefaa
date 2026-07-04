@@ -33,11 +33,18 @@ namespace Shefaa.Areas.Identity.Controllers
         [HttpPost("Register")]
         public async Task<IActionResult> Register( Shefaa.DTOs.Request.RegisterRequest registerVM)
         {
-            ApplicationUser user = new ApplicationUser();
-            user.FirstName = registerVM.FirstName;
-            user.UserName = registerVM.UserName;
-            user.Email = registerVM.Email;
-            
+            ApplicationUser user = new ApplicationUser
+            {
+                FirstName = registerVM.FirstName,
+                LastName = registerVM.LastName,
+                UserName = registerVM.UserName,
+                Email = registerVM.Email,
+                Gender = registerVM.Gender,
+                DateOfBirth = registerVM.DateOfBirth,
+                ProfileImg = registerVM.ProfileImg,
+                IsActive = true
+            };
+
 
             var result = await _userManager.CreateAsync(user, registerVM.Password);
 
@@ -201,7 +208,7 @@ namespace Shefaa.Areas.Identity.Controllers
                 IsSuccess = true,
                 Message = "Email Send with OTP successfully"
             });
-            //return RedirectToAction(nameof(VerifyOTP), new { userId = user.Id });
+           
         }
         [HttpPost("VerifyOTP")]
         public async Task<IActionResult> VerifyOTP(VerifyOTPRequest verifyOTPVM)
@@ -220,7 +227,7 @@ namespace Shefaa.Areas.Identity.Controllers
                 e.IsValid == true &&
                 DateTime.UtcNow < e.Validto
                 );
-            //var otp = otps.OrderBy(e => e.CreatedAt).LastOrDefault();
+           
             var otp = otps.OrderByDescending(e => e.CreatedAt).FirstOrDefault();
             if (otp == null || otp.OTP != verifyOTPVM.OTP)
             {
@@ -239,7 +246,7 @@ namespace Shefaa.Areas.Identity.Controllers
                 IsSuccess = true,
                 Message = "OTP Verfied Successfully"
             });
-            //return RedirectToAction(nameof(ResetPassword), new { userId = user.Id });
+           
         }
         [HttpPost("ResetPassword")]
         public async Task<IActionResult> ResetPassword( Shefaa.DTOs.Request.ResetPasswordRequest resetPasswordVM)

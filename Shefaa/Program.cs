@@ -38,8 +38,8 @@ namespace Shefaa
             .AddEntityFrameworkStores<ApplicationDbContext>()
             .AddDefaultTokenProviders();
 
-           // AppConfiguration.RegisterConfig(builder.Services); 
-           // builder.Services.RegisterConfig();
+            // AppConfiguration.RegisterConfig(builder.Services); 
+            // builder.Services.RegisterConfig();
 
             builder.Services.ConfigureApplicationCookie(options =>
             {
