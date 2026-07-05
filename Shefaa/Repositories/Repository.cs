@@ -57,5 +57,10 @@ namespace Shefaa.Repositories
             //get one element
             return (await GetAsync(filter, includes, trackChanges)).FirstOrDefault();
         }
+
+        public async Task<bool> ExistsAsync(Expression<Func<T, bool>>? filter = null)
+        {
+            return await set.AnyAsync(filter);
+        }
     }
 }

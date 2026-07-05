@@ -2,7 +2,9 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Scalar.AspNetCore;
+using Shefaa.Configurations;
 using Shefaa.Data;
+using Shefaa.Repositories;
 using Shefaa.Utilites.DBseeding;
 using Stripe;
 using System.Text;
@@ -74,6 +76,9 @@ namespace Shefaa
 
             builder.Services.AddScoped<IDbInitializer, DbInitializer>();
             builder.Services.AddScoped<IEmailSender, EmailSender>();
+            builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
+
+            MapsterConfig.RegisterMappings();
 
             var app = builder.Build();
 

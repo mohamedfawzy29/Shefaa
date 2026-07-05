@@ -10,5 +10,6 @@ namespace Shefaa.Repositories
         void Delete(T entity);
         Task<IEnumerable<T>> GetAsync(Expression<Func<T, bool>>? filter = null, Expression<Func<T, object>>[]? includes = null, bool trackChanges = false);
         Task<T?> GetOneAsynch(Expression<Func<T, bool>>? filter = null, Expression<Func<T, object>>[]? includes = null, bool trackChanges = false);
+        Task<bool> ExistsAsync(Expression<Func<T, bool>>? filter = null);
     }
 }

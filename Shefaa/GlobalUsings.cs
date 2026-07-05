@@ -12,3 +12,5 @@ global using Microsoft.AspNetCore.Identity.UI.Services;
 global using Shefaa.DTOs;
 global using Shefaa.Utilites;
 global using Shefaa.JwtFeatures;
+global using Mapster;
+global using Shefaa.Configurations;
