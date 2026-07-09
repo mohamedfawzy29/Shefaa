@@ -66,14 +66,6 @@ namespace Shefaa.Areas.Admin.Controllers
         {
             var organization = request.Adapt<Organization>();
 
-            if (organization == null)
-            {
-                return BadRequest(new ApiResponse<object>
-                {
-                    IsSuccess = false,
-                    Message = "Invalid organization data"
-                });
-            }
             if (await _organizationRepository.ExistsAsync(o => o.LegalName == organization.LegalName && o.TaxNumber == organization.TaxNumber && o.CommercialRegistrationNumber == organization.CommercialRegistrationNumber))
             {
                 return Conflict(new ApiResponse<object>
@@ -126,7 +118,7 @@ namespace Shefaa.Areas.Admin.Controllers
         [HttpDelete("{id:guid}")]
         public async Task<IActionResult> Delete(Guid id)
         {
-            var organization = await _organizationRepository.GetOneAsynch( o => o.Id == id, trackChanges: true);
+            var organization = await _organizationRepository.GetOneAsynch( o => o.Id == id,includes: [o => o.Branches],trackChanges: true);
 
             if (organization == null)
             {
@@ -134,6 +126,14 @@ namespace Shefaa.Areas.Admin.Controllers
                 {
                     IsSuccess = false,
                     Message = "Organization not found"
+                });
+            }
+            if (organization.Branches.Any())
+            {
+                return BadRequest(new ApiResponse<object>
+                {
+                    IsSuccess = false,
+                    Message = "Cannot delete organization because it has branches."
                 });
             }
 

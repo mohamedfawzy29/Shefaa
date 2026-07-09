@@ -5,6 +5,7 @@ using Scalar.AspNetCore;
 using Shefaa.Configurations;
 using Shefaa.Data;
 using Shefaa.Repositories;
+using Shefaa.Services;
 using Shefaa.Utilites.DBseeding;
 using Stripe;
 using System.Text;
@@ -77,6 +78,8 @@ namespace Shefaa
             builder.Services.AddScoped<IDbInitializer, DbInitializer>();
             builder.Services.AddScoped<IEmailSender, EmailSender>();
             builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
+            builder.Services.AddScoped<IFileService, Services.FileService>();
+            builder.Services.AddScoped<IJwtHandler, JwtHandler>();
 
             MapsterConfig.RegisterMappings();
 
@@ -96,7 +99,7 @@ namespace Shefaa
             }
 
             app.UseHttpsRedirection();
-
+            app.UseStaticFiles();
             app.UseAuthentication();
             app.UseAuthorization();
 

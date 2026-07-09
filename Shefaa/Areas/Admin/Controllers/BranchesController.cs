@@ -1,12 +1,4 @@
-﻿using Mapster;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
-using Shefaa.DTOs.Request;
-using Shefaa.DTOs.Response;
-using Shefaa.Models;
-using Shefaa.Repositories;
-using Shefaa.Utilites;
-
+﻿
 namespace Shefaa.Areas.Admin.Controllers
 {
     [Area(CD.ADMIN_AREA)]
@@ -150,7 +142,7 @@ namespace Shefaa.Areas.Admin.Controllers
         [HttpDelete("{id:guid}")]
         public async Task<IActionResult> Delete(Guid id)
         {
-            var branch = await _branchRepository.GetOneAsynch(b => b.Id == id, trackChanges: true);
+            var branch = await _branchRepository.GetOneAsynch(b => b.Id == id, includes: [b => b.Receptionists , b => b.DoctorBranches , b => b.Appointments , b => b.DoctorSchedules], trackChanges: true);
 
             if (branch == null)
             {
@@ -158,6 +150,14 @@ namespace Shefaa.Areas.Admin.Controllers
                 {
                     IsSuccess = false,
                     Message = "Branch not found"
+                });
+            }
+            if (branch.DoctorBranches.Any() || branch.Appointments.Any() || branch.Receptionists.Any() || branch.DoctorSchedules.Any())
+            {
+                return BadRequest(new ApiResponse<object>
+                {
+                    IsSuccess = false,
+                    Message = "Cannot delete branch because it has related data."
                 });
             }
 

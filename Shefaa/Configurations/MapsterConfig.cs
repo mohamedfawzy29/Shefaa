@@ -13,6 +13,8 @@ namespace Shefaa.Configurations
 
             TypeAdapterConfig<UpdateBranchRequest, Branch>.NewConfig().IgnoreNullValues(true);
             TypeAdapterConfig<Branch, BranchResponse>.NewConfig().Map(dest => dest.OrganizationName,src => src.Organization.LegalName);
+
+            TypeAdapterConfig<UpdateSpecializationRequest, Specialization>.NewConfig().IgnoreNullValues(true);
         }
     }
 }

@@ -1,12 +1,6 @@
-﻿using Azure.Core;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Identity.UI.Services;
-using Microsoft.AspNetCore.Mvc;
-using Shefaa.DTOs.Response;
-using Shefaa.Repositories;
-using Shefaa.DTOs.Request;
-using Shefaa.Utilites;
-using Shefaa.JwtFeatures;
+﻿
+using Shefaa.Services;
+using Stripe;
 
 namespace Shefaa.Areas.Identity.Controllers
 {
@@ -20,57 +14,145 @@ namespace Shefaa.Areas.Identity.Controllers
         IEmailSender _emailSender;
         IRepository<ApplicationUserOTP> _applicationUserOTP;
         IJwtHandler _jwtHandler;
+        IFileService _fileService;
+        IRepository<Patient> _patientRepository;
+        IRepository<Doctor> _doctorRepository;
+        IRepository<Specialization> _specializationRepository;
 
-        public AccountController(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, IEmailSender emailSender, IRepository<ApplicationUserOTP> applicationUserOTP, IJwtHandler jwtHandler)
+        private ApplicationUser CreateApplicationUser(string firstName,string lastName,string email,string userName,Gender gender,DateOnly dateOfBirth,string profileImg)
+        {
+            return new ApplicationUser
+            {
+                FirstName = firstName,
+                LastName = lastName,
+                Email = email,
+                UserName = userName,
+                Gender = gender,
+                DateOfBirth = dateOfBirth,
+                ProfileImg = profileImg,
+                IsActive = true,
+                EmailConfirmed = false
+            };
+        }
+
+        public AccountController(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, IEmailSender emailSender, IRepository<ApplicationUserOTP> applicationUserOTP, IJwtHandler jwtHandler, IFileService fileService, IRepository<Patient> patientRepository, IRepository<Doctor> doctorRepository, IRepository<Specialization> specializationRepository)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _emailSender = emailSender;
             _applicationUserOTP = applicationUserOTP;
             _jwtHandler = jwtHandler;
-            }
+            _fileService = fileService;
+            _patientRepository = patientRepository;
+            _doctorRepository = doctorRepository;
+            _specializationRepository = specializationRepository;
+        }
 
-        [HttpPost("Register")]
-        public async Task<IActionResult> Register( Shefaa.DTOs.Request.RegisterRequest registerVM)
+        [HttpPost("RegisterPatient")]
+        public async Task<IActionResult> RegisterPatient([FromForm] RegisterPatientRequest request)
         {
-            ApplicationUser user = new ApplicationUser
+            string profileImage = "default.png";
+
+            try
             {
-                FirstName = registerVM.FirstName,
-                LastName = registerVM.LastName,
-                UserName = registerVM.UserName,
-                Email = registerVM.Email,
-                Gender = registerVM.Gender,
-                DateOfBirth = registerVM.DateOfBirth,
-                ProfileImg = registerVM.ProfileImg,
-                IsActive = true
-            };
+                profileImage = await _fileService.UploadProfileImageAsync(request.ProfileImg);
 
+                var user = CreateApplicationUser(
+                    request.FirstName,
+                    request.LastName,
+                    request.Email,
+                    request.UserName,
+                    request.Gender,
+                    request.DateOfBirth,
+                    profileImage);
 
-            var result = await _userManager.CreateAsync(user, registerVM.Password);
+                var createUserResult = await _userManager.CreateAsync(user, request.Password);
 
-            if (!result.Succeeded)
-            {
-                return BadRequest(new ApiResponse<object>()
+                if (!createUserResult.Succeeded)
                 {
-                    IsSuccess = false,
-                    Message = "failed to create  user",
-                    Errors = result.Errors.Select(e => e.Description)
+                    await _fileService.DeleteProfileImageAsync(profileImage);
+
+                    return BadRequest(new ApiResponse<object>
+                    {
+                        IsSuccess = false,
+                        Message = "Registration failed.",
+                        Errors = createUserResult.Errors.Select(e => e.Description)
+                    });
+                }
+
+                var addRoleResult = await _userManager.AddToRoleAsync(user, CD.PATIENT_ROLE);
+
+                if (!addRoleResult.Succeeded)
+                {
+                    await _userManager.DeleteAsync(user);
+                    await _fileService.DeleteProfileImageAsync(profileImage);
+
+                    return BadRequest(new ApiResponse<object>
+                    {
+                        IsSuccess = false,
+                        Message = "Failed to assign role.",
+                        Errors = addRoleResult.Errors.Select(e => e.Description)
+                    });
+                }
+
+                var patient = new Patient
+                {
+                    UserId = user.Id,
+                    Address = request.Address,
+                    NationalId = request.NationalId,
+                    EmergencyContact = request.EmergencyContact,
+                    BloodType = request.BloodType
+                };
+
+                try
+                {
+                    await _patientRepository.AddAsync(patient);
+                    await _patientRepository.CommitChangesAsync();
+                }
+                catch
+                {
+                    await _userManager.DeleteAsync(user);
+                    await _fileService.DeleteProfileImageAsync(profileImage);
+                    throw;
+                }
+
+                var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+
+                var confirmationLink = Url.Action(
+                    nameof(ConfirmEmail),
+                    "Account",
+                    new
+                    {
+                        UserId = user.Id,
+                        Token = token
+                    },
+                    Request.Scheme);
+
+                await _emailSender.SendEmailAsync(
+                    user.Email!,
+                    "Confirm your email",
+                    $"Please confirm your email by clicking <a href='{confirmationLink}'>here</a>");
+
+                return Ok(new ApiResponse<object>
+                {
+                    IsSuccess = true,
+                    Message = "Registration completed successfully. Please check your email to confirm your account."
                 });
             }
-            await _userManager.AddToRoleAsync(user, CD.PATIENT_ROLE);
-            var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
-            var link = Url.Action(nameof(ConfirmEmail), "Account", new { area = "Identity", userId = user.Id, token }, Request.Scheme);
-            await _emailSender.SendEmailAsync(
-                registerVM.Email,
-                "Confirm Your Email from Ecommerce525",
-                $"<h1> click <a href= {link} > here </a> to confirm your mail </h1>"
-                );
-            return CreatedAtAction("Login", new ApiResponse<object>()
+            catch (Exception ex)
             {
-                IsSuccess = true,
-                Message = "User Created Successfully",
-            });
+                await _fileService.DeleteProfileImageAsync(profileImage);
+
+                return StatusCode(StatusCodes.Status500InternalServerError,
+                    new ApiResponse<object>
+                    {
+                        IsSuccess = false,
+                        Message = ex.Message
+                    });
+            }
         }
+
+
 
 
         [HttpGet("ConfirmEmail")]

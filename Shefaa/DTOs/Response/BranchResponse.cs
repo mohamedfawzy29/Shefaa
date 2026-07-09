@@ -17,4 +17,5 @@
 
         public string OrganizationName { get; set; } = string.Empty;
     }
+
 }

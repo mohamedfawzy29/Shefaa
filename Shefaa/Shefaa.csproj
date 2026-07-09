@@ -30,7 +30,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="WWWroot\ProfileImages\" />
+    <Folder Include="WWWroot\Images\Profiles\" />
   </ItemGroup>
 
 </Project>
