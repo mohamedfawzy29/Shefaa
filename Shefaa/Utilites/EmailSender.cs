@@ -6,20 +6,30 @@ namespace Shefaa.Utilites
 {
     public class EmailSender : IEmailSender
     {
-        public Task SendEmailAsync(string email, string subject, string htmlMessage)
+        private readonly IConfiguration _configuration;
+
+        public EmailSender(IConfiguration configuration)
         {
-            var client = new SmtpClient("smtp.gmail.com", 587)
+            _configuration = configuration;
+        }
+
+        public async Task SendEmailAsync(string email, string subject, string htmlMessage)
+        {
+            var emailSettings = _configuration.GetSection("EmailSettings");
+
+            var client = new SmtpClient(emailSettings["Host"],int.Parse(emailSettings["Port"]!))
             {
                 EnableSsl = true,
                 UseDefaultCredentials = false,
-                Credentials = new NetworkCredential("asmaa.test99@gmail.com", "zree lqxj pevc odly")
+                Credentials = new NetworkCredential(emailSettings["Email"],emailSettings["Password"])
             };
-            var mail = new MailMessage(from: "asmaa.test99@gmail.com", to: email, subject, htmlMessage)
-            {
-                IsBodyHtml = true,
-            };
-            return client.SendMailAsync(mail);
-        }
 
+            var mail = new MailMessage(from: emailSettings["Email"]!,to: email,subject,htmlMessage)
+            {
+                IsBodyHtml = true
+            };
+
+            await client.SendMailAsync(mail);
+        }
     }
 }

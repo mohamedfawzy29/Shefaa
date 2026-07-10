@@ -1,13 +1,4 @@
-﻿using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
-using Shefaa.DTOs.Request;
-using Shefaa.DTOs.Response;
-using Shefaa.Models;
-using Shefaa.Utilites;
-using System;
-using System.Linq;
-using System.Threading.Tasks;
-
+﻿
 namespace Shefaa.Areas.Admin.Controllers
 {
     [Area(CD.ADMIN_AREA)]

@@ -2,7 +2,7 @@
 {
     public class Receptionist
     {
-        public Guid Id { get; set; }
+        public Guid ReceptionistId { get; set; }
         public Guid UserId { get; set; }
         public Guid BranchId { get; set; }
         public ApplicationUser User { get; set; }

@@ -32,7 +32,7 @@ namespace Shefaa.Models
         public ICollection<BranchPhoneNumber> BranchPhoneNumbers { get; set; } = new List<BranchPhoneNumber>();
         public ICollection<DoctorBranch> DoctorBranches { get; set; } = new List<DoctorBranch>();
         public ICollection<Appointment> Appointments { get; set; } = new List<Appointment>();
-        public ICollection<ApplicationUser> Users { get; set; } = new List<ApplicationUser>();
+        public ICollection<Receptionist> Receptionists { get; set; } = new List<Receptionist>();
         public ICollection<DoctorSchedule> DoctorSchedules { get; set; } = new List<DoctorSchedule>();
     }
 }

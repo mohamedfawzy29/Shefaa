@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Shefaa.Migrations
 {
     /// <inheritdoc />
-    public partial class Initialcreate : Migration
+    public partial class initialCreate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -156,6 +156,28 @@ namespace Shefaa.Migrations
                         name: "FK_BranchPhoneNumbers_Branches_BranchId",
                         column: x => x.BranchId,
                         principalTable: "Branches",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "ApplicationUserOTPs",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    ApplicationUserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    OTP = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    IsValid = table.Column<bool>(type: "bit", nullable: false),
+                    Validto = table.Column<DateTime>(type: "datetime2", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ApplicationUserOTPs", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_ApplicationUserOTPs_AspNetUsers_ApplicationUserId",
+                        column: x => x.ApplicationUserId,
+                        principalTable: "AspNetUsers",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -322,24 +344,24 @@ namespace Shefaa.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Receptionist",
+                name: "Receptionists",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    ReceptionistId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     BranchId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Receptionist", x => x.Id);
+                    table.PrimaryKey("PK_Receptionists", x => x.ReceptionistId);
                     table.ForeignKey(
-                        name: "FK_Receptionist_AspNetUsers_UserId",
+                        name: "FK_Receptionists_AspNetUsers_UserId",
                         column: x => x.UserId,
                         principalTable: "AspNetUsers",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_Receptionist_Branches_BranchId",
+                        name: "FK_Receptionists_Branches_BranchId",
                         column: x => x.BranchId,
                         principalTable: "Branches",
                         principalColumn: "Id",
@@ -365,7 +387,7 @@ namespace Shefaa.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "DoctorBranchs",
+                name: "DoctorBranches",
                 columns: table => new
                 {
                     DoctorId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
@@ -375,15 +397,15 @@ namespace Shefaa.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_DoctorBranchs", x => new { x.DoctorId, x.BranchId });
+                    table.PrimaryKey("PK_DoctorBranches", x => new { x.DoctorId, x.BranchId });
                     table.ForeignKey(
-                        name: "FK_DoctorBranchs_Branches_BranchId",
+                        name: "FK_DoctorBranches_Branches_BranchId",
                         column: x => x.BranchId,
                         principalTable: "Branches",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_DoctorBranchs_Doctors_DoctorId",
+                        name: "FK_DoctorBranches_Doctors_DoctorId",
                         column: x => x.DoctorId,
                         principalTable: "Doctors",
                         principalColumn: "DoctorId",
@@ -394,18 +416,19 @@ namespace Shefaa.Migrations
                 name: "DoctorSchedules",
                 columns: table => new
                 {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     DayOfWeek = table.Column<int>(type: "int", nullable: false),
                     StartTime = table.Column<TimeSpan>(type: "time", nullable: false),
-                    BranchId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    DoctorId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     EndTime = table.Column<TimeSpan>(type: "time", nullable: false),
                     SlotDurationMinutes = table.Column<int>(type: "int", nullable: false),
                     MaxPatients = table.Column<int>(type: "int", nullable: false),
-                    IsActive = table.Column<bool>(type: "bit", nullable: false)
+                    IsActive = table.Column<bool>(type: "bit", nullable: false),
+                    BranchId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    DoctorId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_DoctorSchedules", x => new { x.DayOfWeek, x.StartTime, x.DoctorId, x.BranchId });
+                    table.PrimaryKey("PK_DoctorSchedules", x => x.Id);
                     table.ForeignKey(
                         name: "FK_DoctorSchedules_Branches_BranchId",
                         column: x => x.BranchId,
@@ -432,7 +455,7 @@ namespace Shefaa.Migrations
                     Notes = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    CancelledAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    CancelledAt = table.Column<DateTime>(type: "datetime2", nullable: true),
                     Status = table.Column<int>(type: "int", nullable: false),
                     PatientId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     DoctorId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
@@ -473,9 +496,7 @@ namespace Shefaa.Migrations
                     FollowUpDate = table.Column<DateTime>(type: "datetime2", nullable: true),
                     AppointmentId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     PatientId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    DoctorId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    DoctorId1 = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    PatientId1 = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
+                    DoctorId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -485,7 +506,7 @@ namespace Shefaa.Migrations
                         column: x => x.AppointmentId,
                         principalTable: "Appointments",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_MedicalRecords_Doctors_DoctorId",
                         column: x => x.DoctorId,
@@ -493,21 +514,11 @@ namespace Shefaa.Migrations
                         principalColumn: "DoctorId",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
-                        name: "FK_MedicalRecords_Doctors_DoctorId1",
-                        column: x => x.DoctorId1,
-                        principalTable: "Doctors",
-                        principalColumn: "DoctorId");
-                    table.ForeignKey(
                         name: "FK_MedicalRecords_Patients_PatientId",
                         column: x => x.PatientId,
                         principalTable: "Patients",
                         principalColumn: "PatientId",
                         onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_MedicalRecords_Patients_PatientId1",
-                        column: x => x.PatientId1,
-                        principalTable: "Patients",
-                        principalColumn: "PatientId");
                 });
 
             migrationBuilder.CreateTable(
@@ -519,10 +530,7 @@ namespace Shefaa.Migrations
                     Rating = table.Column<int>(type: "int", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     PatientId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    DoctorId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    AppointmentId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    DoctorId1 = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    PatientId1 = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
+                    AppointmentId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -532,30 +540,19 @@ namespace Shefaa.Migrations
                         column: x => x.AppointmentId,
                         principalTable: "Appointments",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_Reviews_Doctors_DoctorId",
-                        column: x => x.DoctorId,
-                        principalTable: "Doctors",
-                        principalColumn: "DoctorId",
                         onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_Reviews_Doctors_DoctorId1",
-                        column: x => x.DoctorId1,
-                        principalTable: "Doctors",
-                        principalColumn: "DoctorId");
                     table.ForeignKey(
                         name: "FK_Reviews_Patients_PatientId",
                         column: x => x.PatientId,
                         principalTable: "Patients",
                         principalColumn: "PatientId",
                         onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_Reviews_Patients_PatientId1",
-                        column: x => x.PatientId1,
-                        principalTable: "Patients",
-                        principalColumn: "PatientId");
                 });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ApplicationUserOTPs_ApplicationUserId",
+                table: "ApplicationUserOTPs",
+                column: "ApplicationUserId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Appointments_BranchId",
@@ -627,8 +624,8 @@ namespace Shefaa.Migrations
                 column: "BranchId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_DoctorBranchs_BranchId",
-                table: "DoctorBranchs",
+                name: "IX_DoctorBranches_BranchId",
+                table: "DoctorBranches",
                 column: "BranchId");
 
             migrationBuilder.CreateIndex(
@@ -655,7 +652,8 @@ namespace Shefaa.Migrations
             migrationBuilder.CreateIndex(
                 name: "IX_MedicalRecords_AppointmentId",
                 table: "MedicalRecords",
-                column: "AppointmentId");
+                column: "AppointmentId",
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_MedicalRecords_DoctorId",
@@ -663,19 +661,9 @@ namespace Shefaa.Migrations
                 column: "DoctorId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_MedicalRecords_DoctorId1",
-                table: "MedicalRecords",
-                column: "DoctorId1");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_MedicalRecords_PatientId",
                 table: "MedicalRecords",
                 column: "PatientId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_MedicalRecords_PatientId1",
-                table: "MedicalRecords",
-                column: "PatientId1");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Notifications_UserId",
@@ -689,45 +677,34 @@ namespace Shefaa.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_Receptionist_BranchId",
-                table: "Receptionist",
+                name: "IX_Receptionists_BranchId",
+                table: "Receptionists",
                 column: "BranchId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Receptionist_UserId",
-                table: "Receptionist",
+                name: "IX_Receptionists_UserId",
+                table: "Receptionists",
                 column: "UserId",
                 unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_Reviews_AppointmentId",
                 table: "Reviews",
-                column: "AppointmentId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Reviews_DoctorId",
-                table: "Reviews",
-                column: "DoctorId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Reviews_DoctorId1",
-                table: "Reviews",
-                column: "DoctorId1");
+                column: "AppointmentId",
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_Reviews_PatientId",
                 table: "Reviews",
                 column: "PatientId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Reviews_PatientId1",
-                table: "Reviews",
-                column: "PatientId1");
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropTable(
+                name: "ApplicationUserOTPs");
+
             migrationBuilder.DropTable(
                 name: "AspNetRoleClaims");
 
@@ -747,7 +724,7 @@ namespace Shefaa.Migrations
                 name: "BranchPhoneNumbers");
 
             migrationBuilder.DropTable(
-                name: "DoctorBranchs");
+                name: "DoctorBranches");
 
             migrationBuilder.DropTable(
                 name: "DoctorSchedules");
@@ -759,7 +736,7 @@ namespace Shefaa.Migrations
                 name: "Notifications");
 
             migrationBuilder.DropTable(
-                name: "Receptionist");
+                name: "Receptionists");
 
             migrationBuilder.DropTable(
                 name: "Reviews");

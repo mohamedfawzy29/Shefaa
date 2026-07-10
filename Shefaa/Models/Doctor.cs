@@ -1,6 +1,13 @@
 ﻿
 namespace Shefaa.Models
 {
+    public enum DoctorStatus
+    {
+        Pending,
+        Approved,
+        Rejected,
+        Suspended
+    }
     public class Doctor
     {
         [Key]
@@ -14,7 +21,7 @@ namespace Shefaa.Models
         public string LicenseNumber { get; set; }
         public double AverageRating { get; set; }
         [Required]
-        public string Status { get; set; }
+        public DoctorStatus Status { get; set; } = DoctorStatus.Pending;
         [Required]
         public Guid UserId { get; set; }
         [Required]
@@ -27,6 +34,5 @@ namespace Shefaa.Models
         public ICollection<Appointment> Appointments { get; set; } = new List<Appointment>();
         public ICollection<DoctorBranch> DoctorBranches { get; set; } = new List<DoctorBranch>();
         public ICollection<MedicalRecord> MedicalRecords { get; set; } = new List<MedicalRecord>();
-        public ICollection<Review> Reviews { get; set; } = new List<Review>();
     }
 }

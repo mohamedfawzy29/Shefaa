@@ -19,7 +19,7 @@ namespace Shefaa.Models
         public string Notes { get; set; } = string.Empty;
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
-        public DateTime CancelledAt { get; set; }
+        public DateTime? CancelledAt { get; set; }
         public AppointmentStatus Status { get; set; }
         public Guid PatientId { get; set; }
         public Patient Patient { get; set; }
@@ -27,5 +27,7 @@ namespace Shefaa.Models
         public Doctor Doctor { get; set; }
         public Guid BranchId { get; set; }
         public Branch Branch { get; set; }
+        public MedicalRecord? MedicalRecord { get; set; }
+        public Review? Review { get; set; }
     }
 }

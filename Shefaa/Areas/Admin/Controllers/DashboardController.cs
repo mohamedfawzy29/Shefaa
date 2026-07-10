@@ -11,7 +11,7 @@ namespace Shefaa.Areas.Admin.Controllers
 {
     [Area(CD.ADMIN_AREA)]
     [Route("api/ [Area]/[controller]")]
-    [Authorize(Roles = CD.SUPER_ADMIN_ROLE + "," + CD.ADMIN_ROLE)]
+    [Authorize(Roles = CD.ADMIN_ROLE)]
     [ApiController]
     public class DashboardController : ControllerBase
     {
