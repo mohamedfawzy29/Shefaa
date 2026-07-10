@@ -1,6 +1,6 @@
 ﻿
 using Shefaa.Services;
-using Stripe;
+using System.Security.Cryptography;
 
 namespace Shefaa.Areas.Identity.Controllers
 {
@@ -57,14 +57,7 @@ namespace Shefaa.Areas.Identity.Controllers
             {
                 profileImage = await _fileService.UploadProfileImageAsync(request.ProfileImg);
 
-                var user = CreateApplicationUser(
-                    request.FirstName,
-                    request.LastName,
-                    request.Email,
-                    request.UserName,
-                    request.Gender,
-                    request.DateOfBirth,
-                    profileImage);
+                var user = CreateApplicationUser(request.FirstName, request.LastName, request.Email, request.UserName, request.Gender, request.DateOfBirth, profileImage);
 
                 var createUserResult = await _userManager.CreateAsync(user, request.Password);
 
@@ -152,7 +145,124 @@ namespace Shefaa.Areas.Identity.Controllers
             }
         }
 
+        [HttpPost("RegisterDoctor")]
+        public async Task<IActionResult> RegisterDoctor([FromForm] RegisterDoctorRequest request)
+        {
+            string profileImage = "default.png";
+            try
+            {
+                profileImage = await _fileService.UploadProfileImageAsync(request.ProfileImg);
+                var user = CreateApplicationUser(request.FirstName,request.LastName,request.Email,request.UserName,request.Gender,request.DateOfBirth,profileImage);
 
+                var createUserResult = await _userManager.CreateAsync(user, request.Password);
+                if (!createUserResult.Succeeded)
+                {
+                    await _fileService.DeleteProfileImageAsync(profileImage);
+
+                    return BadRequest(new ApiResponse<object>
+                    {
+                        IsSuccess = false,
+                        Message = "Registration failed.",
+                        Errors = createUserResult.Errors.Select(e => e.Description)
+                    });
+                }
+
+                var addRoleResult = await _userManager.AddToRoleAsync(user, CD.DOCTOR_ROLE);
+                if (!addRoleResult.Succeeded)
+                {
+                    await _userManager.DeleteAsync(user);
+                    await _fileService.DeleteProfileImageAsync(profileImage);
+
+                    return BadRequest(new ApiResponse<object>
+                    {
+                        IsSuccess = false,
+                        Message = "Failed to assign role.",
+                        Errors = addRoleResult.Errors.Select(e => e.Description)
+                    });
+                }
+
+                if (await _doctorRepository.ExistsAsync(d => d.LicenseNumber == request.LicenseNumber))
+                {
+                    await _userManager.DeleteAsync(user);
+                    await _fileService.DeleteProfileImageAsync(profileImage);
+
+                    return BadRequest(new ApiResponse<object>
+                    {
+                        IsSuccess = false,
+                        Message = "License number already exists."
+                    });
+                }
+
+                var specialization = await _specializationRepository.GetOneAsynch(s => s.Id == request.SpecializationId);
+                if (specialization == null)
+                {
+                    await _userManager.DeleteAsync(user);
+                    await _fileService.DeleteProfileImageAsync(profileImage);
+
+                    return BadRequest(new ApiResponse<object>
+                    {
+                        IsSuccess = false,
+                        Message = "Specialization not found."
+                    });
+                }
+
+                var doctor = new Doctor
+                {
+                    UserId = user.Id,
+                    Bio = request.Bio,
+                    YearsOfExperience = request.YearsOfExperience,
+                    LicenseNumber = request.LicenseNumber,
+                    SpecializationId = request.SpecializationId,
+                    AverageRating = 0,
+                    Status = DoctorStatus.Pending
+                };
+
+                try
+                {
+                    await _doctorRepository.AddAsync(doctor);
+                    await _doctorRepository.CommitChangesAsync();
+                }
+                catch
+                {
+                    await _userManager.DeleteAsync(user);
+                    await _fileService.DeleteProfileImageAsync(profileImage);
+
+                    throw;
+                }
+
+                var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+                var confirmationLink = Url.Action(
+                    nameof(ConfirmEmail),
+                    "Account",
+                    new
+                    {
+                        UserId = user.Id,
+                        Token = token
+                    },
+                    Request.Scheme);
+                await _emailSender.SendEmailAsync(
+                    user.Email!,
+                    "Confirm your email",
+                    $"Please confirm your email by clicking <a href='{confirmationLink}'>here</a>");
+
+                return Ok(new ApiResponse<object>
+                {
+                    IsSuccess = true,
+                    Message = "Doctor registration completed successfully. Please check your email to confirm your account."
+                });
+            }
+            catch (Exception ex)
+            {
+                await _fileService.DeleteProfileImageAsync(profileImage);
+
+                return StatusCode(StatusCodes.Status500InternalServerError,
+                    new ApiResponse<object>
+                    {
+                        IsSuccess = false,
+                        Message = ex.Message
+                    });
+            }
+        }
 
 
         [HttpGet("ConfirmEmail")]
@@ -183,115 +293,268 @@ namespace Shefaa.Areas.Identity.Controllers
                 Message = "Email Confirmed successfully",
             });
         }
+
+
         [HttpPost("Login")]
-        public async Task<IActionResult> Login(DTOs.Request.LoginRequest loginRequest)
+        public async Task<IActionResult> Login(LoginRequest loginRequest)
         {
-            var user = await _userManager.FindByEmailAsync(loginRequest.UserNameOrEmail) ??
-                        await _userManager.FindByNameAsync(loginRequest.UserNameOrEmail);
+            var user = await _userManager.FindByEmailAsync(loginRequest.UserNameOrEmail)
+                       ?? await _userManager.FindByNameAsync(loginRequest.UserNameOrEmail);
 
             if (user == null)
             {
-                return NotFound(new ApiResponse<object>()
+                return Unauthorized(new ApiResponse<object>()
                 {
                     IsSuccess = false,
-                    Message = "invalid UserName Or Email Or Password"
+                    Message = "Invalid username/email or password."
                 });
             }
-            var result = await _signInManager.PasswordSignInAsync(user, loginRequest.Password, loginRequest.RememberMe, true);
+
+            if (!user.IsActive)
+            {
+                return Unauthorized(new ApiResponse<object>()
+                {
+                    IsSuccess = false,
+                    Message = "Your account has been deactivated."
+                });
+            }
+
+            var result = await _signInManager.PasswordSignInAsync(user,loginRequest.Password,loginRequest.RememberMe,lockoutOnFailure: true);
+
             if (!result.Succeeded)
             {
-                List<string> errors = new List<string>();
+                List<string> errors = new();
+
                 if (result.IsLockedOut)
                 {
-                    errors.Add("to many attempts try again later");
+                    errors.Add("Too many attempts. Try again later.");
                 }
-                if (result.IsNotAllowed)
+                else if (result.IsNotAllowed)
                 {
-                    errors.Add("please Confirm Your Email");
+                    errors.Add("Please confirm your email first.");
                 }
                 else
                 {
-                    errors.Add("invalid UserName Or Email Or Password");
+                    errors.Add("Invalid username/email or password.");
                 }
+
                 return BadRequest(new ApiResponse<object>()
                 {
                     IsSuccess = false,
-                    Message = "Login Failed",
+                    Message = "Login failed.",
                     Errors = errors
                 });
             }
+
+            if (await _userManager.IsInRoleAsync(user, CD.DOCTOR_ROLE))
+            {
+                var doctor = await _doctorRepository.GetOneAsynch(
+                    d => d.UserId == user.Id);
+
+                if (doctor == null)
+                {
+                    return Unauthorized(new ApiResponse<object>()
+                    {
+                        IsSuccess = false,
+                        Message = "Doctor profile not found."
+                    });
+                }
+
+                if (doctor.Status != DoctorStatus.Approved)
+                {
+                    return Unauthorized(new ApiResponse<object>()
+                    {
+                        IsSuccess = false,
+                        Message = $"Your doctor account is {doctor.Status}."
+                    });
+                }
+            }
+
             var token = await _jwtHandler.GenerateAccessTokenAsync(user);
+
             return Ok(new AuthenticatedResponse()
             {
-                AccessToken = token
-           });
+                AccessToken = token,
+                UserName = user.UserName!,
+                Email = user.Email!,
+                FullName = $"{user.FirstName} {user.LastName}"
+            });
         }
-        
+
+
         [HttpPost("ResendEmailConfirmation")]
-        public async Task<IActionResult> ResendEmailConfirmation(ResendEmailConfirmationRequest resendEmailConfirmationRequest)
+        public async Task<IActionResult> ResendEmailConfirmation(ResendEmailConfirmationRequest request)
         {
-            var user = await _userManager.FindByEmailAsync(resendEmailConfirmationRequest.UserNameOrEmail) ??
-                       await _userManager.FindByNameAsync(resendEmailConfirmationRequest.UserNameOrEmail);
+            var user = await _userManager.FindByEmailAsync(request.UserNameOrEmail)?? await _userManager.FindByNameAsync(request.UserNameOrEmail);
             if (user == null)
             {
-                return NotFound(new ApiResponse<object>()
+                return Unauthorized(new ApiResponse<object>
                 {
                     IsSuccess = false,
-                    Message = "Invalid User"
+                    Message = "Invalid username or email."
+                });
+            }
+            if (string.IsNullOrWhiteSpace(user.Email))
+            {
+                return BadRequest(new ApiResponse<object>
+                {
+                    IsSuccess = false,
+                    Message = "User does not have an email address."
                 });
             }
             if (user.EmailConfirmed)
             {
-                return BadRequest(new ApiResponse<object>()
+                return BadRequest(new ApiResponse<object>
                 {
                     IsSuccess = false,
-                    Message = "Your  Email is Already Confirmed"
+                    Message = "Your email has already been confirmed."
                 });
             }
-            var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
-            var link = Url.Action(nameof(ConfirmEmail), "Account", new { area = "Identity", userId = user.Id, token }, Request.Scheme);
-            await _emailSender.SendEmailAsync(
-                user.Email,
-                "Confirm Your Email from Ecommerce525",
-                $"<h1> click <a href= {link} > here </a> to confirm your mail </h1>"
-                );
-            return Ok(new ApiResponse<object>()
+
+            try
             {
-                IsSuccess = true,
-                Message = "Resend Email Comfiramtion successfully"
-            });
+                var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+
+                var confirmationLink = Url.Action(
+                    nameof(ConfirmEmail),
+                    "Account",
+                    new
+                    {
+                        area = "Identity",
+                        UserId = user.Id,
+                        Token = token
+                    },
+                    Request.Scheme);
+
+                await _emailSender.SendEmailAsync(
+                    user.Email,
+                    "Confirm your email - Shefaa",
+                    $"""
+                            <h2>Welcome to Shefaa</h2>
+
+                            <p>Please click the button below to confirm your email address.</p>
+
+                            <p>
+                                <a href="{confirmationLink}">
+                                    Confirm Email
+                                </a>
+                            </p>
+                     """);
+
+                return Ok(new ApiResponse<object>
+                {
+                    IsSuccess = true,
+                    Message = "Confirmation email has been sent successfully."
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError,
+                    new ApiResponse<object>
+                    {
+                        IsSuccess = false,
+                        Message = ex.Message
+                    });
+            }
         }
+
         [HttpPost("ForgetPassword")]
-        public async Task<IActionResult> ForgetPassword(ForgetPasswordRequest forgetPasswordRequest)
+        public async Task<IActionResult> ForgetPassword(ForgetPasswordRequest request)
         {
-            var user = await _userManager.FindByEmailAsync(forgetPasswordRequest.UserNameOrEmail) ??
-                      await _userManager.FindByNameAsync(forgetPasswordRequest.UserNameOrEmail);
+            var user = await _userManager.FindByEmailAsync(request.UserNameOrEmail) ?? await _userManager.FindByNameAsync(request.UserNameOrEmail);
             if (user == null)
             {
-                return NotFound(new ApiResponse<object>()
+                return Unauthorized(new ApiResponse<object>
                 {
                     IsSuccess = false,
-                    Message = "Invalid User"
+                    Message = "Invalid username or email."
                 });
             }
-            var otp = new Random().Next(1000, 9999).ToString();
+            if (!user.EmailConfirmed)
+            {
+                return BadRequest(new ApiResponse<object>
+                {
+                    IsSuccess = false,
+                    Message = "Please confirm your email first."
+                });
+            }
+            if (!user.IsActive)
+            {
+                return BadRequest(new ApiResponse<object>
+                {
+                    IsSuccess = false,
+                    Message = "Your account has been deactivated."
+                });
+            }
+            if (await _userManager.IsInRoleAsync(user, CD.DOCTOR_ROLE))
+            {
+                var doctor = await _doctorRepository.GetOneAsynch(d => d.UserId == user.Id);
+                if (doctor == null)
+                {
+                    return BadRequest(new ApiResponse<object>
+                    {
+                        IsSuccess = false,
+                        Message = "Doctor profile not found."
+                    });
+                }
+                if (doctor.Status != DoctorStatus.Approved)
+                {
+                    return BadRequest(new ApiResponse<object>
+                    {
+                        IsSuccess = false,
+                        Message = $"Your account is {doctor.Status}."
+                    });
+                }
+            }
+
+            var oldOtps = await _applicationUserOTP.GetAsync(o => o.ApplicationUserId == user.Id && o.IsValid,trackChanges: true);
+
+            foreach (var oldOtp in oldOtps)
+            {
+                oldOtp.IsValid = false;
+            }
+
+            await _applicationUserOTP.CommitChangesAsync();
+
+            var otp = RandomNumberGenerator.GetInt32(100000, 1000000).ToString();
+
             var applicationUserOtp = new ApplicationUserOTP(otp, user.Id);
 
             await _applicationUserOTP.AddAsync(applicationUserOtp);
             await _applicationUserOTP.CommitChangesAsync();
 
-            await _emailSender.SendEmailAsync(
-                user.Email,
-                "Reset your password",
-                $"<h1> use this <span style= \"color: red\" >{otp}</span> to Reset your password </h1>"
-                );
-            return Ok(new ApiResponse<object>()
+            try
             {
-                IsSuccess = true,
-                Message = "Email Send with OTP successfully"
-            });
-           
+                await _emailSender.SendEmailAsync(
+                    user.Email!,
+                    "Reset your password - Shefaa",
+                    $"""
+                        <h2>Password Reset</h2>
+
+                        <p>Use the following OTP to reset your password:</p>
+
+                        <h1 style="color:red;">{otp}</h1>
+
+                        <p>This OTP is valid for 30 minutes.</p>
+                     """);
+
+                return Ok(new ApiResponse<object>
+                {
+                    IsSuccess = true,
+                    Message = "OTP has been sent successfully."
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError,
+                    new ApiResponse<object>
+                    {
+                        IsSuccess = false,
+                        Message = ex.Message
+                    });
+            }
         }
+
         [HttpPost("VerifyOTP")]
         public async Task<IActionResult> VerifyOTP(VerifyOTPRequest verifyOTPVM)
         {
@@ -307,7 +570,7 @@ namespace Shefaa.Areas.Identity.Controllers
             var otps = await _applicationUserOTP.GetAsync(e =>
                 e.ApplicationUserId == user.Id &&
                 e.IsValid == true &&
-                DateTime.UtcNow < e.Validto
+                DateTime.UtcNow < e.ValidTo
                 );
            
             var otp = otps.OrderByDescending(e => e.CreatedAt).FirstOrDefault();
@@ -330,6 +593,7 @@ namespace Shefaa.Areas.Identity.Controllers
             });
            
         }
+
         [HttpPost("ResetPassword")]
         public async Task<IActionResult> ResetPassword( Shefaa.DTOs.Request.ResetPasswordRequest resetPasswordVM)
         {
