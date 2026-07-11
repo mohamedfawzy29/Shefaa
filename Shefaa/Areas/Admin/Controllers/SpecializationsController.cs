@@ -4,7 +4,7 @@ namespace Shefaa.Areas.Admin.Controllers
     [Area(CD.ADMIN_AREA)]
     [Route("api/[area]/[controller]")]
     [ApiController]
-    //[Authorize(Roles = CD.ADMIN_ROLE)]
+    [Authorize(Roles = CD.ADMIN_ROLE)]
     public class SpecializationsController : ControllerBase
     {
         private readonly IRepository<Specialization> _specializationRepository;

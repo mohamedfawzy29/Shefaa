@@ -556,71 +556,91 @@ namespace Shefaa.Areas.Identity.Controllers
         }
 
         [HttpPost("VerifyOTP")]
-        public async Task<IActionResult> VerifyOTP(VerifyOTPRequest verifyOTPVM)
+        public async Task<IActionResult> VerifyOTP(VerifyOTPRequest request)
         {
-            var user = await _userManager.FindByIdAsync(verifyOTPVM.UserId);
+            var user = await _userManager.FindByEmailAsync(request.UserNameOrEmail) ?? await _userManager.FindByNameAsync(request.UserNameOrEmail);
             if (user == null)
             {
-                return NotFound(new ApiResponse<object>()
+                return Unauthorized(new ApiResponse<object>
                 {
                     IsSuccess = false,
-                    Message = "Invalid User"
+                    Message = "Invalid username or email."
                 });
             }
-            var otps = await _applicationUserOTP.GetAsync(e =>
-                e.ApplicationUserId == user.Id &&
-                e.IsValid == true &&
-                DateTime.UtcNow < e.ValidTo
-                );
-           
-            var otp = otps.OrderByDescending(e => e.CreatedAt).FirstOrDefault();
-            if (otp == null || otp.OTP != verifyOTPVM.OTP)
+            var otp = (await _applicationUserOTP.GetAsync(o => o.ApplicationUserId == user.Id && o.IsValid && DateTime.UtcNow < o.ValidTo)).OrderByDescending(o => o.CreatedAt).FirstOrDefault();
+            if (otp == null || otp.OTP != request.OTP)
             {
-                return BadRequest(new ApiResponse<object>()
+                return BadRequest(new ApiResponse<object>
                 {
                     IsSuccess = false,
-                    Message = "invalid / Expired OTP "
+                    Message = "Invalid or expired OTP."
                 });
             }
-            otp.IsValid = false;
-            await _applicationUserOTP.CommitChangesAsync();
-            var token = await _userManager.GeneratePasswordResetTokenAsync(user);
 
-            return Ok(new ApiResponse<object>()
+            var resetToken = await _userManager.GeneratePasswordResetTokenAsync(user);
+
+            return Ok(new ApiResponse<object>
             {
                 IsSuccess = true,
-                Message = "OTP Verfied Successfully"
+                Message = "OTP verified successfully.",
+                Data = new
+                {
+                    ResetToken = resetToken
+                }
             });
-           
         }
 
         [HttpPost("ResetPassword")]
-        public async Task<IActionResult> ResetPassword( Shefaa.DTOs.Request.ResetPasswordRequest resetPasswordVM)
+        public async Task<IActionResult> ResetPassword(ResetPasswordRequest request)
         {
-
-            var user = await _userManager.FindByIdAsync(resetPasswordVM.UserId);
+            var user = await _userManager.FindByEmailAsync(request.UserNameOrEmail) ?? await _userManager.FindByNameAsync(request.UserNameOrEmail);
             if (user == null)
             {
-                return NotFound(new ApiResponse<object>()
+                return Unauthorized(new ApiResponse<object>
                 {
                     IsSuccess = false,
-                    Message = "Invalid User"
+                    Message = "Invalid username or email."
                 });
             }
-            var result = await _userManager.ResetPasswordAsync(user, resetPasswordVM.Token, resetPasswordVM.Password);
-            if (!result.Succeeded)
+            if (!user.EmailConfirmed)
             {
-                return BadRequest(new ApiResponse<object>()
+                return BadRequest(new ApiResponse<object>
                 {
                     IsSuccess = false,
-                    Message = "Error while ResetPassword ",
+                    Message = "Please confirm your email first."
+                });
+            }
+            if (!user.IsActive)
+            {
+                return BadRequest(new ApiResponse<object>
+                {
+                    IsSuccess = false,
+                    Message = "Your account has been deactivated."
+                });
+            }
+            var result = await _userManager.ResetPasswordAsync(user,request.ResetToken,request.NewPassword);
+
+            if (!result.Succeeded)
+            {
+                return BadRequest(new ApiResponse<object>
+                {
+                    IsSuccess = false,
+                    Message = "Password reset failed.",
                     Errors = result.Errors.Select(e => e.Description)
                 });
             }
-            return Ok(new ApiResponse<object>()
+
+            var otp = (await _applicationUserOTP.GetAsync(o => o.ApplicationUserId == user.Id && o.IsValid)).OrderByDescending(o => o.CreatedAt).FirstOrDefault();
+            if (otp != null)
+            {
+                otp.IsValid = false;
+                await _applicationUserOTP.CommitChangesAsync();
+            }
+
+            return Ok(new ApiResponse<object>
             {
                 IsSuccess = true,
-                Message = "Reset Password Successfully"
+                Message = "Password reset successfully."
             });
         }
     }

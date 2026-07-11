@@ -2,7 +2,7 @@
 {
     public class VerifyOTPRequest
     {
-        public Guid OTP { get; set; }
-        public Guid UserId { get; set; }
+        public string UserNameOrEmail { get; set; } = string.Empty;
+        public string OTP { get; set; } = string.Empty;
     }
 }

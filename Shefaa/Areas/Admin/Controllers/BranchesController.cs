@@ -1,10 +1,11 @@
 ﻿
+
 namespace Shefaa.Areas.Admin.Controllers
 {
     [Area(CD.ADMIN_AREA)]
     [Route("api/[area]/[controller]")]
     [ApiController]
-    //[Authorize(Roles = CD.ADMIN_ROLE)]
+    [Authorize(Roles = CD.ADMIN_ROLE)]
     public class BranchesController : ControllerBase
     {
         private readonly IRepository<Branch> _branchRepository;
