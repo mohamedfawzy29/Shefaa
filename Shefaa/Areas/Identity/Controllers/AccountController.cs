@@ -18,6 +18,9 @@ namespace Shefaa.Areas.Identity.Controllers
         IRepository<Patient> _patientRepository;
         IRepository<Doctor> _doctorRepository;
         IRepository<Specialization> _specializationRepository;
+        IRepository<Receptionist> _receptionistRepository;
+        IRepository<Branch> _branchRepository;
+        IRepository<UserPhoneNumber> _userPhoneNumberRepository;
 
         private ApplicationUser CreateApplicationUser(string firstName,string lastName,string email,string userName,Gender gender,DateOnly dateOfBirth,string profileImg)
         {
@@ -33,6 +36,19 @@ namespace Shefaa.Areas.Identity.Controllers
                 IsActive = true,
                 EmailConfirmed = false
             };
+        }
+        private async Task AddUserPhoneNumbersAsync(Guid userId, IEnumerable<string> phoneNumbers)
+        {
+            var numbers = phoneNumbers.Where(p => !string.IsNullOrWhiteSpace(p)).Select(p => p.Trim()).Distinct();
+            foreach (var phoneNumber in numbers)
+            {
+                await _userPhoneNumberRepository.AddAsync(new UserPhoneNumber
+                {
+                    UserId = userId,
+                    PhoneNumber = phoneNumber
+                });
+            }
+            await _userPhoneNumberRepository.CommitChangesAsync();
         }
 
         public AccountController(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, IEmailSender emailSender, IRepository<ApplicationUserOTP> applicationUserOTP, IJwtHandler jwtHandler, IFileService fileService, IRepository<Patient> patientRepository, IRepository<Doctor> doctorRepository, IRepository<Specialization> specializationRepository)
@@ -52,12 +68,12 @@ namespace Shefaa.Areas.Identity.Controllers
         public async Task<IActionResult> RegisterPatient([FromForm] RegisterPatientRequest request)
         {
             string profileImage = "default.png";
-
+            var user = (ApplicationUser?)null;
             try
             {
                 profileImage = await _fileService.UploadProfileImageAsync(request.ProfileImg);
 
-                var user = CreateApplicationUser(request.FirstName, request.LastName, request.Email, request.UserName, request.Gender, request.DateOfBirth, profileImage);
+                user = CreateApplicationUser(request.FirstName, request.LastName, request.Email, request.UserName, request.Gender, request.DateOfBirth, profileImage);
 
                 var createUserResult = await _userManager.CreateAsync(user, request.Password);
 
@@ -72,6 +88,8 @@ namespace Shefaa.Areas.Identity.Controllers
                         Errors = createUserResult.Errors.Select(e => e.Description)
                     });
                 }
+
+                await AddUserPhoneNumbersAsync(user.Id, request.PhoneNumbers);
 
                 var addRoleResult = await _userManager.AddToRoleAsync(user, CD.PATIENT_ROLE);
 
@@ -134,6 +152,11 @@ namespace Shefaa.Areas.Identity.Controllers
             }
             catch (Exception ex)
             {
+                if (user != null)
+                {
+                    await _userManager.DeleteAsync(user);
+                }
+
                 await _fileService.DeleteProfileImageAsync(profileImage);
 
                 return StatusCode(StatusCodes.Status500InternalServerError,
@@ -149,10 +172,11 @@ namespace Shefaa.Areas.Identity.Controllers
         public async Task<IActionResult> RegisterDoctor([FromForm] RegisterDoctorRequest request)
         {
             string profileImage = "default.png";
+            var user = (ApplicationUser?)null;
             try
             {
                 profileImage = await _fileService.UploadProfileImageAsync(request.ProfileImg);
-                var user = CreateApplicationUser(request.FirstName,request.LastName,request.Email,request.UserName,request.Gender,request.DateOfBirth,profileImage);
+                user = CreateApplicationUser(request.FirstName,request.LastName,request.Email,request.UserName,request.Gender,request.DateOfBirth,profileImage);
 
                 var createUserResult = await _userManager.CreateAsync(user, request.Password);
                 if (!createUserResult.Succeeded)
@@ -166,6 +190,8 @@ namespace Shefaa.Areas.Identity.Controllers
                         Errors = createUserResult.Errors.Select(e => e.Description)
                     });
                 }
+
+                await AddUserPhoneNumbersAsync(user.Id, request.PhoneNumbers);
 
                 var addRoleResult = await _userManager.AddToRoleAsync(user, CD.DOCTOR_ROLE);
                 if (!addRoleResult.Succeeded)
@@ -253,6 +279,122 @@ namespace Shefaa.Areas.Identity.Controllers
             }
             catch (Exception ex)
             {
+                if (user != null)
+                {
+                    await _userManager.DeleteAsync(user);
+                }
+
+                await _fileService.DeleteProfileImageAsync(profileImage);
+
+                return StatusCode(StatusCodes.Status500InternalServerError,
+                    new ApiResponse<object>
+                    {
+                        IsSuccess = false,
+                        Message = ex.Message
+                    });
+            }
+        }
+
+        [HttpPost("RegisterReceptionist")]
+        public async Task<IActionResult> RegisterReceptionist([FromForm] RegisterReceptionistRequest request)
+        {
+            string profileImage = "default.png";
+            var user = (ApplicationUser?)null;
+            try
+            {
+                profileImage = await _fileService.UploadProfileImageAsync(request.ProfileImg);
+                user = CreateApplicationUser(request.FirstName, request.LastName, request.Email, request.UserName, request.Gender, request.DateOfBirth, profileImage);
+
+                var createUserResult = await _userManager.CreateAsync(user, request.Password);
+                if (!createUserResult.Succeeded)
+                {
+                    await _fileService.DeleteProfileImageAsync(profileImage);
+
+                    return BadRequest(new ApiResponse<object>
+                    {
+                        IsSuccess = false,
+                        Message = "Registration failed.",
+                        Errors = createUserResult.Errors.Select(e => e.Description)
+                    });
+                }
+
+                await AddUserPhoneNumbersAsync(user.Id, request.PhoneNumbers);
+
+                var addRoleResult = await _userManager.AddToRoleAsync(user, CD.RECEPTIONIST_ROLE);
+                if (!addRoleResult.Succeeded)
+                {
+                    await _userManager.DeleteAsync(user);
+                    await _fileService.DeleteProfileImageAsync(profileImage);
+
+                    return BadRequest(new ApiResponse<object>
+                    {
+                        IsSuccess = false,
+                        Message = "Failed to assign role.",
+                        Errors = addRoleResult.Errors.Select(e => e.Description)
+                    });
+                }
+
+                var branch = await _branchRepository.GetOneAsynch(b => b.Id == request.BranchId);
+                if (branch == null)
+                {
+                    await _userManager.DeleteAsync(user);
+                    await _fileService.DeleteProfileImageAsync(profileImage);
+
+                    return BadRequest(new ApiResponse<object>
+                    {
+                        IsSuccess = false,
+                        Message = "Branch not found."
+                    });
+                }
+
+                var receptionist = new Receptionist
+                {
+                    UserId = user.Id,
+                    BranchId = request.BranchId,
+                    Status = ReceptionistStatus.Pending
+                };
+
+                try
+                {
+                    await _receptionistRepository.AddAsync(receptionist);
+                    await _receptionistRepository.CommitChangesAsync();
+                }
+                catch
+                {
+                    await _userManager.DeleteAsync(user);
+                    await _fileService.DeleteProfileImageAsync(profileImage);
+
+                    throw;
+                }
+
+                var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+                var confirmationLink = Url.Action(
+                    nameof(ConfirmEmail),
+                    "Account",
+                    new
+                    {
+                        UserId = user.Id,
+                        Token = token
+                    },
+                    Request.Scheme);
+                await _emailSender.SendEmailAsync(
+                    user.Email!,
+                    "Confirm your email",
+                    $"Please confirm your email by clicking <a href='{confirmationLink}'>here</a>");
+
+                return Ok(new ApiResponse<object>
+                {
+                    IsSuccess = true,
+                    Message = "Receptionist registration completed successfully. Please check your email to confirm your account."
+                });
+            }
+            catch (Exception ex)
+            {
+                if (user != null)
+                {
+                    await _userManager.DeleteAsync(user);
+                }
+
                 await _fileService.DeleteProfileImageAsync(profileImage);
 
                 return StatusCode(StatusCodes.Status500InternalServerError,

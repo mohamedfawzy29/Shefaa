@@ -8,18 +8,16 @@ namespace Shefaa.Areas.Admin.Controllers
     public class DoctorController : ControllerBase
     {
         IRepository<Doctor> _doctorRepository;
-        UserManager<ApplicationUser> _userManager;
 
-        public DoctorController(IRepository<Doctor> doctorRepository, UserManager<ApplicationUser> userManager)
+        public DoctorController(IRepository<Doctor> doctorRepository)
         {
             _doctorRepository = doctorRepository;
-            _userManager = userManager;
         }
 
         [HttpGet]
         public async Task<IActionResult> GetAllDoctors()
         {
-            var doctors = await _doctorRepository.GetAsync(includes: [d => d.User, d => d.Specialization]);
+            var doctors = await _doctorRepository.GetAsync(includes: [d => d.User, d => d.Specialization, d => d.User.PhoneNumbers]);
             var response = doctors.Select(d => new DoctorResponse
             {
                 DoctorId = d.DoctorId,
@@ -27,6 +25,7 @@ namespace Shefaa.Areas.Admin.Controllers
                 FirstName = d.User.FirstName,
                 LastName = d.User.LastName,
                 Email = d.User.Email!,
+                PhoneNumbers = d.User.PhoneNumbers.Select(p => p.PhoneNumber).ToList(),
                 ProfileImageUrl = $"{Request.Scheme}://{Request.Host}/images/profiles/{d.User.ProfileImg}",
                 Specialization = d.Specialization.Name,
                 LicenseNumber = d.LicenseNumber,
@@ -46,7 +45,7 @@ namespace Shefaa.Areas.Admin.Controllers
         [HttpGet("{id:guid}")]
         public async Task<IActionResult> GetDoctorById(Guid id)
         {
-            var doctor = await _doctorRepository.GetOneAsynch(d => d.DoctorId == id, includes: [d => d.User, d => d.Specialization]);
+            var doctor = await _doctorRepository.GetOneAsynch(d => d.DoctorId == id, includes: [d => d.User, d => d.Specialization, d => d.User.PhoneNumbers]);
             if (doctor == null)
             {
                 return NotFound(new ApiResponse<object>
@@ -62,6 +61,7 @@ namespace Shefaa.Areas.Admin.Controllers
                 FirstName = doctor.User.FirstName,
                 LastName = doctor.User.LastName,
                 Email = doctor.User.Email!,
+                PhoneNumbers = doctor.User.PhoneNumbers.Select(p => p.PhoneNumber).ToList(),
                 ProfileImageUrl = $"{Request.Scheme}://{Request.Host}/images/profiles/{doctor.User.ProfileImg}",
                 Specialization = doctor.Specialization.Name,
                 LicenseNumber = doctor.LicenseNumber,
@@ -81,7 +81,7 @@ namespace Shefaa.Areas.Admin.Controllers
         [HttpGet("Pending")]
         public async Task<IActionResult> GetPendingDoctors()
         {
-            var doctors = await _doctorRepository.GetAsync(d => d.Status == DoctorStatus.Pending, includes: [ d => d.User, d => d.Specialization]);
+            var doctors = await _doctorRepository.GetAsync(d => d.Status == DoctorStatus.Pending, includes: [ d => d.User, d => d.Specialization, d => d.User.PhoneNumbers]);
             var response = doctors.Select(d => new DoctorResponse
             {
                 DoctorId = d.DoctorId,
@@ -89,6 +89,7 @@ namespace Shefaa.Areas.Admin.Controllers
                 FirstName = d.User.FirstName,
                 LastName = d.User.LastName,
                 Email = d.User.Email!,
+                PhoneNumbers = d.User.PhoneNumbers.Select(p => p.PhoneNumber).ToList(),
                 ProfileImageUrl = $"{Request.Scheme}://{Request.Host}/images/profiles/{d.User.ProfileImg}",
                 Specialization = d.Specialization.Name,
                 LicenseNumber = d.LicenseNumber,
