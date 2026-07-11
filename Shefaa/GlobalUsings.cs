@@ -16,3 +16,4 @@ global using Microsoft.AspNetCore.Mvc;
 global using Shefaa.DTOs.Request;
 global using Shefaa.DTOs.Response;
 global using Shefaa.Repositories;
+global using Microsoft.AspNetCore.Authorization;
