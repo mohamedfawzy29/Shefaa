@@ -80,6 +80,7 @@ namespace Shefaa
             builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
             builder.Services.AddScoped<IFileService, Services.FileService>();
             builder.Services.AddScoped<IJwtHandler, JwtHandler>();
+            builder.Services.AddScoped<IApplicationUserService, Services.ApplicationUserService>();
 
             MapsterConfig.RegisterMappings();
 

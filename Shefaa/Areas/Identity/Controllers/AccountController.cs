@@ -15,6 +15,7 @@ namespace Shefaa.Areas.Identity.Controllers
         IRepository<ApplicationUserOTP> _applicationUserOTP;
         IJwtHandler _jwtHandler;
         IFileService _fileService;
+        IApplicationUserService _applicationUserService;
         IRepository<Patient> _patientRepository;
         IRepository<Doctor> _doctorRepository;
         IRepository<Specialization> _specializationRepository;
@@ -22,36 +23,7 @@ namespace Shefaa.Areas.Identity.Controllers
         IRepository<Branch> _branchRepository;
         IRepository<UserPhoneNumber> _userPhoneNumberRepository;
 
-        private ApplicationUser CreateApplicationUser(string firstName,string lastName,string email,string userName,Gender gender,DateOnly dateOfBirth,string profileImg)
-        {
-            return new ApplicationUser
-            {
-                FirstName = firstName,
-                LastName = lastName,
-                Email = email,
-                UserName = userName,
-                Gender = gender,
-                DateOfBirth = dateOfBirth,
-                ProfileImg = profileImg,
-                IsActive = true,
-                EmailConfirmed = false
-            };
-        }
-        private async Task AddUserPhoneNumbersAsync(Guid userId, IEnumerable<string> phoneNumbers)
-        {
-            var numbers = phoneNumbers.Where(p => !string.IsNullOrWhiteSpace(p)).Select(p => p.Trim()).Distinct();
-            foreach (var phoneNumber in numbers)
-            {
-                await _userPhoneNumberRepository.AddAsync(new UserPhoneNumber
-                {
-                    UserId = userId,
-                    PhoneNumber = phoneNumber
-                });
-            }
-            await _userPhoneNumberRepository.CommitChangesAsync();
-        }
-
-        public AccountController(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, IEmailSender emailSender, IRepository<ApplicationUserOTP> applicationUserOTP, IJwtHandler jwtHandler, IFileService fileService, IRepository<Patient> patientRepository, IRepository<Doctor> doctorRepository, IRepository<Specialization> specializationRepository)
+        public AccountController(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, IEmailSender emailSender, IRepository<ApplicationUserOTP> applicationUserOTP, IJwtHandler jwtHandler, IFileService fileService, IApplicationUserService identityService, IRepository<Patient> patientRepository, IRepository<Doctor> doctorRepository, IRepository<Specialization> specializationRepository)
         {
             _userManager = userManager;
             _signInManager = signInManager;
@@ -59,6 +31,7 @@ namespace Shefaa.Areas.Identity.Controllers
             _applicationUserOTP = applicationUserOTP;
             _jwtHandler = jwtHandler;
             _fileService = fileService;
+            _applicationUserService = identityService;
             _patientRepository = patientRepository;
             _doctorRepository = doctorRepository;
             _specializationRepository = specializationRepository;
@@ -73,7 +46,7 @@ namespace Shefaa.Areas.Identity.Controllers
             {
                 profileImage = await _fileService.UploadProfileImageAsync(request.ProfileImg);
 
-                user = CreateApplicationUser(request.FirstName, request.LastName, request.Email, request.UserName, request.Gender, request.DateOfBirth, profileImage);
+                user = _applicationUserService.CreateApplicationUser(request.FirstName, request.LastName, request.Email, request.UserName, request.Gender, request.DateOfBirth, profileImage);
 
                 var createUserResult = await _userManager.CreateAsync(user, request.Password);
 
@@ -89,7 +62,7 @@ namespace Shefaa.Areas.Identity.Controllers
                     });
                 }
 
-                await AddUserPhoneNumbersAsync(user.Id, request.PhoneNumbers);
+                await _applicationUserService.AddUserPhoneNumbersAsync(user.Id, request.PhoneNumbers);
 
                 var addRoleResult = await _userManager.AddToRoleAsync(user, CD.PATIENT_ROLE);
 
@@ -176,7 +149,7 @@ namespace Shefaa.Areas.Identity.Controllers
             try
             {
                 profileImage = await _fileService.UploadProfileImageAsync(request.ProfileImg);
-                user = CreateApplicationUser(request.FirstName,request.LastName,request.Email,request.UserName,request.Gender,request.DateOfBirth,profileImage);
+                user = _applicationUserService.CreateApplicationUser(request.FirstName, request.LastName, request.Email, request.UserName, request.Gender, request.DateOfBirth, profileImage);
 
                 var createUserResult = await _userManager.CreateAsync(user, request.Password);
                 if (!createUserResult.Succeeded)
@@ -191,7 +164,7 @@ namespace Shefaa.Areas.Identity.Controllers
                     });
                 }
 
-                await AddUserPhoneNumbersAsync(user.Id, request.PhoneNumbers);
+                await _applicationUserService.AddUserPhoneNumbersAsync(user.Id, request.PhoneNumbers);
 
                 var addRoleResult = await _userManager.AddToRoleAsync(user, CD.DOCTOR_ROLE);
                 if (!addRoleResult.Succeeded)
@@ -303,7 +276,7 @@ namespace Shefaa.Areas.Identity.Controllers
             try
             {
                 profileImage = await _fileService.UploadProfileImageAsync(request.ProfileImg);
-                user = CreateApplicationUser(request.FirstName, request.LastName, request.Email, request.UserName, request.Gender, request.DateOfBirth, profileImage);
+                user = _applicationUserService.CreateApplicationUser(request.FirstName, request.LastName, request.Email, request.UserName, request.Gender, request.DateOfBirth, profileImage);
 
                 var createUserResult = await _userManager.CreateAsync(user, request.Password);
                 if (!createUserResult.Succeeded)
@@ -318,7 +291,7 @@ namespace Shefaa.Areas.Identity.Controllers
                     });
                 }
 
-                await AddUserPhoneNumbersAsync(user.Id, request.PhoneNumbers);
+                await _applicationUserService.AddUserPhoneNumbersAsync(user.Id, request.PhoneNumbers);
 
                 var addRoleResult = await _userManager.AddToRoleAsync(user, CD.RECEPTIONIST_ROLE);
                 if (!addRoleResult.Succeeded)
