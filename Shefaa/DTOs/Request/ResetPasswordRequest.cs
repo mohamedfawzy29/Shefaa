@@ -2,12 +2,11 @@
 {
     public class ResetPasswordRequest
     {
+        public string UserNameOrEmail { get; set; } = string.Empty;
+        public string ResetToken { get; set; } = string.Empty;
         [DataType(DataType.Password)]
-        public string Password { get; set; }
-        [DataType(DataType.Password), Compare(nameof(Password))]
-        public string ConfirmPassword { get; set; }
-        public string UserId { get; set; }
-        public string Token { get; set; }
-
+        public string NewPassword { get; set; } = string.Empty;
+        [Compare(nameof(NewPassword), ErrorMessage = "Password and Confirm Password do not match.")]
+        public string ConfirmPassword { get; set; } = string.Empty;
     }
 }
