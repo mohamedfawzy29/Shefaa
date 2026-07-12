@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Shefaa.Areas.Patient
+namespace Shefaa.Areas.Customer
 {
     [Route("api/[controller]")]
     [ApiController]

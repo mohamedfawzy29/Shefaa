@@ -28,7 +28,7 @@ namespace Shefaa.Models
         public Guid DoctorId { get; set; }
         public Doctor Doctor { get; set; }
         public Guid BranchId { get; set; }
-        public Branch Branch { get; set; }
+        public Branch Branch { get; set; } = null!;
         public MedicalRecord? MedicalRecord { get; set; }
         public Review? Review { get; set; }
     }
