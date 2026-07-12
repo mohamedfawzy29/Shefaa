@@ -3,9 +3,11 @@ namespace Shefaa.Models
 {
     public enum AppointmentStatus
     {
-        Scheduled,
-        Completed,
-        Cancelled
+        Scheduled = 0,
+        Completed = 1,
+        Cancelled = 2,
+        CheckedIn = 3,
+        NoShow = 4
     }
     public class Appointment
     {
