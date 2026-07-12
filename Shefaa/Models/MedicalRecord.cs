@@ -18,7 +18,7 @@ namespace Shefaa.Models
         public string TreatmentPlan { get; set; } = string.Empty;
         public DateTime? FollowUpDate { get; set; }
         public Guid AppointmentId { get; set; }
-        public Appointment Appointment { get; set; }
+        public Appointment Appointment { get; set; } = null!;
         public Guid PatientId { get; set; }
         public Patient Patient { get; set; }
         public Guid DoctorId { get; set; }
