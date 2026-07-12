@@ -10,7 +10,7 @@ using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 
-namespace Shefaa.Areas.Doctor.Controllers
+namespace Shefaa.Areas.DoctorArea.Controllers
 {
     [Area("Doctor")]
     [Route("api/[area]/[controller]")]

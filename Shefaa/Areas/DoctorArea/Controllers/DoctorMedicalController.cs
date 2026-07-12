@@ -1,7 +1,7 @@
 ﻿using System.Security.Claims;
 
 
-namespace Shefaa.Areas.Doctor.Controllers
+namespace Shefaa.Areas.DoctorArea.Controllers
 {
     [Area("Doctor")]
     [Route("api/[area]/[controller]")]
