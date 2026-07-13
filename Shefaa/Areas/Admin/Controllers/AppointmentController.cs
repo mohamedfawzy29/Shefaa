@@ -3,7 +3,9 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Shefaa.Areas.Admin.Controllers
 {
+    [Area(CD.ADMIN_AREA)]
     [Route("api/[controller]")]
+    [Authorize(Roles = CD.ADMIN_ROLE)]
     [ApiController]
     public class AppointmentController : ControllerBase
     {

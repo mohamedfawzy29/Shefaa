@@ -1,18 +1,17 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Shefaa.DTOs.filter;
-using Shefaa.Repositories;
+﻿using Shefaa.DTOs.filter;
 using System.Security.Claims;
 
-namespace Shefaa.Areas.Customer
+namespace Shefaa.Areas.Patient
 {
-    [Route("api/Customer/[controller]")]
+    [Area(CD.PATIENT_AREA)]
+    [Route("api/Patient/[controller]")]
+    [Authorize(Roles = CD.PATIENT_ROLE)]
     [ApiController]
-    public class AppiontmentController : ControllerBase
+    public class AppointmentController : ControllerBase
     {
-        private readonly IRepository<Appointment> _appointmentRepo;
+        IRepository<Appointment> _appointmentRepo;
 
-        public AppiontmentController(IRepository<Appointment> appointmentRepo)
+        public AppointmentController(IRepository<Appointment> appointmentRepo)
         {
             _appointmentRepo = appointmentRepo;
         }

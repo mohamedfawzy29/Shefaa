@@ -37,5 +37,33 @@
             }
             await _userPhoneNumberRepository.CommitChangesAsync();
         }
+
+        public async Task UpdateUserPhoneNumbersAsync(Guid userId, List<string> phoneNumbers)
+        {
+            phoneNumbers = phoneNumbers?.Where(p => !string.IsNullOrWhiteSpace(p)).Select(p => p.Trim()).Distinct().ToList() ?? [];
+
+            var oldPhoneNumbers = await _userPhoneNumberRepository.GetAsync(
+                p => p.UserId == userId);
+
+            foreach (var phone in oldPhoneNumbers)
+            {
+                _userPhoneNumberRepository.Delete(phone);
+            }
+
+            if (phoneNumbers is not null && phoneNumbers.Any())
+            {
+
+                foreach (var phone in phoneNumbers.Distinct())
+                {
+                    await _userPhoneNumberRepository.AddAsync(new UserPhoneNumber
+                    {
+                        UserId = userId,
+                        PhoneNumber = phone
+                    });
+                }
+            }
+
+            await _userPhoneNumberRepository.CommitChangesAsync();
+        }
     }
 }

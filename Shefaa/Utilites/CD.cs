@@ -9,6 +9,10 @@
 
         public const string ADMIN_AREA = "Admin";
         public const string IDENTITY_AREA = "Identity";
+        public const string DOCTOR_AREA = "Doctor";
+        public const string PATIENT_AREA = "Patient";
+        public const string RECEPTIONIST_AREA = "Receptionist";
+
 
     }
 }
