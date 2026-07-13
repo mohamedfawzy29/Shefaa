@@ -1,18 +1,16 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Shefaa.Repositories;
-using Shefaa.Models;
-using Shefaa.DTOs.filter;
-namespace Shefaa.Areas.Customer
+﻿using Shefaa.DTOs.filter;
+namespace Shefaa.Areas.Patient
 {
-    [Route("api/customer/[controller]")]
+    [Area(CD.PATIENT_AREA)]
+    [Route("api/Patient/[controller]")]
+    [Authorize(Roles = CD.PATIENT_ROLE)]
     [ApiController]
-    public class DoctorControlller : ControllerBase
+    public class DoctorController : ControllerBase
     {
         private readonly IRepository<Doctor> _doctorRepo;
 
         
-        public DoctorControlller(IRepository<Doctor> doctorRepo)
+        public DoctorController(IRepository<Doctor> doctorRepo)
         {
             _doctorRepo = doctorRepo;
         }

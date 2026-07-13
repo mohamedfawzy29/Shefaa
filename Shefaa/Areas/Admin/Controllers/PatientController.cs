@@ -9,10 +9,10 @@ namespace Shefaa.Areas.Admin.Controllers
     [ApiController]
     public class PatientController : ControllerBase
     {
-        IRepository<Patient> _patientRepository;
+        IRepository<Models.Patient> _patientRepository;
         UserManager<ApplicationUser> _userManager;
 
-        public PatientController(IRepository<Patient> patientRepository, UserManager<ApplicationUser> userManager)
+        public PatientController(IRepository<Models.Patient> patientRepository, UserManager<ApplicationUser> userManager)
         {
             _patientRepository = patientRepository;
             _userManager = userManager;

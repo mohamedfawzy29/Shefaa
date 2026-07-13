@@ -12,10 +12,10 @@ using System.Threading.Tasks;
 
 namespace Shefaa.Areas.DoctorArea.Controllers
 {
-    [Area("Doctor")]
+    [Area(CD.DOCTOR_AREA)]
     [Route("api/[area]/[controller]")]
     [ApiController]
-    [Authorize]
+    [Authorize(Roles = CD.DOCTOR_ROLE)]
     public class DoctorClinicController : ControllerBase
     {
         private readonly ApplicationDbContext _context;

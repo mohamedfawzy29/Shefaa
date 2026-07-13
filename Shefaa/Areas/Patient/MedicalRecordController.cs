@@ -1,9 +1,9 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-
-namespace Shefaa.Areas.Customer
+﻿
+namespace Shefaa.Areas.Patient
 {
-    [Route("api/[controller]")]
+    [Area(CD.PATIENT_AREA)]
+    [Route("api/Patient/[controller]")]
+    [Authorize(Roles = CD.PATIENT_ROLE)]
     [ApiController]
     public class MedicalRecordController : ControllerBase
     {

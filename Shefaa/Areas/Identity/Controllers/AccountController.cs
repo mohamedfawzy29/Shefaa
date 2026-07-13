@@ -16,14 +16,14 @@ namespace Shefaa.Areas.Identity.Controllers
         IJwtHandler _jwtHandler;
         IFileService _fileService;
         IApplicationUserService _applicationUserService;
-        IRepository<Patient> _patientRepository;
+        IRepository<Models.Patient> _patientRepository;
         IRepository<Doctor> _doctorRepository;
         IRepository<Specialization> _specializationRepository;
         IRepository<Receptionist> _receptionistRepository;
         IRepository<Branch> _branchRepository;
         IRepository<UserPhoneNumber> _userPhoneNumberRepository;
 
-        public AccountController(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, IEmailSender emailSender, IRepository<ApplicationUserOTP> applicationUserOTP, IJwtHandler jwtHandler, IFileService fileService, IApplicationUserService identityService, IRepository<Patient> patientRepository, IRepository<Doctor> doctorRepository, IRepository<Specialization> specializationRepository)
+        public AccountController(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, IEmailSender emailSender, IRepository<ApplicationUserOTP> applicationUserOTP, IJwtHandler jwtHandler, IFileService fileService, IApplicationUserService identityService, IRepository<Models.Patient> patientRepository, IRepository<Doctor> doctorRepository, IRepository<Specialization> specializationRepository)
         {
             _userManager = userManager;
             _signInManager = signInManager;
@@ -79,7 +79,7 @@ namespace Shefaa.Areas.Identity.Controllers
                     });
                 }
 
-                var patient = new Patient
+                var patient = new Models.Patient
                 {
                     UserId = user.Id,
                     Address = request.Address,

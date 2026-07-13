@@ -10,6 +10,7 @@ global using Microsoft.AspNetCore.Identity;
 global using Microsoft.AspNetCore.Identity.UI.Services;
 global using Shefaa.Utilites;
 global using Shefaa.JwtFeatures;
+global using Shefaa.Services;
 global using Mapster;
 global using Shefaa.Configurations;
 global using Microsoft.AspNetCore.Mvc;

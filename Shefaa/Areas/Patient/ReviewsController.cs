@@ -4,9 +4,11 @@ using Microsoft.AspNetCore.Mvc;
 using Shefaa.Repositories;
 using System.Security.Claims;
 using Shefaa.DTOs.filter;
-namespace Shefaa.Areas.Customer
+namespace Shefaa.Areas.Patient
 {
-    [Route("api/Customer/[controller]")]
+    [Area(CD.PATIENT_AREA)]
+    [Route("api/Patient/[controller]")]
+    [Authorize(Roles = CD.PATIENT_ROLE)]
     [ApiController]
     public class ReviewsController : ControllerBase
     {
