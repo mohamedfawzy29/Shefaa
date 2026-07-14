@@ -1,5 +1,5 @@
 ﻿using Shefaa.DTOs.filter;
-namespace Shefaa.Areas.Patient
+namespace Shefaa.Areas.Patient.Controllers
 {
     [Area(CD.PATIENT_AREA)]
     [Route("api/Patient/[controller]")]
