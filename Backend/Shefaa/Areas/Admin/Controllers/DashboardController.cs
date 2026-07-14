@@ -39,7 +39,7 @@ namespace Shefaa.Areas.Admin.Controllers
             return Ok(new ApiResponse<DBcounter>
             {
                 IsSuccess = true,
-                Message = "COUNT SUCCESS",
+                Message = "تم جلب العدادات بنجاح",
                 Data = counters
             });
         }
@@ -60,7 +60,7 @@ namespace Shefaa.Areas.Admin.Controllers
             return Ok(new ApiResponse<object>
             {
                 IsSuccess = true,
-                Message = "BOOK CUCCESS",
+                Message = "تم جلب مخطط حالات الحجوزات بنجاح",
                 Data = chartData
             });
         }
@@ -83,7 +83,7 @@ namespace Shefaa.Areas.Admin.Controllers
             return Ok(new ApiResponse<object>
             {
                 IsSuccess = true,
-                Message = "TOP SPECIALIZATION",
+                Message = "top specialization",
                 Data = chartData
             });
         }
@@ -97,7 +97,7 @@ namespace Shefaa.Areas.Admin.Controllers
                 .Include(d => d.Specialization)
                 .Select(d => new
                 {
-                    DoctorId = d.DoctorId,
+                    DoctorId = d.Id,
                     FullName = d.User.FirstName + " " + d.User.LastName,
                     Email = d.User.Email,
                     Specialization = d.Specialization.Name,
@@ -109,22 +109,21 @@ namespace Shefaa.Areas.Admin.Controllers
             return Ok(new ApiResponse<object>
             {
                 IsSuccess = true,
-                Message = "DOCTOR PENDING",
+                Message = "doctors pending ",
                 Data = pendingDoctors
             });
         }
 
-        
         [HttpPut("review-doctor/{doctorId}")]
         public async Task<IActionResult> ReviewDoctor(Guid doctorId, [FromBody] ReviewStatusDto dto)
         {
-            var doctor = await _context.Doctors.Include(d => d.User).FirstOrDefaultAsync(d => d.DoctorId == doctorId);
+            var doctor = await _context.Doctors.Include(d => d.User).FirstOrDefaultAsync(d => d.Id == doctorId);
             if (doctor == null)
             {
                 return NotFound(new ApiResponse<object>
                 {
                     IsSuccess = false,
-                    Message = "DOCTOR NOT FOUND"
+                    Message = "doctor determind not found"
                 });
             }
 
@@ -132,13 +131,13 @@ namespace Shefaa.Areas.Admin.Controllers
             {
                 
                 await _context.SaveChangesAsync();
-                return Ok(new ApiResponse<object> { IsSuccess = true, Message = "DOCTOR ACCEPT" });
+                return Ok(new ApiResponse<object> { IsSuccess = true, Message = " doctor accept" });
             }
             else
             {
                 _context.Doctors.Remove(doctor);
                 await _context.SaveChangesAsync();
-                return Ok(new ApiResponse<object> { IsSuccess = true, Message = "DOCTOR NOT ACCEPT" });
+                return Ok(new ApiResponse<object> { IsSuccess = true, Message = "doctor not accept" });
             }
         }
 
@@ -167,7 +166,7 @@ namespace Shefaa.Areas.Admin.Controllers
             return Ok(new ApiResponse<object>
             {
                 IsSuccess = true,
-                Message = "RECENT ACTIVITIES",
+                Message = "recent activities fetched successfully",
                 Data = recentAppointments
             });
         }
@@ -177,8 +176,6 @@ namespace Shefaa.Areas.Admin.Controllers
     public class ReviewStatusDto
     {
         public bool Approve { get; set; }
-
-
 
 
 
