@@ -42,27 +42,27 @@ namespace Shefaa.Areas.Patient.Controllers
         }
 
         
-        //[HttpGet("{id}")]
-        //public async Task<IActionResult> GetDoctorDetails(Guid id)
-        //{
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetDoctorDetails(Guid id)
+        {
             
-        //    var doctor = await _doctorRepo.GetOneAsynch(
-        //        filter: d => d.DoctorId == id,
-        //        includes: new System.Linq.Expressions.Expression<Func<Doctor, object>>[]
-        //        {
-        //            d => d.User,
-        //            d => d.Specialization,
-        //            d => d.DoctorSchedules, 
-        //            d => d.Reviews         
-        //        }
-        //    );
+            var doctor = await _doctorRepo.GetOneAsynch(
+                filter: d => d.DoctorId == id,
+                includes: new System.Linq.Expressions.Expression<Func<Doctor, object>>[]
+                {
+                    d => d.User,
+                    d => d.Specialization,
+                    d => d.DoctorSchedules, 
+                           
+                }
+            );
 
-        //    if (doctor == null)
-        //    {
-        //        return NotFound(new { Message ="Sorry doctor not found" });
-        //    }
+           if (doctor == null)
+            {
+                return NotFound(new { Message ="Sorry doctor not found" });
+           }
 
-        //    return Ok(doctor);
-        //}
+            return Ok(doctor);
+        }
     }
 }

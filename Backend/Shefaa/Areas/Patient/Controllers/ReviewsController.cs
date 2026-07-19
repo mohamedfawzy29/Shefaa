@@ -67,6 +67,7 @@ namespace Shefaa.Areas.Patient.Controllers
                 {
                     IsSuccess = false,
                     Message = "book first"
+                } );
             }
 
             
@@ -91,7 +92,7 @@ namespace Shefaa.Areas.Patient.Controllers
                 CreatedAt = DateTime.UtcNow
             };
 
-            await _reviewRepo.AddAsynch(newReview);
+            await _reviewRepo.AddAsync(newReview);
             await _reviewRepo.CommitChangesAsync();
 
             return Ok(new ApiResponse<object>
