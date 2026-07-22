@@ -8,10 +8,12 @@ namespace Shefaa.Areas.Admin.Controllers
     public class SpecializationsController : ControllerBase
     {
         private readonly IRepository<Specialization> _specializationRepository;
+        IFileService _fileService;
 
-        public SpecializationsController(IRepository<Specialization> specializationRepository)
+        public SpecializationsController(IRepository<Specialization> specializationRepository, IFileService fileService)
         {
             _specializationRepository = specializationRepository;
+            _fileService = fileService;
         }
 
         [HttpGet]
@@ -54,9 +56,14 @@ namespace Shefaa.Areas.Admin.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create(CreateSpecializationRequest request)
+        public async Task<IActionResult> Create([FromForm] CreateSpecializationRequest request)
         {
             var specialization = request.Adapt<Specialization>();
+
+            if (request.Icon is not null)
+            {
+                specialization.IconImg = await _fileService.UploadImageAsync(request.Icon, "specializations");
+            }
 
             if (await _specializationRepository.ExistsAsync(s => s.Name == specialization.Name))
             {
@@ -82,7 +89,7 @@ namespace Shefaa.Areas.Admin.Controllers
         }
 
         [HttpPut("{id:guid}")]
-        public async Task<IActionResult> Update(Guid id, UpdateSpecializationRequest request)
+        public async Task<IActionResult> Update(Guid id,[FromForm] UpdateSpecializationRequest request)
         {
             var specialization = await _specializationRepository.GetOneAsynch(s => s.Id == id, trackChanges: true);
 
@@ -96,6 +103,16 @@ namespace Shefaa.Areas.Admin.Controllers
             }
 
             request.Adapt(specialization);
+
+            if (request.Icon is not null)
+            {
+                if (!string.IsNullOrWhiteSpace(specialization.IconImg))
+                {
+                    await _fileService.DeleteImageAsync(specialization.IconImg, "specializations");
+                }
+
+                specialization.IconImg = await _fileService.UploadImageAsync(request.Icon, "specializations");
+            }
 
             await _specializationRepository.CommitChangesAsync();
 
@@ -127,6 +144,11 @@ namespace Shefaa.Areas.Admin.Controllers
                     IsSuccess = false,
                     Message = "Cannot delete specialization because it has doctors."
                 });
+            }
+
+            if (!string.IsNullOrWhiteSpace(specialization.IconImg))
+            {
+                await _fileService.DeleteImageAsync(specialization.IconImg, "specializations");
             }
 
             _specializationRepository.Delete(specialization);
