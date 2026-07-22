@@ -1,6 +1,6 @@
 ﻿namespace Shefaa.Services
 {
-    public class DoctorService
+    public class DoctorService : IDoctorService
     {
         IRepository<Doctor> _doctorRepository;
         IRepository<Review> _reviewRepository;

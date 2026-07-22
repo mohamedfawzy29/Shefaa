@@ -3,7 +3,7 @@
     public class UpdateSpecializationRequest
     {
         public string? Description { get; set; }
-        public string? IconImg { get; set; }
+        public IFormFile? Icon { get; set; }
     }
 
 }
