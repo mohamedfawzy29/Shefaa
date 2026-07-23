@@ -23,7 +23,7 @@ namespace Shefaa.Areas.Identity.Controllers
         IRepository<Branch> _branchRepository;
         IRepository<UserPhoneNumber> _userPhoneNumberRepository;
 
-        public AccountController(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, IEmailSender emailSender, IRepository<ApplicationUserOTP> applicationUserOTP, IJwtHandler jwtHandler, IFileService fileService, IApplicationUserService identityService, IRepository<Models.Patient> patientRepository, IRepository<Doctor> doctorRepository, IRepository<Specialization> specializationRepository)
+        public AccountController(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, IEmailSender emailSender, IRepository<ApplicationUserOTP> applicationUserOTP, IJwtHandler jwtHandler, IFileService fileService, IApplicationUserService identityService, IRepository<Models.Patient> patientRepository, IRepository<Doctor> doctorRepository, IRepository<Specialization> specializationRepository, IRepository<Branch> branchRepository, IRepository<Receptionist> receptionistRepository, IRepository<UserPhoneNumber> userPhoneNumberRepository)
         {
             _userManager = userManager;
             _signInManager = signInManager;
@@ -35,6 +35,9 @@ namespace Shefaa.Areas.Identity.Controllers
             _patientRepository = patientRepository;
             _doctorRepository = doctorRepository;
             _specializationRepository = specializationRepository;
+            _branchRepository = branchRepository;
+            _receptionistRepository = receptionistRepository;
+            _userPhoneNumberRepository = userPhoneNumberRepository;
         }
 
         [HttpPost("RegisterPatient")]
@@ -487,12 +490,15 @@ namespace Shefaa.Areas.Identity.Controllers
 
             var token = await _jwtHandler.GenerateAccessTokenAsync(user);
 
+            var roles = await _userManager.GetRolesAsync(user);
+
             return Ok(new AuthenticatedResponse()
             {
                 AccessToken = token,
                 UserName = user.UserName!,
                 Email = user.Email!,
-                FullName = $"{user.FirstName} {user.LastName}"
+                FullName = $"{user.FirstName} {user.LastName}",
+                Role = roles.FirstOrDefault() ?? string.Empty
             });
         }
 
