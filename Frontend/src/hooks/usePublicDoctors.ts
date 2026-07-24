@@ -1,23 +1,22 @@
 import { useQuery } from "@tanstack/react-query";
 import { doctorService } from "../features/doctors/services/doctorService";
-import type { DoctorResponse } from "../features/doctors/types/doctor";
+import type { PublicDoctorResponse } from "../features/doctors/types/doctor";
 
-/** All approved doctors (status === 1) — used by public patient area */
+/** All Approved doctors from the public [AllowAnonymous] Patient/Doctor endpoint. */
 export function usePublicDoctors() {
-    return useQuery<DoctorResponse[]>({
+    return useQuery<PublicDoctorResponse[]>({
         queryKey: ["public", "doctors"],
-        queryFn: async () => {
-            const all = await doctorService.getDoctors();
-            return all.filter((d) => d.status === 1);
-        },
+        queryFn: () => doctorService.getPublicDoctors(),
+        // No client-side status filter needed — backend returns Approved-only.
     });
 }
 
-/** Single doctor by id — no auth required if backend allows */
+/** Single doctor detail from the public [AllowAnonymous] Patient/Doctor/{id} endpoint.
+ *  Includes DoctorSchedules for use by the booking modal (Phase 3). */
 export function usePublicDoctor(id: string | undefined) {
-    return useQuery<DoctorResponse>({
+    return useQuery<PublicDoctorResponse>({
         queryKey: ["public", "doctors", id],
-        queryFn: () => doctorService.getDoctorById(id!),
+        queryFn: () => doctorService.getPublicDoctorById(id!),
         enabled: !!id,
     });
 }

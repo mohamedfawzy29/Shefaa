@@ -1,4 +1,4 @@
-﻿using System.Security.Claims;
+using System.Security.Claims;
 
 
 namespace Shefaa.Areas.DoctorArea.Controllers
@@ -49,6 +49,15 @@ namespace Shefaa.Areas.DoctorArea.Controllers
                 });
             }
 
+            if (appointment.Status != AppointmentStatus.CheckedIn)
+            {
+                return BadRequest(new ApiResponse<object>
+                {
+                    IsSuccess = false,
+                    Message = "Medical records can only be created for checked-in appointments."
+                });
+            }
+
             var recordExists = await _context.MedicalRecords.AnyAsync(m => m.AppointmentId == request.AppointmentId);
             if (recordExists)
             {
@@ -72,6 +81,8 @@ namespace Shefaa.Areas.DoctorArea.Controllers
                 FollowUpDate = request.FollowUpDate
             };
 
+            appointment.Status = AppointmentStatus.Completed;
+            appointment.UpdatedAt = DateTime.UtcNow;
 
             _context.MedicalRecords.Add(medicalRecord);
             await _context.SaveChangesAsync();

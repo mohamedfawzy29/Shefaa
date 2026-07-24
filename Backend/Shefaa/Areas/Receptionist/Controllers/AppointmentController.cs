@@ -257,7 +257,50 @@ namespace Shefaa.Areas.ReceptionistArea.Controllers
             });
         }
 
+        [HttpPatch("UpdateBranch")]
+        public async Task<IActionResult> UpdateBranch([FromBody] UpdateReceptionistBranchRequest model)
+        {
+            var receptionist = await GetCurrentReceptionistAsync();
 
+            if (receptionist == null)
+            {
+                return Unauthorized(new ApiResponse<object>
+                {
+                    IsSuccess = false,
+                    Message = "Receptionist not found."
+                });
+            }
+
+            var branchExists = await _context.Branches.AnyAsync(b => b.Id == model.BranchId);
+            if (!branchExists)
+            {
+                return NotFound(new ApiResponse<object>
+                {
+                    IsSuccess = false,
+                    Message = "Branch not found."
+                });
+            }
+
+            receptionist.BranchId = model.BranchId;
+            _receptionistRepository.Update(receptionist);
+
+            var result = await _receptionistRepository.CommitChangesAsync();
+
+            if (result == 0)
+            {
+                return BadRequest(new ApiResponse<object>
+                {
+                    IsSuccess = false,
+                    Message = "Failed to update branch."
+                });
+            }
+
+            return Ok(new ApiResponse<object>
+            {
+                IsSuccess = true,
+                Message = "Branch updated successfully."
+            });
+        }
     }
 
 }

@@ -10,7 +10,7 @@ using Microsoft.AspNetCore.Authorization;
 namespace Shefaa.Areas.Admin.Controllers
 {
     [Area(CD.ADMIN_AREA)]
-    [Route("api/ [Area]/[controller]")]
+    [Route("api/[Area]/[controller]")]
     [Authorize(Roles = CD.ADMIN_ROLE)]
     [ApiController]
     public class DashboardController : ControllerBase

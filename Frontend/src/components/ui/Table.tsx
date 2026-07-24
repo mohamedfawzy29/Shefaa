@@ -36,7 +36,7 @@ export function Table<T,>({
         return <TableSkeleton columns={columns.length} rows={5} />;
     }
 
-    const safeData = data || [];
+    const safeData = Array.isArray(data) ? data : [];
 
     if (safeData.length === 0 && emptyState) {
         return <>{emptyState}</>;

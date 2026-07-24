@@ -2,13 +2,17 @@ import api from "../../../api/axios";
 import { API_ENDPOINTS } from "../../../api/endpoints";
 import type { ApiResponse, SpecializationResponse } from "../types/specialization";
 
-const BASE = API_ENDPOINTS.SPECIALIZATIONS.BASE;
+const BASE = API_ENDPOINTS.ADMIN.SPECIALIZATIONS.BASE; // /Admin/Specializations — Admin area only
 
 export const specializationService = {
     /** GET /api/Admin/Specializations */
     getAll: async (): Promise<SpecializationResponse[]> => {
-        const response = await api.get<ApiResponse<SpecializationResponse[]>>(BASE);
-        return response.data.data ?? [];
+        try {
+            const response = await api.get<ApiResponse<SpecializationResponse[]>>(BASE);
+            return response.data.data ?? [];
+        } catch {
+            return [];
+        }
     },
 
     /** GET /api/Admin/Specializations/{id} */
@@ -19,8 +23,7 @@ export const specializationService = {
 
     /**
      * POST /api/Admin/Specializations
-     * Sends multipart/form-data — do NOT set Content-Type manually.
-     * Axios automatically adds the correct boundary when the body is FormData.
+     * Sends multipart/form-data — Axios automatically adds boundary when body is FormData.
      */
     create: async (formData: FormData): Promise<SpecializationResponse> => {
         const response = await api.post<ApiResponse<SpecializationResponse>>(BASE, formData);
@@ -29,8 +32,7 @@ export const specializationService = {
 
     /**
      * PUT /api/Admin/Specializations/{id}
-     * Sends multipart/form-data — do NOT set Content-Type manually.
-     * Axios automatically adds the correct boundary when the body is FormData.
+     * Sends multipart/form-data — Axios automatically adds boundary when body is FormData.
      */
     update: async (id: string, formData: FormData): Promise<SpecializationResponse> => {
         const response = await api.put<ApiResponse<SpecializationResponse>>(

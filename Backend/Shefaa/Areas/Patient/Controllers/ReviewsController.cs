@@ -1,4 +1,4 @@
-﻿using System.Security.Claims;
+using System.Security.Claims;
 using Shefaa.DTOs.filter;
 namespace Shefaa.Areas.Patient.Controllers
 {
@@ -11,15 +11,18 @@ namespace Shefaa.Areas.Patient.Controllers
         private readonly IRepository<Review> _reviewRepo;
         private readonly IRepository<Shefaa.Models.Patient> _patientRepo;
         private readonly IRepository<Appointment> _appointmentRepo;
+        private readonly IDoctorService _doctorService;
 
         public ReviewsController(
             IRepository<Review> reviewRepo,
             IRepository<Shefaa.Models.Patient> patientRepo,
-            IRepository<Appointment> appointmentRepo)
+            IRepository<Appointment> appointmentRepo,
+            IDoctorService doctorService)
         {
             _reviewRepo = reviewRepo;
             _patientRepo = patientRepo;
             _appointmentRepo = appointmentRepo;
+            _doctorService = doctorService;
         }
 
 
@@ -91,6 +94,10 @@ namespace Shefaa.Areas.Patient.Controllers
             await _reviewRepo.AddAsync(newReview);
             await _reviewRepo.CommitChangesAsync();
 
+            // Recalculate doctor's average rating after new review.
+            // completedAppointment.DoctorId is already in scope — no extra query needed.
+            await _doctorService.UpdateDoctorAverageRatingAsync(completedAppointment.DoctorId);
+
             return Ok(new ApiResponse<object>
             {
                 IsSuccess = true,
@@ -156,6 +163,14 @@ namespace Shefaa.Areas.Patient.Controllers
             _reviewRepo.Update(review);
             await _reviewRepo.CommitChangesAsync();
 
+            // Fetch appointment in a separate no-tracking query to get DoctorId.
+            // Avoids loading Appointment as a navigation property on the Review entity,
+            // which would cause EF to emit an unintended UPDATE on the Appointments table
+            // when _reviewRepo.Update(review) marks all tracked entities as Modified.
+            var updatedAppointment = await _appointmentRepo.GetOneAsynch(a => a.Id == review.AppointmentId);
+            if (updatedAppointment != null)
+                await _doctorService.UpdateDoctorAverageRatingAsync(updatedAppointment.DoctorId);
+
             return Ok(new ApiResponse<object>
             {
                 IsSuccess = true,
@@ -180,8 +195,16 @@ namespace Shefaa.Areas.Patient.Controllers
                 });
             }
 
+            // Capture AppointmentId before the entity is deleted from the change tracker.
+            var appointmentId = review.AppointmentId;
+
             _reviewRepo.Delete(review);
             await _reviewRepo.CommitChangesAsync();
+
+            // Separate no-tracking query — same safe pattern as UpdateReview.
+            var deletedAppointment = await _appointmentRepo.GetOneAsynch(a => a.Id == appointmentId);
+            if (deletedAppointment != null)
+                await _doctorService.UpdateDoctorAverageRatingAsync(deletedAppointment.DoctorId);
 
             return Ok(new ApiResponse<object>
             {

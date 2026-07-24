@@ -9,6 +9,7 @@ import { useUpdateSpecialization } from "../../hooks/useSpecializations";
 import type { SpecializationResponse } from "../../types/specialization";
 import { Modal } from "../../../../components/ui/Modal";
 import { Button } from "../../../../components/ui/Button";
+import { getSpecializationIconUrl } from "../../../../utils/imageUrl";
 
 interface EditSpecializationDialogProps {
     specialization: SpecializationResponse | null;
@@ -81,8 +82,9 @@ export function EditSpecializationDialog({
         );
     };
 
-    // Current icon to display — local preview takes priority
-    const displayedIcon = preview ?? specialization?.iconImg ?? null;
+    // Current icon to display — local preview takes priority, then constructed static URL
+    const displayedIcon = preview ?? getSpecializationIconUrl(specialization?.iconImg);
+    const bannerIconUrl = getSpecializationIconUrl(specialization?.iconImg);
 
     const footer = (
         <>
@@ -110,10 +112,10 @@ export function EditSpecializationDialog({
             {/* Read-only name banner */}
             <div className="mb-4 flex items-center gap-3 bg-slate-50 rounded-lg px-4 py-3 border border-slate-100">
                 <div className="h-10 w-10 rounded-lg bg-indigo-100 flex items-center justify-center overflow-hidden shrink-0">
-                    {specialization?.iconImg && !bannerImgError ? (
+                    {bannerIconUrl && !bannerImgError ? (
                         <img
-                            src={specialization.iconImg}
-                            alt={specialization.name}
+                            src={bannerIconUrl}
+                            alt={specialization?.name}
                             className="h-full w-full object-cover"
                             onError={() => setBannerImgError(true)}
                         />

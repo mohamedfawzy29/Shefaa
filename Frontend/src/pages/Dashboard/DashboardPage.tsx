@@ -1,13 +1,19 @@
-﻿import PageContainer from "../../components/layout/PageContainer";
+import { Link } from "react-router-dom";
+import PageContainer from "../../components/layout/PageContainer";
 import {
     useDashboardCounters,
     useAppointmentChart,
     useTopSpecializationsChart,
 } from "../../features/dashboard/hooks/useDashboard";
 import { ErrorState, StatsCard, SkeletonList, Card } from "../../components/ui";
-import { Users, Stethoscope, Calendar, Building2, TrendingUp, HelpCircle, ArrowUpRight } from "lucide-react";
+import { Users, Stethoscope, Calendar, Building2, TrendingUp, HelpCircle, ArrowUpRight, AlertTriangle } from "lucide-react";
+import { useAuth } from "../../features/auth/hooks/useAuth";
+import { useMyBranches } from "../../features/doctor-clinic/hooks/useDoctorClinic";
 
 export default function DashboardPage() {
+    const { currentUser } = useAuth();
+    const { data: myBranches = [] } = useMyBranches();
+
     const {
         data: counters,
         isLoading: isLoadingCounters,
@@ -15,6 +21,7 @@ export default function DashboardPage() {
         error: errorCounters,
         refetch: refetchCounters,
     } = useDashboardCounters();
+
 
     const {
         data: appointmentChart,
@@ -54,10 +61,10 @@ export default function DashboardPage() {
     }
 
     // Calculate maximum value for charts to compute percentage heights/widths
-    const maxAppointmentValue = appointmentChart
+    const maxAppointmentValue = Array.isArray(appointmentChart) && appointmentChart.length > 0
         ? Math.max(...appointmentChart.map((d) => d.value), 1)
         : 1;
-    const maxSpecializationValue = specializationsChart
+    const maxSpecializationValue = Array.isArray(specializationsChart) && specializationsChart.length > 0
         ? Math.max(...specializationsChart.map((d) => d.value), 1)
         : 1;
 
@@ -69,7 +76,31 @@ export default function DashboardPage() {
         >
             <div className="space-y-8 md:space-y-12">
 
+                {/* Soft Nudge Banner for Doctor Role without Joined Branches */}
+                {currentUser?.role === "Doctor" && myBranches.length === 0 && (
+                    <div className="bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900/60 rounded-3xl !p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-sm">
+                        <div className="flex items-center gap-3">
+                            <div className="h-10 w-10 rounded-2xl bg-amber-500 text-white flex items-center justify-center shrink-0">
+                                <AlertTriangle className="h-5 w-5" />
+                            </div>
+                            <div>
+                                <h3 className="font-bold text-amber-900 dark:text-amber-200 text-sm">Clinic Setup Required</h3>
+                                <p className="text-xs text-amber-700 dark:text-amber-400 mt-0.5">
+                                    You haven't joined a clinic branch yet. Join a branch to set your consultation fees and working hours.
+                                </p>
+                            </div>
+                        </div>
+                        <Link
+                            to="/doctor/clinic"
+                            className="shrink-0 !px-5 !py-2.5 rounded-2xl bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold transition-all shadow-md"
+                        >
+                            Set Up My Clinic →
+                        </Link>
+                    </div>
+                )}
+
                 {/* Custom Inline Badge Title in Page Layout (like design reference) */}
+
                 <div className="flex flex-wrap items-center gap-3">
                     <span className="text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">
                         Managing
@@ -145,7 +176,7 @@ export default function DashboardPage() {
 
                             {isLoadingAppointments ? (
                                 <SkeletonList rows={4} />
-                            ) : appointmentChart && appointmentChart.length > 0 ? (
+                            ) : Array.isArray(appointmentChart) && appointmentChart.length > 0 ? (
                                 /* Render modern vertical pill bars exactly like the design reference chart */
                                 <div className="flex items-end justify-between gap-4 h-64 !pt-6 !px-4">
                                     {appointmentChart.map((item, idx) => {
@@ -188,7 +219,7 @@ export default function DashboardPage() {
                             </h3>
                             {isLoadingSpecializations ? (
                                 <SkeletonList rows={5} />
-                            ) : specializationsChart && specializationsChart.length > 0 ? (
+                            ) : Array.isArray(specializationsChart) && specializationsChart.length > 0 ? (
                                 <div className="space-y-4">
                                     {specializationsChart.map((item, idx) => {
                                         const percent = (item.value / maxSpecializationValue) * 100;

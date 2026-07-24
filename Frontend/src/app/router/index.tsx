@@ -1,6 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 
-import MainLayout from "../../components/layout/MainLayout";
+import RoleBasedLayout from "../../components/layout/RoleBasedLayout";
 import PublicLayout from "../../components/layout/PublicLayout";
 import ProtectedRoute from "../../components/common/ProtectedRoute";
 
@@ -34,6 +34,24 @@ import SettingsPage from "../../pages/Settings/SettingsPage";
 import ProfilePage from "../../pages/Profile/ProfilePage";
 import UserManagementPage from "../../features/user-management/pages/UserManagementPage";
 import SpecializationsPage from "../../features/specializations/pages/SpecializationsPage";
+import DoctorClinicPage from "../../features/doctor-clinic/pages/DoctorClinicPage";
+import DoctorPracticePage from "../../features/doctor-clinic/pages/DoctorPracticePage";
+import ReceptionistDeskPage from "../../features/receptionist/pages/ReceptionistDeskPage";
+import PatientAppointmentsPage from "../../features/patient-appointments/pages/PatientAppointmentsPage";
+import PatientDoctorsPage from "../../features/patient-appointments/pages/PatientDoctorsPage";
+import PatientMedicalHistoryPage from "../../features/patient-medical/pages/PatientMedicalHistoryPage";
+import { useAuth } from "../../features/auth/hooks/useAuth";
+
+function DashboardRoute() {
+    const { currentUser } = useAuth();
+    if (currentUser?.role === "Doctor") {
+        return <DoctorPracticePage />;
+    }
+    if (currentUser?.role === "Receptionist") {
+        return <ReceptionistDeskPage />;
+    }
+    return <DashboardPage />;
+}
 
 export default function AppRouter() {
     return (
@@ -57,22 +75,54 @@ export default function AppRouter() {
                 <Route path="/confirm-email" element={<ConfirmEmailPage />} />
                 <Route path="/resend-email-confirmation" element={<ResendEmailConfirmationPage />} />
 
-                {/* ── Protected admin / app routes ── */}
+                {/* ── Protected routes ── */}
                 <Route element={<ProtectedRoute />}>
-                    <Route element={<MainLayout />}>
-                        <Route path="/dashboard" element={<DashboardPage />} />
-                        <Route path="/admin/doctors" element={<DoctorsPage />} />
-                        <Route path="/organizations" element={<OrganizationsPage />} />
-                        <Route path="/branches" element={<BranchesPage />} />
-                        <Route path="/patients" element={<PatientsPage />} />
-                        <Route path="/receptionists" element={<ReceptionistsPage />} />
-                        <Route path="/appointments" element={<AppointmentsPage />} />
-                        <Route path="/reviews" element={<ReviewsPage />} />
-                        <Route path="/notifications" element={<NotificationsPage />} />
-                        <Route path="/settings" element={<SettingsPage />} />
-                        <Route path="/profile" element={<ProfilePage />} />
-                        <Route path="/users" element={<UserManagementPage />} />
-                        <Route path="/specializations" element={<SpecializationsPage />} />
+                    <Route element={<RoleBasedLayout />}>
+                        {/* Admin only */}
+                        <Route element={<ProtectedRoute allowedRoles={["Admin"]} />}>
+                            <Route path="/organizations" element={<OrganizationsPage />} />
+                            <Route path="/branches" element={<BranchesPage />} />
+                            <Route path="/specializations" element={<SpecializationsPage />} />
+                            <Route path="/receptionists" element={<ReceptionistsPage />} />
+                            <Route path="/users" element={<UserManagementPage />} />
+                            <Route path="/reviews" element={<ReviewsPage />} />
+                            <Route path="/admin/doctors" element={<DoctorsPage />} />
+                        </Route>
+
+                        {/* Doctor only */}
+                        <Route element={<ProtectedRoute allowedRoles={["Doctor"]} />}>
+                            <Route path="/doctor/clinic" element={<DoctorClinicPage />} />
+                        </Route>
+
+                        {/* Patient only */}
+                        <Route element={<ProtectedRoute allowedRoles={["Patient"]} />}>
+                            <Route path="/patient/appointments" element={<PatientAppointmentsPage />} />
+                            <Route path="/patient/doctors" element={<PatientDoctorsPage />} />
+                            <Route path="/patient/medical-history" element={<PatientMedicalHistoryPage />} />
+                        </Route>
+
+                        {/* Staff dashboard & settings (Admin, Doctor, Receptionist) */}
+                        <Route element={<ProtectedRoute allowedRoles={["Admin", "Doctor", "Receptionist"]} />}>
+                            <Route path="/dashboard" element={<DashboardRoute />} />
+                            <Route path="/settings" element={<SettingsPage />} />
+                        </Route>
+
+                        {/* Admin & Doctor */}
+                        <Route element={<ProtectedRoute allowedRoles={["Admin", "Doctor"]} />}>
+                            <Route path="/appointments" element={<AppointmentsPage />} />
+                            <Route path="/patients" element={<PatientsPage />} />
+                        </Route>
+
+                        {/* Receptionist specific */}
+                        <Route element={<ProtectedRoute allowedRoles={["Receptionist"]} />}>
+                            <Route path="/receptionist/desk" element={<ReceptionistDeskPage />} />
+                        </Route>
+
+                        {/* All authenticated roles (Admin, Doctor, Receptionist, Patient) */}
+                        <Route element={<ProtectedRoute allowedRoles={["Admin", "Doctor", "Receptionist", "Patient"]} />}>
+                            <Route path="/notifications" element={<NotificationsPage />} />
+                            <Route path="/profile" element={<ProfilePage />} />
+                        </Route>
                     </Route>
                 </Route>
 
@@ -82,3 +132,4 @@ export default function AppRouter() {
         </BrowserRouter>
     );
 }
+

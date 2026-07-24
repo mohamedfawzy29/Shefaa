@@ -2,6 +2,7 @@ import { useState } from "react";
 import type { SpecializationResponse } from "../types/specialization";
 import { Table, type Column } from "../../../components/ui/Table";
 import { Pencil, Trash2, Stethoscope } from "lucide-react";
+import { getSpecializationIconUrl } from "../../../utils/imageUrl";
 
 interface SpecializationsTableProps {
     specializations: SpecializationResponse[];
@@ -13,12 +14,13 @@ interface SpecializationsTableProps {
 /** Avatar-style icon cell with onError → placeholder fallback */
 function SpecializationIcon({ iconImg, name }: { iconImg?: string; name: string }) {
     const [imgError, setImgError] = useState(false);
+    const iconUrl = getSpecializationIconUrl(iconImg);
 
     return (
         <div className="h-12 w-12 rounded-2xl bg-indigo-50 dark:bg-indigo-950/40 text-indigo-600 dark:text-indigo-400 flex items-center justify-center overflow-hidden shrink-0 ring-2 ring-slate-100 dark:ring-slate-800 shadow-xs">
-            {iconImg && !imgError ? (
+            {iconUrl && !imgError ? (
                 <img
-                    src={iconImg}
+                    src={iconUrl}
                     alt={name}
                     className="h-full w-full object-cover"
                     onError={() => setImgError(true)}

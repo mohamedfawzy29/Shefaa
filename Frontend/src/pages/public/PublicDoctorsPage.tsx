@@ -2,22 +2,27 @@ import { useState, useMemo, useEffect } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { Search, Star, Award, Clock, Stethoscope, Filter, X } from "lucide-react";
 import { usePublicDoctors } from "../../hooks/usePublicDoctors";
-import { useSpecializations } from "../../features/specializations/hooks/useSpecializations";
+import { useSpecializations } from "../../features/lookups/hooks/useLookups";
 import { Avatar } from "../../components/ui/Avatar";
-import type { DoctorResponse } from "../../features/doctors/types/doctor";
+import type { PublicDoctorResponse } from "../../features/doctors/types/doctor";
 
 // ─── Doctor Card ──────────────────────────────────────────────────────────────
 
-function DoctorCard({ doctor }: { doctor: DoctorResponse }) {
+function DoctorCard({ doctor }: { doctor: PublicDoctorResponse }) {
     const apiBase = import.meta.env.VITE_API_BASE_URL || "https://localhost:7118/api";
     const hostBase = apiBase.replace(/\/api$/, "");
-    const imgSrc = doctor.profileImageUrl && doctor.profileImageUrl !== "default.png"
+    const imgSrc = doctor?.profileImageUrl && doctor.profileImageUrl !== "default.png"
         ? doctor.profileImageUrl.startsWith("http")
             ? doctor.profileImageUrl
             : `${hostBase}/images/profiles/${doctor.profileImageUrl}`
         : null;
 
-    const fullName = `Dr. ${doctor.firstName} ${doctor.lastName}`;
+    const firstName = doctor?.firstName || "Doctor";
+    const lastName = doctor?.lastName || "";
+    const fullName = `Dr. ${firstName} ${lastName}`.trim();
+    const rating = typeof doctor?.averageRating === "number" && !isNaN(doctor.averageRating) ? doctor.averageRating : 0;
+    const experience = typeof doctor?.yearsOfExperience === "number" ? doctor.yearsOfExperience : 0;
+    const specialization = doctor?.specialization || "General Medicine";
 
     return (
         <div className="group bg-white dark:bg-[#12141c] rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-300 overflow-hidden">
@@ -29,23 +34,23 @@ function DoctorCard({ doctor }: { doctor: DoctorResponse }) {
                         <h3 className="font-bold text-slate-900 dark:text-slate-100 truncate">{fullName}</h3>
                         <div className="flex items-center gap-1.5 !mt-1">
                             <Stethoscope className="h-3.5 w-3.5 text-cyan-500 shrink-0" />
-                            <p className="text-xs text-cyan-600 dark:text-cyan-400 font-semibold truncate">{doctor.specialization}</p>
+                            <p className="text-xs text-cyan-600 dark:text-cyan-400 font-semibold truncate">{specialization}</p>
                         </div>
                         <div className="flex items-center gap-1 !mt-2">
                             {Array.from({ length: 5 }).map((_, i) => (
                                 <Star
                                     key={i}
-                                    className={`h-3.5 w-3.5 ${i < Math.round(doctor.averageRating) ? "text-amber-400 fill-amber-400" : "text-slate-300 dark:text-slate-600"}`}
+                                    className={`h-3.5 w-3.5 ${i < Math.round(rating) ? "text-amber-400 fill-amber-400" : "text-slate-300 dark:text-slate-600"}`}
                                 />
                             ))}
-                            <span className="ml-1 text-xs font-semibold text-slate-600 dark:text-slate-400">{doctor.averageRating.toFixed(1)}</span>
+                            <span className="ml-1 text-xs font-semibold text-slate-600 dark:text-slate-400">{rating.toFixed(1)}</span>
                         </div>
                     </div>
                 </div>
 
                 <div className="!mt-4 flex items-center justify-between text-xs text-slate-500 dark:text-slate-400 border-t border-slate-100 dark:border-slate-800 !pt-3">
                     <span className="flex items-center gap-1">
-                        <Award className="h-3.5 w-3.5" /> {doctor.yearsOfExperience} yrs exp.
+                        <Award className="h-3.5 w-3.5" /> {experience} yrs exp.
                     </span>
                     <span className="flex items-center gap-1">
                         <Clock className="h-3.5 w-3.5" /> Available
@@ -131,7 +136,7 @@ export default function PublicDoctorsPage() {
         <div className="min-h-screen">
             {/* Header banner */}
             <div className="bg-gradient-to-br from-[#0F172A] via-[#1e2d48] to-[#0F172A] !pt-16 !pb-12">
-                <div className="max-w-7xl mx-auto !px-6">
+                <div className="max-w-7x2 mx-auto !px-6">
                     <h1 className="text-3xl md:text-4xl font-extrabold text-white !mb-2">Find a Doctor</h1>
                     <p className="text-slate-400 !mb-8">Browse our verified medical professionals and book an appointment.</p>
 
@@ -166,7 +171,7 @@ export default function PublicDoctorsPage() {
             </div>
 
             {/* Results */}
-            <div className="max-w-7xl mx-auto !px-6 !py-10">
+            <div className="max-w-7x2 mx-auto !px-6 !py-10">
                 {/* Info bar */}
                 <div className="flex flex-wrap items-center justify-between gap-3 !mb-6">
                     <p className="text-sm text-slate-600 dark:text-slate-400">

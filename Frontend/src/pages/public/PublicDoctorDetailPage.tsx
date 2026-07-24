@@ -1,5 +1,5 @@
 import { useParams, Link } from "react-router-dom";
-import { Star, Award, Phone, Mail, Stethoscope, ArrowLeft, ShieldCheck, Clock, CalendarDays, LogIn } from "lucide-react";
+import { Star, Award, Stethoscope, ArrowLeft, ShieldCheck, Clock, CalendarDays, LogIn } from "lucide-react";
 import { usePublicDoctor } from "../../hooks/usePublicDoctors";
 import { useAuth } from "../../features/auth/hooks/useAuth";
 import { Avatar } from "../../components/ui/Avatar";
@@ -136,17 +136,13 @@ export default function PublicDoctorDetailPage() {
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                     {/* Left: Details */}
                     <div className="md:col-span-2 space-y-6">
-                        {/* License */}
+                        {/* Professional Info */}
                         <div className="bg-white dark:bg-[#12141c] rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-sm !p-6">
                             <h2 className="font-bold text-slate-900 dark:text-slate-100 !mb-4 text-base border-b border-slate-100 dark:border-slate-800 !pb-3">Professional Information</h2>
                             <dl className="space-y-3">
                                 <div className="flex items-center justify-between">
                                     <dt className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Specialization</dt>
                                     <dd className="text-sm font-semibold text-slate-900 dark:text-slate-100">{doctor.specialization}</dd>
-                                </div>
-                                <div className="flex items-center justify-between">
-                                    <dt className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">License Number</dt>
-                                    <dd className="text-sm font-mono text-slate-700 dark:text-slate-300">{doctor.licenseNumber}</dd>
                                 </div>
                                 <div className="flex items-center justify-between">
                                     <dt className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Experience</dt>
@@ -159,28 +155,11 @@ export default function PublicDoctorDetailPage() {
                             </dl>
                         </div>
 
-                        {/* Contact */}
-                        {(doctor.email || (doctor.phoneNumbers && doctor.phoneNumbers.length > 0)) && (
+                        {/* Biography */}
+                        {doctor.bio && (
                             <div className="bg-white dark:bg-[#12141c] rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-sm !p-6">
-                                <h2 className="font-bold text-slate-900 dark:text-slate-100 !mb-4 text-base border-b border-slate-100 dark:border-slate-800 !pb-3">Contact Information</h2>
-                                <div className="space-y-3">
-                                    {doctor.email && (
-                                        <div className="flex items-center gap-3">
-                                            <div className="h-8 w-8 rounded-xl bg-blue-50 dark:bg-blue-950/30 flex items-center justify-center shrink-0">
-                                                <Mail className="h-4 w-4 text-blue-600 dark:text-blue-400" />
-                                            </div>
-                                            <span className="text-sm text-slate-700 dark:text-slate-300">{doctor.email}</span>
-                                        </div>
-                                    )}
-                                    {doctor.phoneNumbers?.map((p, i) => (
-                                        <div key={i} className="flex items-center gap-3">
-                                            <div className="h-8 w-8 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 flex items-center justify-center shrink-0">
-                                                <Phone className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
-                                            </div>
-                                            <span className="text-sm text-slate-700 dark:text-slate-300">{p}</span>
-                                        </div>
-                                    ))}
-                                </div>
+                                <h2 className="font-bold text-slate-900 dark:text-slate-100 !mb-3 text-base border-b border-slate-100 dark:border-slate-800 !pb-3">About Dr. {doctor.lastName}</h2>
+                                <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed whitespace-pre-line">{doctor.bio}</p>
                             </div>
                         )}
                     </div>

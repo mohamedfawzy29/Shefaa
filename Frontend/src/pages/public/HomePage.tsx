@@ -2,9 +2,10 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Search, Star, Stethoscope, ShieldCheck, Clock, Users, Award, ArrowRight, ChevronRight } from "lucide-react";
 import { usePublicDoctors } from "../../hooks/usePublicDoctors";
-import { useSpecializations } from "../../features/specializations/hooks/useSpecializations";
+import { useSpecializations } from "../../features/lookups/hooks/useLookups";
 import { Avatar } from "../../components/ui/Avatar";
-import type { DoctorResponse } from "../../features/doctors/types/doctor";
+import { getSpecializationIconUrl } from "../../utils/imageUrl";
+import type { PublicDoctorResponse } from "../../features/doctors/types/doctor";
 
 // ─── Helper ──────────────────────────────────────────────────────────────────
 
@@ -22,7 +23,7 @@ function StarRating({ rating }: { rating: number }) {
     );
 }
 
-function DoctorCard({ doctor }: { doctor: DoctorResponse }) {
+function DoctorCard({ doctor }: { doctor: PublicDoctorResponse }) {
     const apiBase = import.meta.env.VITE_API_BASE_URL || "https://localhost:7118/api";
     const hostBase = apiBase.replace(/\/api$/, "");
     const imgSrc = doctor.profileImageUrl && doctor.profileImageUrl !== "default.png"
@@ -122,7 +123,7 @@ export default function HomePage() {
                 <div className="absolute -top-32 -right-32 h-[500px] w-[500px] rounded-full bg-cyan-600/20 blur-3xl pointer-events-none" />
                 <div className="absolute -bottom-24 -left-20 h-[400px] w-[400px] rounded-full bg-blue-700/20 blur-3xl pointer-events-none" />
 
-                <div className="relative max-w-7xl mx-auto !px-6 flex flex-col items-center text-center">
+                <div className="relative max-w-7x2 mx-auto !px-6 flex flex-col items-center text-center">
                     <div className="inline-flex items-center gap-2 !px-4 !py-1.5 rounded-full border border-cyan-500/30 bg-cyan-500/10 text-cyan-400 text-xs font-semibold !mb-6">
                         <span className="h-1.5 w-1.5 rounded-full bg-cyan-400 animate-pulse" />
                         Trusted Healthcare Platform
@@ -173,7 +174,7 @@ export default function HomePage() {
             </section>
 
             {/* ── Specializations ── */}
-            <section className="max-w-7xl mx-auto !px-6 !py-20">
+            <section className="max-w-7x2 mx-auto !px-6 !py-20">
                 <div className="flex items-center justify-between !mb-10">
                     <div>
                         <p className="text-xs font-bold uppercase tracking-widest text-cyan-600 dark:text-cyan-400 !mb-1">Explore</p>
@@ -185,30 +186,33 @@ export default function HomePage() {
                 </div>
 
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
-                    {specializations.slice(0, 12).map((spec) => (
-                        <Link
-                            key={spec.id}
-                            to={`/doctors?specialization=${encodeURIComponent(spec.name)}`}
-                            className="group flex flex-col items-center gap-3 bg-white dark:bg-[#12141c] rounded-2xl !p-5 border border-slate-200/80 dark:border-slate-800 hover:border-cyan-500/50 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 text-center"
-                        >
-                            {spec.iconImg ? (
-                                <img src={spec.iconImg} alt={spec.name} className="h-10 w-10 object-contain" />
-                            ) : (
-                                <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-cyan-100 to-blue-100 dark:from-cyan-950/40 dark:to-blue-950/40 flex items-center justify-center">
-                                    <Stethoscope className="h-5 w-5 text-cyan-600 dark:text-cyan-400" />
-                                </div>
-                            )}
-                            <span className="text-xs font-semibold text-slate-700 dark:text-slate-300 group-hover:text-cyan-600 dark:group-hover:text-cyan-400 transition-colors leading-tight">
-                                {spec.name}
-                            </span>
-                        </Link>
-                    ))}
+                    {specializations.slice(0, 12).map((spec) => {
+                        const iconUrl = getSpecializationIconUrl(spec.iconImg);
+                        return (
+                            <Link
+                                key={spec.id}
+                                to={`/doctors?specialization=${encodeURIComponent(spec.name)}`}
+                                className="group flex flex-col items-center gap-3 bg-white dark:bg-[#12141c] rounded-2xl !p-5 border border-slate-200/80 dark:border-slate-800 hover:border-cyan-500/50 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 text-center"
+                            >
+                                {iconUrl ? (
+                                    <img src={iconUrl} alt={spec.name} className="h-10 w-10 object-contain" />
+                                ) : (
+                                    <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-cyan-100 to-blue-100 dark:from-cyan-950/40 dark:to-blue-950/40 flex items-center justify-center">
+                                        <Stethoscope className="h-5 w-5 text-cyan-600 dark:text-cyan-400" />
+                                    </div>
+                                )}
+                                <span className="text-xs font-semibold text-slate-700 dark:text-slate-300 group-hover:text-cyan-600 dark:group-hover:text-cyan-400 transition-colors leading-tight">
+                                    {spec.name}
+                                </span>
+                            </Link>
+                        );
+                    })}
                 </div>
             </section>
 
             {/* ── Top Rated Doctors ── */}
             <section className="bg-slate-50/80 dark:bg-slate-900/30 !py-20">
-                <div className="max-w-7xl mx-auto !px-6">
+                <div className="max-w-7x2 mx-auto !px-6">
                     <div className="flex items-center justify-between !mb-10">
                         <div>
                             <p className="text-xs font-bold uppercase tracking-widest text-cyan-600 dark:text-cyan-400 !mb-1">Experts</p>
@@ -253,7 +257,7 @@ export default function HomePage() {
             </section>
 
             {/* ── Why Choose Shefaa ── */}
-            <section className="max-w-7xl mx-auto !px-6 !py-20">
+            <section className="max-w-7x2 mx-auto !px-6 !py-20">
                 <div className="text-center !mb-12">
                     <p className="text-xs font-bold uppercase tracking-widest text-cyan-600 dark:text-cyan-400 !mb-2">Why Us</p>
                     <h2 className="text-2xl md:text-3xl font-extrabold text-slate-900 dark:text-slate-100">Why Choose Shefaa</h2>
@@ -276,7 +280,7 @@ export default function HomePage() {
 
             {/* ── CTA Banner ── */}
             <section className="!py-20 bg-gradient-to-r from-cyan-600 to-blue-700">
-                <div className="max-w-4xl mx-auto !px-6 text-center text-white">
+                <div className="max-w-4x2 mx-auto !px-6 text-center text-white">
                     <h2 className="text-3xl md:text-4xl font-extrabold !mb-4">Ready to Book Your Appointment?</h2>
                     <p className="text-cyan-100 !mb-8 text-lg">Join thousands of patients who trust Shefaa for their healthcare needs.</p>
                     <Link

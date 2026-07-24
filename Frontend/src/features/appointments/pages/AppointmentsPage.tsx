@@ -4,8 +4,10 @@ import { EmptyState, ErrorState, StatsCard, Input, SectionHeader, Toolbar, Card 
 import { useAppointments } from "../hooks/useAppointments";
 import { AppointmentsTable } from "../components/AppointmentsTable";
 import { Search, Calendar, Clock, CheckCircle2 } from "lucide-react";
+import { useAuth } from "../../auth/hooks/useAuth";
 
 export default function AppointmentsPage() {
+    const { currentUser } = useAuth();
     const { data: appointments, isLoading, isError, error, refetch } = useAppointments();
 
     const [searchQuery, setSearchQuery] = useState("");
@@ -18,18 +20,21 @@ export default function AppointmentsPage() {
             (a) =>
                 (a.patientName ?? "").toLowerCase().includes(q) ||
                 (a.doctorName ?? "").toLowerCase().includes(q) ||
-                (a.branchName ?? "").toLowerCase().includes(q)
+                (a.branchName ?? "").toLowerCase().includes(q) ||
+                (a.visitReason ?? "").toLowerCase().includes(q)
         );
     }, [appointments, searchQuery]);
 
     const total = appointments?.length ?? 0;
-    const scheduled = appointments?.filter((a) => a.status === 0).length ?? 0;
+    const scheduled = appointments?.filter((a) => a.status === 0 || a.status === 3).length ?? 0;
     const completed = appointments?.filter((a) => a.status === 1).length ?? 0;
+
+    const roleName = currentUser?.role ? ` (${currentUser.role} View)` : "";
 
     return (
         <PageContainer noCard={true}>
             <SectionHeader
-                title="Appointments"
+                title={`Appointments${roleName}`}
                 subtitle="View and manage patient schedules and visit logs."
                 badge={
                     <span className="flex items-center gap-1">
@@ -48,7 +53,7 @@ export default function AppointmentsPage() {
                     percentage={80}
                 />
                 <StatsCard
-                    label="Scheduled"
+                    label="Scheduled / Active"
                     value={scheduled}
                     color="blue"
                     icon={<Clock className="h-4.5 w-4.5" />}
@@ -77,18 +82,18 @@ export default function AppointmentsPage() {
 
                 {isError ? (
                     <ErrorState
-                        title="Failed to load appointments"
+                        title="Unable to Access Appointments"
                         description={
                             error instanceof Error
                                 ? error.message
-                                : "An unexpected error occurred while fetching appointments."
+                                : "An error occurred while loading appointments. Please check your role permissions or try again."
                         }
                         onRetry={() => refetch()}
                     />
                 ) : appointments?.length === 0 && !isLoading ? (
                     <EmptyState
                         title="No Appointments Found"
-                        description="There are no appointments scheduled."
+                        description="There are no appointments scheduled for your account view."
                         icon={<Calendar className="h-8 w-8 text-slate-400" />}
                     />
                 ) : (

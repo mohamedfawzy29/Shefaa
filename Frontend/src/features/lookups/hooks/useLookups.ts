@@ -5,6 +5,7 @@ export interface LookupItem {
     id: string;
     name: string;
     organizationId?: string;
+    iconImg?: string;
 }
 
 export function useSpecializations() {

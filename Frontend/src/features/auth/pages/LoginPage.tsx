@@ -1,15 +1,16 @@
-﻿import { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useNavigate, Link } from "react-router-dom";
 import {
   Mail, Lock, Eye, EyeOff, HeartPulse, Loader2,
-  Activity, ShieldCheck, Users, Star,
+  Activity, ShieldCheck, Users, Star, ArrowLeft,
 } from "lucide-react";
 
 import { loginSchema, type LoginFormData } from "../validation/loginSchema";
 import authService from "../services/authService";
 import { useAuth } from "../hooks/useAuth";
+import { getRoleDashboardPath } from "../context/AuthContext";
 
 /* ─── tiny reusable field wrapper ─────────────────────────────── */
 function Field({ label, error, children }: { label: string; error?: string; children: React.ReactNode }) {
@@ -39,8 +40,8 @@ export default function LoginPage() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (auth.isAuthenticated) navigate("/", { replace: true });
-  }, [auth.isAuthenticated, navigate]);
+    if (auth.isAuthenticated) navigate(auth.getDashboardPath(), { replace: true });
+  }, [auth.isAuthenticated, auth, navigate]);
 
   const [isLoading, setIsLoading] = useState(false);
   const [serverError, setServerError] = useState<string | null>(null);
@@ -58,7 +59,9 @@ export default function LoginPage() {
     try {
       const response = await authService.login({ userNameOrEmail: data.email, password: data.password });
       auth.login(response);
-      navigate("/");
+      // Navigate to the role-appropriate dashboard immediately using the
+      // response role, before the AuthContext state re-render completes.
+      navigate(getRoleDashboardPath(response.role), { replace: true });
     } catch (e) {
       setServerError(e instanceof Error ? e.message : "An unexpected error occurred.");
     } finally {
@@ -90,7 +93,15 @@ export default function LoginPage() {
         <section className="w-full lg:w-[45%] h-[85vh] min-h-[650px] bg-white dark:bg-[#0F172A] !px-12 lg:!px-14 !py-10 flex">
 
           <div className="mx-auto flex h-full w-full max-w-lg flex-col">
-            <div className="h-8"></div>
+            <div>
+              <Link
+                to="/"
+                className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 hover:text-blue-600 dark:text-slate-400 dark:hover:text-cyan-400 transition-colors"
+              >
+                <ArrowLeft className="h-3.5 w-3.5" />
+                Back to Home
+              </Link>
+            </div>
             {/* Logo + Heading */}
             <div className="text-center mt-8">
               <div className="mb-6 flex items-center justify-center gap-3">

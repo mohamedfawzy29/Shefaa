@@ -21,7 +21,7 @@ export default function ContactPage() {
         <div className="min-h-screen">
             {/* Header */}
             <section className="bg-gradient-to-br from-[#0F172A] via-[#1e2d48] to-[#0F172A] !pt-20 !pb-16 text-center">
-                <div className="max-w-3xl mx-auto !px-6">
+                <div className="max-w-3x2 mx-auto !px-6">
                     <div className="inline-flex items-center justify-center h-14 w-14 rounded-2xl bg-gradient-to-tr from-cyan-500 to-blue-600 shadow-lg shadow-cyan-500/30 !mb-6 mx-auto">
                         <MessageSquare className="h-7 w-7 text-white" />
                     </div>
@@ -32,11 +32,11 @@ export default function ContactPage() {
                 </div>
             </section>
 
-            <section className="max-w-5xl mx-auto !px-6 !py-16">
+            <section className="max-w-5x2 mx-auto !px-6 !py-16">
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                     {/* Contact Info Cards */}
                     <div className="space-y-4">
-                        <div className="bg-white dark:bg-[#12141c] rounded-2xl border border-slate-200/80 dark:border-slate-800 !p-6 shadow-sm flex items-start gap-4">
+                        <div className="bg-white dark:bg-[#12141c] rounded-2xl border border-slate-200/80 dark:border-slate-800 !p-6 shadow-sm flex items-start gap-4 !mb-1">
                             <div className="h-10 w-10 rounded-xl bg-cyan-50 dark:bg-cyan-950/40 text-cyan-600 dark:text-cyan-400 flex items-center justify-center shrink-0">
                                 <Mail className="h-5 w-5" />
                             </div>
@@ -49,7 +49,7 @@ export default function ContactPage() {
                             </div>
                         </div>
 
-                        <div className="bg-white dark:bg-[#12141c] rounded-2xl border border-slate-200/80 dark:border-slate-800 !p-6 shadow-sm flex items-start gap-4">
+                        <div className="bg-white dark:bg-[#12141c] rounded-2xl border border-slate-200/80 dark:border-slate-800 !p-6 shadow-sm flex items-start gap-4 !mb-1">
                             <div className="h-10 w-10 rounded-xl bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400 flex items-center justify-center shrink-0">
                                 <Phone className="h-5 w-5" />
                             </div>
@@ -62,7 +62,7 @@ export default function ContactPage() {
                             </div>
                         </div>
 
-                        <div className="bg-white dark:bg-[#12141c] rounded-2xl border border-slate-200/80 dark:border-slate-800 !p-6 shadow-sm flex items-start gap-4">
+                        <div className="bg-white dark:bg-[#12141c] rounded-2xl border border-slate-200/80 dark:border-slate-800 !p-6 shadow-sm flex items-start gap-4 !mb-1">
                             <div className="h-10 w-10 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">
                                 <MapPin className="h-5 w-5" />
                             </div>
@@ -75,7 +75,7 @@ export default function ContactPage() {
                             </div>
                         </div>
 
-                        <div className="bg-white dark:bg-[#12141c] rounded-2xl border border-slate-200/80 dark:border-slate-800 !p-6 shadow-sm flex items-start gap-4">
+                        <div className="bg-white dark:bg-[#12141c] rounded-2xl border border-slate-200/80 dark:border-slate-800 !p-6 shadow-sm flex items-start gap-4 !mb-1">
                             <div className="h-10 w-10 rounded-xl bg-amber-50 dark:bg-amber-950/40 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0">
                                 <Clock className="h-5 w-5" />
                             </div>

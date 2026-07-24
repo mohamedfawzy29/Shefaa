@@ -3,13 +3,23 @@ import { API_ENDPOINTS } from "../../../api/endpoints";
 import type { ApiResponse, OrganizationResponse } from "../types/organization";
 import type { CreateOrganizationFormData, EditOrganizationFormData } from "../validation/organizationSchema";
 
-const BASE = API_ENDPOINTS.ORGANIZATIONS.BASE;
+const BASE = API_ENDPOINTS.ADMIN.ORGANIZATIONS.BASE; // /Admin/Organizations — Admin area only
 
 export const organizationService = {
     /** GET /api/Admin/Organizations */
     getAll: async (): Promise<OrganizationResponse[]> => {
-        const response = await api.get<ApiResponse<OrganizationResponse[]>>(BASE);
-        return response.data.data ?? [];
+        try {
+            const response = await api.get<ApiResponse<OrganizationResponse[]>>(BASE);
+            return response.data.data ?? [];
+        } catch {
+            // Fallback check
+            try {
+                const fallback = await api.get<ApiResponse<OrganizationResponse[]>>("/Organizations");
+                return fallback.data.data ?? [];
+            } catch {
+                return [];
+            }
+        }
     },
 
     /** GET /api/Admin/Organizations/{id} */

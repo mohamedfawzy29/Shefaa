@@ -18,7 +18,7 @@ export default function AboutPage() {
         <div className="min-h-screen">
             {/* Hero */}
             <section className="bg-gradient-to-br from-[#0F172A] via-[#1e2d48] to-[#0F172A] !pt-20 !pb-16 text-center">
-                <div className="max-w-3xl mx-auto !px-6">
+                <div className="max-w-3x2 mx-auto !px-6">
                     <div className="inline-flex items-center justify-center h-14 w-14 rounded-2xl bg-gradient-to-tr from-cyan-500 to-blue-600 shadow-lg shadow-cyan-500/30 !mb-6 mx-auto">
                         <Activity className="h-7 w-7 text-white" />
                     </div>
@@ -30,7 +30,7 @@ export default function AboutPage() {
             </section>
 
             {/* Mission */}
-            <section className="max-w-5xl mx-auto !px-6 !py-20">
+            <section className="max-w-5x2 mx-auto !px-6 !py-20">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
                     <div>
                         <p className="text-xs font-bold uppercase tracking-widest text-cyan-600 dark:text-cyan-400 !mb-2">Our Mission</p>
@@ -62,7 +62,7 @@ export default function AboutPage() {
 
             {/* Values */}
             <section className="bg-slate-50/80 dark:bg-slate-900/30 !py-16">
-                <div className="max-w-5xl mx-auto !px-6">
+                <div className="max-w-5x2 mx-auto !px-6">
                     <div className="text-center !mb-12">
                         <p className="text-xs font-bold uppercase tracking-widest text-cyan-600 dark:text-cyan-400 !mb-2">Core Values</p>
                         <h2 className="text-2xl md:text-3xl font-extrabold text-slate-900 dark:text-slate-100">What We Stand For</h2>
@@ -82,7 +82,7 @@ export default function AboutPage() {
             </section>
 
             {/* Team */}
-            <section className="max-w-5xl mx-auto !px-6 !py-16">
+            <section className="max-w-5x2 mx-auto !px-6 !py-16">
                 <div className="text-center !mb-12">
                     <p className="text-xs font-bold uppercase tracking-widest text-cyan-600 dark:text-cyan-400 !mb-2">Leadership</p>
                     <h2 className="text-2xl md:text-3xl font-extrabold text-slate-900 dark:text-slate-100">Meet Our Team</h2>
@@ -102,7 +102,7 @@ export default function AboutPage() {
 
             {/* CTA */}
             <section className="!py-16 bg-gradient-to-r from-cyan-600 to-blue-700">
-                <div className="max-w-3xl mx-auto !px-6 text-center text-white">
+                <div className="max-w-3x2 mx-auto !px-6 text-center text-white">
                     <Users className="h-10 w-10 mx-auto !mb-4 text-cyan-200" />
                     <h2 className="text-2xl md:text-3xl font-extrabold !mb-3">Join Our Healthcare Community</h2>
                     <p className="text-cyan-100 !mb-8">Be part of a growing network of patients and doctors transforming Egyptian healthcare.</p>

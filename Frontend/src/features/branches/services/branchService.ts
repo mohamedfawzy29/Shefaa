@@ -3,12 +3,16 @@ import { API_ENDPOINTS } from "../../../api/endpoints";
 import type { ApiResponse, BranchResponse } from "../types/branch";
 import type { CreateBranchFormData, EditBranchFormData } from "../validation/branchSchema";
 
-const BASE = API_ENDPOINTS.BRANCHES.BASE;
+const BASE = API_ENDPOINTS.ADMIN.BRANCHES.BASE; // /Admin/Branches — Admin area only
 
 export const branchService = {
     getAll: async (): Promise<BranchResponse[]> => {
-        const response = await api.get<ApiResponse<BranchResponse[]>>(BASE);
-        return response.data.data ?? [];
+        try {
+            const response = await api.get<ApiResponse<BranchResponse[]>>(BASE);
+            return response.data.data ?? [];
+        } catch {
+            return [];
+        }
     },
 
     getById: async (id: string): Promise<BranchResponse> => {

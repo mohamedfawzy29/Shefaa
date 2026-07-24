@@ -11,7 +11,8 @@ import {
     ChevronDown,
     User,
     Settings,
-    Activity
+    Activity,
+    Home
 } from "lucide-react";
 import { Link } from "react-router-dom";
 
@@ -105,6 +106,15 @@ export default function Navbar({ onToggleSidebar }: NavbarProps) {
 
                 {/* Right side: Search, Theme, Notifications, Profile Dropdown */}
                 <div className="flex items-center gap-4">
+                    {/* Back to Home */}
+                    <Link
+                        to="/"
+                        title="Back to Home"
+                        className="rounded-xl p-2.5 text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-cyan-600 dark:text-slate-400 dark:hover:text-cyan-400 border border-slate-200/60 dark:border-slate-700/60 transition-all focus:outline-none"
+                    >
+                        <Home className="h-4.5 w-4.5" />
+                    </Link>
+
                     {/* Theme Toggle */}
                     <button
                         onClick={() => setTheme(isDark ? "light" : "dark")}
