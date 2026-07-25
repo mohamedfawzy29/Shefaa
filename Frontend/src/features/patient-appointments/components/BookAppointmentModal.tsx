@@ -115,7 +115,12 @@ export function BookAppointmentModal({ doctor, onClose }: BookAppointmentModalPr
         : [];
 
     const slotsForDate = selectedSchedule && selectedDate
-        ? generateSlots(selectedSchedule)
+        ? generateSlots(selectedSchedule).filter((slot) => {
+            if (!doctorDetail?.bookedSlots) return true;
+            return !doctorDetail.bookedSlots.some(
+                (booked) => booked.date === selectedDate && booked.startTime.startsWith(slot.startTime)
+            );
+        })
         : [];
 
     const onSubmitReason = handleSubmit(async (data: BookingFormData) => {

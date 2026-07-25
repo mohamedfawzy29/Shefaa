@@ -52,7 +52,8 @@ function AppointmentStatusBadge({ status }: { status: number }) {
 }
 
 export default function ReceptionistDeskPage() {
-    const { data: appointments = [], isLoading, isRefetching, refetch } = useReceptionistTodayAppointments();
+    const [selectedDate, setSelectedDate] = useState<string>(new Date().toISOString().split("T")[0]);
+    const { data: appointments = [], isLoading, isRefetching, refetch } = useReceptionistTodayAppointments(selectedDate);
     const checkInMutation = useCheckInAppointment();
     const noShowMutation = useNoShowMutation();
 
@@ -154,13 +155,13 @@ export default function ReceptionistDeskPage() {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 !my-5">
                 <div className="bg-white dark:bg-[#12141c] rounded-3xl border border-slate-200/80 dark:border-slate-800 !p-5 shadow-sm space-y-2">
                     <div className="flex items-center justify-between">
-                        <span className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Total Today</span>
+                        <span className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Total</span>
                         <div className="h-9 w-9 rounded-xl bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400 flex items-center justify-center">
                             <Calendar className="h-4.5 w-4.5" />
                         </div>
                     </div>
                     <p className="text-3xl font-extrabold text-slate-900 dark:text-white">{totalToday}</p>
-                    <p className="text-xs text-slate-400">Branch visits today</p>
+                    <p className="text-xs text-slate-400">Branch visits for selected date</p>
                 </div>
 
                 <div className="bg-white dark:bg-[#12141c] rounded-3xl border border-blue-200/80 dark:border-blue-900/40 !p-5 shadow-sm space-y-2">
@@ -202,7 +203,7 @@ export default function ReceptionistDeskPage() {
                 {/* Toolbar */}
                 <div className="!p-6 border-b border-slate-100 dark:border-slate-800 flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <div>
-                        <h2 className="font-bold text-slate-900 dark:text-slate-100 text-lg">Today's Branch Appointments</h2>
+                        <h2 className="font-bold text-slate-900 dark:text-slate-100 text-lg">Branch Appointments</h2>
                         <p className="text-xs text-slate-500 dark:text-slate-400">Mark patient arrivals or flag no-show appointments in real-time</p>
                     </div>
 
@@ -216,6 +217,16 @@ export default function ReceptionistDeskPage() {
                                 value={search}
                                 onChange={(e) => setSearch(e.target.value)}
                                 className="!pl-9 !pr-3 !py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs text-slate-800 dark:text-slate-100 outline-none w-48 focus:w-60 transition-all"
+                            />
+                        </div>
+
+                        {/* Date Filter */}
+                        <div className="relative flex items-center">
+                            <input
+                                type="date"
+                                value={selectedDate}
+                                onChange={(e) => setSelectedDate(e.target.value)}
+                                className="!px-3 !py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs font-semibold text-slate-700 dark:text-slate-300 outline-none hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors cursor-pointer"
                             />
                         </div>
 

@@ -35,6 +35,18 @@ namespace Shefaa.Areas.Patient.Controllers
             var patient = await _patient.GetOneAsynch(filter: p => p.UserId == patientGuid);
             if (patient == null) return Unauthorized(new { Message = "Patient profile not found" });
 
+            // Check if the slot is already booked
+            var existingAppointment = await _appointment.GetOneAsynch(filter: a => 
+                a.DoctorId == dto.DoctorId && 
+                a.AppointmentDate == dto.AppointmentDate && 
+                a.StartTime == dto.StartTime &&
+                a.Status != AppointmentStatus.Cancelled);
+
+            if (existingAppointment != null)
+            {
+                return BadRequest(new { Message = "This time slot is already booked." });
+            }
+
             var appointment = new Appointment
             {
                 Id = Guid.NewGuid(),
@@ -205,9 +217,23 @@ namespace Shefaa.Areas.Patient.Controllers
                 return BadRequest(new { Message = "Cannot reschedule an appointment with this status" });
             }
 
+            // Check if the new slot is already booked
+            var newDate = DateOnly.FromDateTime(dto.NewAppointmentDate);
+            var newStartTime = TimeOnly.FromTimeSpan(dto.NewStartTime);
+            
+            var existingAppointment = await _appointment.GetOneAsynch(filter: a => 
+                a.DoctorId == appointment.DoctorId && 
+                a.AppointmentDate == newDate && 
+                a.StartTime == newStartTime &&
+                a.Status != AppointmentStatus.Cancelled);
 
-            appointment.AppointmentDate = DateOnly.FromDateTime(dto.NewAppointmentDate);
-            appointment.StartTime = TimeOnly.FromTimeSpan(dto.NewStartTime);
+            if (existingAppointment != null && existingAppointment.Id != appointment.Id)
+            {
+                return BadRequest(new { Message = "The new time slot is already booked." });
+            }
+
+            appointment.AppointmentDate = newDate;
+            appointment.StartTime = newStartTime;
             appointment.EndTime = TimeOnly.FromTimeSpan(dto.NewEndTime);
             appointment.UpdatedAt = DateTime.UtcNow;
 
