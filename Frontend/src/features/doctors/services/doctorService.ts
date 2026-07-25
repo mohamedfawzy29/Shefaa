@@ -32,87 +32,36 @@ export const doctorService = {
     // ── Admin Area endpoints (/api/Doctor or /api/Admin/Doctor) ──────────────
 
     getDoctors: async (): Promise<DoctorResponse[]> => {
-        const endpoints = [
-            ADMIN_FALLBACK,           // /Doctor
-            `${ADMIN_FALLBACK}/all`,  // /Doctor/all
-            ADMIN_BASE,               // /Admin/Doctor
-            `${ADMIN_BASE}/all`,      // /Admin/Doctor/all
-        ];
-
-        for (const ep of endpoints) {
-            try {
-                const response = await api.get(ep);
-                const list = extractDoctorArray<DoctorResponse>(response.data);
-                if (list.length > 0 || Array.isArray(response.data) || response.data?.data) {
-                    return list;
-                }
-            } catch {
-                // Try next fallback
-            }
-        }
-        return [];
+        const response = await api.get(ADMIN_BASE);
+        const list = extractDoctorArray<DoctorResponse>(response.data);
+        return list;
     },
 
     getPendingDoctors: async (): Promise<DoctorResponse[]> => {
-        const endpoints = [
-            `${ADMIN_FALLBACK}/Pending`,
-            `${ADMIN_BASE}/Pending`,
-        ];
-
-        for (const ep of endpoints) {
-            try {
-                const response = await api.get(ep);
-                const list = extractDoctorArray<DoctorResponse>(response.data);
-                if (list.length > 0 || Array.isArray(response.data) || response.data?.data) {
-                    return list;
-                }
-            } catch {
-                // Try next fallback
-            }
-        }
-        return [];
+        const response = await api.get(`${ADMIN_BASE}/Pending`);
+        const list = extractDoctorArray<DoctorResponse>(response.data);
+        return list;
     },
 
     getDoctorById: async (id: string): Promise<DoctorResponse> => {
-        try {
-            const response = await api.get(`${ADMIN_FALLBACK}/${id}`);
-            return extractDoctorObject<DoctorResponse>(response.data)!;
-        } catch {
-            const fallback = await api.get(`${ADMIN_BASE}/${id}`);
-            return extractDoctorObject<DoctorResponse>(fallback.data)!;
-        }
+        const response = await api.get(`${ADMIN_BASE}/${id}`);
+        return extractDoctorObject<DoctorResponse>(response.data)!;
     },
 
     approveDoctor: async (id: string): Promise<void> => {
-        try {
-            await api.patch(`${ADMIN_FALLBACK}/${id}/Approve`);
-        } catch {
-            await api.patch(`${ADMIN_BASE}/${id}/Approve`);
-        }
+        await api.patch(`${ADMIN_BASE}/${id}/Approve`);
     },
 
     rejectDoctor: async (id: string): Promise<void> => {
-        try {
-            await api.patch(`${ADMIN_FALLBACK}/${id}/Reject`);
-        } catch {
-            await api.patch(`${ADMIN_BASE}/${id}/Reject`);
-        }
+        await api.patch(`${ADMIN_BASE}/${id}/Reject`);
     },
 
     suspendDoctor: async (id: string): Promise<void> => {
-        try {
-            await api.patch(`${ADMIN_FALLBACK}/${id}/Suspend`);
-        } catch {
-            await api.patch(`${ADMIN_BASE}/${id}/Suspend`);
-        }
+        await api.patch(`${ADMIN_BASE}/${id}/Suspend`);
     },
 
     activateDoctor: async (id: string): Promise<void> => {
-        try {
-            await api.patch(`${ADMIN_FALLBACK}/${id}/Activate`);
-        } catch {
-            await api.patch(`${ADMIN_BASE}/${id}/Activate`);
-        }
+        await api.patch(`${ADMIN_BASE}/${id}/Activate`);
     },
 
     // ── Patient Area public endpoints (/api/Patient/DoctorControlller) ────────

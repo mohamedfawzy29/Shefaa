@@ -7,12 +7,8 @@ const BASE = API_ENDPOINTS.ADMIN.BRANCHES.BASE; // /Admin/Branches — Admin are
 
 export const branchService = {
     getAll: async (): Promise<BranchResponse[]> => {
-        try {
-            const response = await api.get<ApiResponse<BranchResponse[]>>(BASE);
-            return response.data.data ?? [];
-        } catch {
-            return [];
-        }
+        const response = await api.get<ApiResponse<BranchResponse[]>>(BASE);
+        return response.data.data ?? [];
     },
 
     getById: async (id: string): Promise<BranchResponse> => {

@@ -1,4 +1,4 @@
-﻿using Mapster;
+using Mapster;
 using Shefaa.DTOs.Request;
 using Shefaa.DTOs.Response;
 using Shefaa.Models;
@@ -15,6 +15,11 @@ namespace Shefaa.Configurations
             TypeAdapterConfig<Branch, BranchResponse>.NewConfig().Map(dest => dest.OrganizationName,src => src.Organization.LegalName);
 
             TypeAdapterConfig<UpdateSpecializationRequest, Specialization>.NewConfig().IgnoreNullValues(true);
+
+            TypeAdapterConfig<Appointment, DoctorAppointmentResponse>.NewConfig()
+                .Map(dest => dest.AppointmentId, src => src.Id)
+                .Map(dest => dest.PatientName, src => src.Patient.User != null ? $"{src.Patient.User.FirstName} {src.Patient.User.LastName}" : "مريض غير معروف")
+                .Map(dest => dest.BranchName, src => src.Branch.BranchName);
         }
     }
 }

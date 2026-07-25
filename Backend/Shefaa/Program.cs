@@ -93,6 +93,7 @@ namespace Shefaa
             });
 
             builder.Services.AddScoped<IDbInitializer, DbInitializer>();
+            builder.Services.AddScoped<IDummyDataSeeder, DummyDataSeeder>();
             builder.Services.AddScoped<IEmailSender, EmailSender>();
             builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
             builder.Services.AddScoped<IFileService, Services.FileService>();

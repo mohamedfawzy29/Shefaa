@@ -3,7 +3,7 @@ using Shefaa.DTOs.filter;
 namespace Shefaa.Areas.Patient.Controllers
 {
     [Area(CD.PATIENT_AREA)]
-    [Route("api/Patient/[controller]")]
+    [Route("api/[area]/[controller]")]
     [Authorize(Roles = CD.PATIENT_ROLE)]
     [ApiController]
     public class ReviewsController : ControllerBase
@@ -118,15 +118,28 @@ namespace Shefaa.Areas.Patient.Controllers
                 {
                     r => r.Appointment,
                     r => r.Appointment.Doctor,
-                    r => r.Appointment.Doctor.User
+                    r => r.Appointment.Doctor.User,
+                    r => r.Patient,
+                    r => r.Patient.User
                 }
             );
 
-            return Ok(new ApiResponse<IEnumerable<Review>>
+            var response = reviews.Select(r => new
+            {
+                ReviewId = r.Id,
+                AppointmentId = r.AppointmentId,
+                PatientName = (r.Patient?.User != null) ? $"{r.Patient.User.FirstName} {r.Patient.User.LastName}" : "Unknown",
+                DoctorName = (r.Appointment?.Doctor?.User != null) ? $"{r.Appointment.Doctor.User.FirstName} {r.Appointment.Doctor.User.LastName}" : "Unknown",
+                Rating = r.Rating,
+                Comment = r.Comment,
+                CreatedAt = r.CreatedAt
+            }).ToList();
+
+            return Ok(new ApiResponse<object>
             {
                 IsSuccess = true,
                 Message = "your reviw",
-                Data = reviews
+                Data = response
             });
         }
 
@@ -224,15 +237,28 @@ namespace Shefaa.Areas.Patient.Controllers
                 {
                     r => r.Patient,
                     r => r.Patient.User,
-                    r => r.Appointment
+                    r => r.Appointment,
+                    r => r.Appointment.Doctor,
+                    r => r.Appointment.Doctor.User
                 }
             );
 
-            return Ok(new ApiResponse<IEnumerable<Review>>
+            var response = reviews.Select(r => new
+            {
+                ReviewId = r.Id,
+                AppointmentId = r.AppointmentId,
+                PatientName = (r.Patient?.User != null) ? $"{r.Patient.User.FirstName} {r.Patient.User.LastName}" : "Unknown",
+                DoctorName = (r.Appointment?.Doctor?.User != null) ? $"{r.Appointment.Doctor.User.FirstName} {r.Appointment.Doctor.User.LastName}" : "Unknown",
+                Rating = r.Rating,
+                Comment = r.Comment,
+                CreatedAt = r.CreatedAt
+            }).ToList();
+
+            return Ok(new ApiResponse<object>
             {
                 IsSuccess = true,
                 Message = "review fot adoctor",
-                Data = reviews
+                Data = response
             });
         }
     }

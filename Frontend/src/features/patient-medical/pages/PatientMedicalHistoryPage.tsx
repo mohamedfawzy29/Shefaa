@@ -54,7 +54,7 @@ export default function PatientMedicalHistoryPage() {
                         return (
                             <div
                                 key={rec.id}
-                                className="bg-white dark:bg-[#12141c] rounded-3xl border border-slate-200/80 dark:border-slate-800 shadow-sm overflow-hidden"
+                                className="bg-white dark:bg-[#12141c] rounded-3xl border border-slate-200/80 dark:border-slate-800 shadow-sm overflow-hidden !my-5"
                             >
                                 <div className="h-1.5 bg-gradient-to-r from-cyan-500 to-blue-600" />
                                 <div className="!p-6 space-y-6">

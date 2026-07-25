@@ -35,11 +35,13 @@ import ProfilePage from "../../pages/Profile/ProfilePage";
 import UserManagementPage from "../../features/user-management/pages/UserManagementPage";
 import SpecializationsPage from "../../features/specializations/pages/SpecializationsPage";
 import DoctorClinicPage from "../../features/doctor-clinic/pages/DoctorClinicPage";
+import DoctorSchedulesPage from "../../features/doctor-clinic/pages/DoctorSchedulesPage";
 import DoctorPracticePage from "../../features/doctor-clinic/pages/DoctorPracticePage";
 import ReceptionistDeskPage from "../../features/receptionist/pages/ReceptionistDeskPage";
 import PatientAppointmentsPage from "../../features/patient-appointments/pages/PatientAppointmentsPage";
 import PatientDoctorsPage from "../../features/patient-appointments/pages/PatientDoctorsPage";
 import PatientMedicalHistoryPage from "../../features/patient-medical/pages/PatientMedicalHistoryPage";
+import PatientReviewsPage from "../../features/reviews/pages/PatientReviewsPage";
 import { useAuth } from "../../features/auth/hooks/useAuth";
 
 function DashboardRoute() {
@@ -92,6 +94,7 @@ export default function AppRouter() {
                         {/* Doctor only */}
                         <Route element={<ProtectedRoute allowedRoles={["Doctor"]} />}>
                             <Route path="/doctor/clinic" element={<DoctorClinicPage />} />
+                            <Route path="/doctor/schedules" element={<DoctorSchedulesPage />} />
                         </Route>
 
                         {/* Patient only */}
@@ -99,6 +102,7 @@ export default function AppRouter() {
                             <Route path="/patient/appointments" element={<PatientAppointmentsPage />} />
                             <Route path="/patient/doctors" element={<PatientDoctorsPage />} />
                             <Route path="/patient/medical-history" element={<PatientMedicalHistoryPage />} />
+                            <Route path="/patient/reviews" element={<PatientReviewsPage />} />
                         </Route>
 
                         {/* Staff dashboard & settings (Admin, Doctor, Receptionist) */}
@@ -107,8 +111,8 @@ export default function AppRouter() {
                             <Route path="/settings" element={<SettingsPage />} />
                         </Route>
 
-                        {/* Admin & Doctor */}
-                        <Route element={<ProtectedRoute allowedRoles={["Admin", "Doctor"]} />}>
+                        {/* Admin only (Global Appointments & Patients) */}
+                        <Route element={<ProtectedRoute allowedRoles={["Admin"]} />}>
                             <Route path="/appointments" element={<AppointmentsPage />} />
                             <Route path="/patients" element={<PatientsPage />} />
                         </Route>

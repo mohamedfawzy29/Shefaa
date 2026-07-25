@@ -4,13 +4,14 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod/v4";
 import {
     Building2, Calendar, Plus, CheckCircle2, DollarSign,
-    Clock, Users, Sparkles, ShieldAlert, Check,
+    Sparkles, ShieldAlert,
 } from "lucide-react";
 import { useBranches } from "../../lookups/hooks/useLookups";
 import {
     useMyBranches,
     useJoinBranch,
     useAddSchedule,
+    useLeaveBranch,
 } from "../hooks/useDoctorClinic";
 
 // ── Zod Schemas ───────────────────────────────────────────────────────────────
@@ -54,6 +55,9 @@ export default function DoctorClinicPage() {
 
     const [joinSuccess, setJoinSuccess] = useState<string | null>(null);
     const [joinError, setJoinError] = useState<string | null>(null);
+
+    const leaveBranchMutation = useLeaveBranch();
+    const [leaveError, setLeaveError] = useState<string | null>(null);
 
     const [scheduleSuccess, setScheduleSuccess] = useState<string | null>(null);
     const [scheduleError, setScheduleError] = useState<string | null>(null);
@@ -138,10 +142,24 @@ export default function DoctorClinicPage() {
         );
     };
 
+    const handleLeaveBranch = (branchId: string, branchName: string) => {
+        if (!confirm(`Are you sure you want to leave ${branchName}?\nThis will remove your working hours for this branch. You cannot leave if you have upcoming appointments.`)) return;
+
+        setLeaveError(null);
+        leaveBranchMutation.mutate(branchId, {
+            onSuccess: () => {
+                alert(`Successfully left ${branchName}`);
+            },
+            onError: (err: any) => {
+                setLeaveError(err?.response?.data?.message || "Failed to leave branch. Make sure you have no upcoming appointments.");
+            }
+        });
+    };
+
     return (
-        <div className="max-w-6xl mx-auto !p-6 space-y-8">
+        <div className="max-w-6x2 mx-auto !p-6 space-y-8">
             {/* Header Banner */}
-            <div className="bg-gradient-to-r from-blue-600 via-indigo-600 to-cyan-600 rounded-3xl !p-8 text-white shadow-xl relative overflow-hidden">
+            <div className="bg-gradient-to-r from-blue-600 via-indigo-600 to-cyan-600 rounded-3xl !p-6 text-white shadow-xl relative overflow-hidden !mb-5">
                 <div className="relative z-10 space-y-2">
                     <div className="inline-flex items-center gap-2 !px-3 !py-1 rounded-full bg-white/10 backdrop-blur-md text-xs font-semibold text-cyan-200">
                         <Sparkles className="h-3.5 w-3.5" />
@@ -159,7 +177,7 @@ export default function DoctorClinicPage() {
                 {/* ── Left Column: Joined Branches & Join Form ── */}
                 <div className="space-y-6">
                     {/* Joined Branches Summary Card */}
-                    <div className="bg-white dark:bg-[#12141c] rounded-3xl border border-slate-200/80 dark:border-slate-800 shadow-sm !p-6 space-y-4">
+                    <div className="bg-white dark:bg-[#12141c] rounded-3xl border border-slate-200/80 dark:border-slate-800 shadow-sm !p-6 space-y-4 !mb-5">
                         <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 !pb-4">
                             <div className="flex items-center gap-3">
                                 <div className="h-10 w-10 rounded-2xl bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400 flex items-center justify-center">
@@ -210,8 +228,21 @@ export default function DoctorClinicPage() {
                                                 Consultation Fee: <span className="font-semibold text-slate-700 dark:text-slate-300">{mb.consultionFee} EGP</span>
                                             </p>
                                         </div>
+                                        <button
+                                            onClick={() => handleLeaveBranch(mb.branchId, mb.branchName)}
+                                            disabled={leaveBranchMutation.isPending}
+                                            className="!px-3 !py-1.5 text-xs font-bold text-rose-600 bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/40 dark:text-rose-400 dark:hover:bg-rose-900/60 rounded-lg transition-colors disabled:opacity-50"
+                                        >
+                                            {leaveBranchMutation.isPending ? "Leaving..." : "Leave"}
+                                        </button>
                                     </div>
                                 ))}
+                            </div>
+                        )}
+                        {leaveError && (
+                            <div className="!p-3 mt-2 rounded-xl bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-300 text-xs flex items-center gap-2">
+                                <ShieldAlert className="h-4 w-4 shrink-0" />
+                                {leaveError}
                             </div>
                         )}
                     </div>
@@ -301,8 +332,8 @@ export default function DoctorClinicPage() {
 
                 {/* ── Right Column: Add Schedule Form ── */}
                 <div className="space-y-6">
-                    <div className="bg-white dark:bg-[#12141c] rounded-3xl border border-slate-200/80 dark:border-slate-800 shadow-sm !p-6 space-y-4">
-                        <div className="flex items-center gap-3 border-b border-slate-100 dark:border-slate-800 !pb-4">
+                    <div className="bg-white dark:bg-[#12141c] rounded-3xl border border-slate-200/80 dark:border-slate-800 shadow-sm !p-6 space-y-4 h-[90vh]">
+                        <div className="flex items-center gap-3 border-b border-slate-100 dark:border-slate-800 !pb-4 h-[15%]">
                             <div className="h-10 w-10 rounded-2xl bg-indigo-50 dark:bg-indigo-950/40 text-indigo-600 dark:text-indigo-400 flex items-center justify-center">
                                 <Calendar className="h-5 w-5" />
                             </div>
@@ -327,13 +358,13 @@ export default function DoctorClinicPage() {
 
                         <form onSubmit={handleSubmitSchedule(onScheduleSubmit)} className="space-y-4">
                             <div className="space-y-1.5">
-                                <label className="block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                                <label className="block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 !mt-3">
                                     Select Joined Branch <span className="text-rose-500">*</span>
                                 </label>
                                 <select
                                     {...registerSchedule("branchId")}
                                     disabled={myBranches.length === 0}
-                                    className="w-full rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/60 !px-4 !py-3 text-sm text-slate-900 dark:text-slate-100 outline-none disabled:opacity-50"
+                                    className="w-full rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/60 !px-4 !py-3 text-sm text-slate-900 dark:text-slate-100 outline-none disabled:opacity-50 !my-3"
                                 >
                                     <option value="">{myBranches.length > 0 ? "Select branch…" : "Join a branch first"}</option>
                                     {myBranches.map((b) => (
@@ -346,12 +377,12 @@ export default function DoctorClinicPage() {
                             </div>
 
                             <div className="space-y-1.5">
-                                <label className="block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                                <label className="block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 !mt-3">
                                     Day of Week <span className="text-rose-500">*</span>
                                 </label>
                                 <select
                                     {...registerSchedule("dayOfWeek", { valueAsNumber: true })}
-                                    className="w-full rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/60 !px-4 !py-3 text-sm text-slate-900 dark:text-slate-100 outline-none"
+                                    className="w-full rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/60 !px-4 !py-3 text-sm text-slate-900 dark:text-slate-100 outline-none !my-3"
                                 >
                                     {DAYS_OF_WEEK.map((d) => (
                                         <option key={d.value} value={d.value}>{d.label}</option>
@@ -364,26 +395,26 @@ export default function DoctorClinicPage() {
 
                             <div className="grid grid-cols-2 gap-4">
                                 <div className="space-y-1.5">
-                                    <label className="block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                                    <label className="block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 !mt-3">
                                         Start Time <span className="text-rose-500">*</span>
                                     </label>
                                     <input
                                         type="time"
                                         {...registerSchedule("startTime")}
-                                        className="w-full rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/60 !px-4 !py-3 text-sm text-slate-900 dark:text-slate-100 outline-none"
+                                        className="w-full rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/60 !px-4 !py-3 text-sm text-slate-900 dark:text-slate-100 outline-none !my-3"
                                     />
                                     {scheduleErrors.startTime && (
                                         <p className="text-xs text-rose-500">{scheduleErrors.startTime.message}</p>
                                     )}
                                 </div>
                                 <div className="space-y-1.5">
-                                    <label className="block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                                    <label className="block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 !mt-3">
                                         End Time <span className="text-rose-500">*</span>
                                     </label>
                                     <input
                                         type="time"
                                         {...registerSchedule("endTime")}
-                                        className="w-full rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/60 !px-4 !py-3 text-sm text-slate-900 dark:text-slate-100 outline-none"
+                                        className="w-full rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/60 !px-4 !py-3 text-sm text-slate-900 dark:text-slate-100 outline-none !my-3"
                                     />
                                     {scheduleErrors.endTime && (
                                         <p className="text-xs text-rose-500">{scheduleErrors.endTime.message}</p>
@@ -393,12 +424,12 @@ export default function DoctorClinicPage() {
 
                             <div className="grid grid-cols-2 gap-4">
                                 <div className="space-y-1.5">
-                                    <label className="block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                                    <label className="block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 !mt-3">
                                         Slot Duration (Mins)
                                     </label>
                                     <select
                                         {...registerSchedule("slotDurationMinutes", { valueAsNumber: true })}
-                                        className="w-full rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/60 !px-4 !py-3 text-sm text-slate-900 dark:text-slate-100 outline-none"
+                                        className="w-full rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/60 !px-4 !py-3 text-sm text-slate-900 dark:text-slate-100 outline-none !my-3"
                                     >
                                         <option value={15}>15 mins</option>
                                         <option value={20}>20 mins</option>
@@ -408,7 +439,7 @@ export default function DoctorClinicPage() {
                                     </select>
                                 </div>
                                 <div className="space-y-1.5">
-                                    <label className="block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                                    <label className="block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 !mt-3">
                                         Max Patients
                                     </label>
                                     <input
@@ -416,7 +447,7 @@ export default function DoctorClinicPage() {
                                         min="1"
                                         max="100"
                                         {...registerSchedule("maxPatients", { valueAsNumber: true })}
-                                        className="w-full rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/60 !px-4 !py-3 text-sm text-slate-900 dark:text-slate-100 outline-none"
+                                        className="w-full rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/60 !px-4 !py-3 text-sm text-slate-900 dark:text-slate-100 outline-none !my-3"
                                     />
                                 </div>
                             </div>
@@ -424,7 +455,7 @@ export default function DoctorClinicPage() {
                             <button
                                 type="submit"
                                 disabled={addScheduleMutation.isPending || myBranches.length === 0}
-                                className="w-full !py-3 rounded-2xl bg-gradient-to-r from-indigo-600 to-blue-600 text-white font-bold text-sm shadow-md hover:shadow-lg transition-all disabled:opacity-50 cursor-pointer !mt-4"
+                                className="w-full !py-3 rounded-2xl bg-gradient-to-r from-indigo-600 to-blue-600 text-white font-bold text-sm shadow-md hover:shadow-lg transition-all disabled:opacity-50 cursor-pointer !mt-17"
                             >
                                 {addScheduleMutation.isPending ? "Adding Schedule…" : "Save Working Hours"}
                             </button>

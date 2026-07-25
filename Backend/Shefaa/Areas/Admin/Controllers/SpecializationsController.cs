@@ -1,4 +1,4 @@
-﻿
+
 namespace Shefaa.Areas.Admin.Controllers
 {
     [Area(CD.ADMIN_AREA)]
@@ -79,8 +79,7 @@ namespace Shefaa.Areas.Admin.Controllers
 
             var response = specialization.Adapt<SpecializationResponse>();
 
-            return CreatedAtAction(nameof(GetById), new { id = specialization.Id },
-                new ApiResponse<SpecializationResponse>
+            return Ok(new ApiResponse<SpecializationResponse>
                 {
                     IsSuccess = true,
                     Message = "Specialization created successfully",

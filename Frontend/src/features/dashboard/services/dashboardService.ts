@@ -21,4 +21,10 @@ export const dashboardService = {
         const response = await api.get<ApiResponse<ChartDataItem[]>>(API_ENDPOINTS.ADMIN.DASHBOARD.TOP_SPECIALIZATIONS_CHART);
         return response.data.data ?? [];
     },
+
+    /** GET /api/Admin/Dashboard/recent-activities */
+    getRecentActivities: async (): Promise<import("../types/dashboard").RecentActivity[]> => {
+        const response = await api.get<ApiResponse<import("../types/dashboard").RecentActivity[]>>(API_ENDPOINTS.ADMIN.DASHBOARD.RECENT_ACTIVITIES);
+        return response.data.data ?? [];
+    },
 };

@@ -3,7 +3,7 @@ using Shefaa.DTOs.filter;
 namespace Shefaa.Areas.Patient.Controllers
 {
     [Area(CD.PATIENT_AREA)]
-    [Route("api/Patient/[controller]")]
+    [Route("api/[area]/[controller]")]
     [Authorize(Roles = CD.PATIENT_ROLE)]
     [ApiController]
     public class DoctorController : ControllerBase

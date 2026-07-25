@@ -1,8 +1,11 @@
 import { useState } from "react";
 import { usePatientAppointments, useCancelPatientAppointment } from "../hooks/usePatientAppointments";
+import { RescheduleAppointmentModal } from "../components/RescheduleAppointmentModal";
+import { WriteReviewModal } from "../../reviews/components/WriteReviewModal";
+import type { PatientAppointment } from "../types/patientAppointment";
 import { Avatar } from "../../../components/ui/Avatar";
 import { getProfileImageUrl } from "../../../utils/imageUrl";
-import { Calendar, Clock, MapPin, CheckCircle2, UserCheck, XCircle, Stethoscope } from "lucide-react";
+import { Calendar, Clock, MapPin, CheckCircle2, UserCheck, XCircle, Stethoscope, Star } from "lucide-react";
 
 function StatusBadge({ status }: { status: number }) {
     switch (status) {
@@ -44,6 +47,8 @@ export default function PatientAppointmentsPage() {
     const cancelMutation = useCancelPatientAppointment();
     const [activeTab, setActiveTab] = useState<"upcoming" | "history">("upcoming");
     const [cancellingId, setCancellingId] = useState<string | null>(null);
+    const [reschedulingAppointment, setReschedulingAppointment] = useState<PatientAppointment | null>(null);
+    const [reviewingAppointment, setReviewingAppointment] = useState<PatientAppointment | null>(null);
 
     // Upcoming: Scheduled (0)
     const upcomingList = appointments.filter((a) => a.status === 0);
@@ -62,6 +67,15 @@ export default function PatientAppointmentsPage() {
 
     return (
         <div className="max-w-5x2 mx-auto !p-6 space-y-8">
+            <RescheduleAppointmentModal
+                appointment={reschedulingAppointment}
+                onClose={() => setReschedulingAppointment(null)}
+            />
+            <WriteReviewModal
+                appointment={reviewingAppointment}
+                onClose={() => setReviewingAppointment(null)}
+            />
+
             {/* Header Banner */}
             <div className="bg-gradient-to-r from-blue-600 via-cyan-600 to-indigo-600 rounded-3xl !p-8 text-white shadow-xl space-y-2">
                 <div className="inline-flex items-center gap-2 !px-3 !py-1 rounded-full bg-white/10 backdrop-blur-md text-xs font-semibold text-cyan-200">
@@ -143,7 +157,7 @@ export default function PatientAppointmentsPage() {
                             return (
                                 <div
                                     key={app.id}
-                                    className="bg-white dark:bg-[#12141c] rounded-3xl border border-slate-200/80 dark:border-slate-800 shadow-sm !p-6 flex flex-col md:flex-row md:items-center justify-between gap-6 hover:border-cyan-300 dark:hover:border-cyan-800 transition-all"
+                                    className="bg-white dark:bg-[#12141c] rounded-3xl border border-slate-200/80 dark:border-slate-800 shadow-sm !p-6 flex flex-col md:flex-row md:items-center justify-between gap-6 hover:border-cyan-300 dark:hover:border-cyan-800 transition-all !my-5"
                                 >
                                     <div className="flex items-start gap-4">
                                         <Avatar src={doctorImg} name={doctorName} size="md" />
@@ -183,13 +197,30 @@ export default function PatientAppointmentsPage() {
                                     </div>
 
                                     {canCancel && (
-                                        <div className="shrink-0 flex items-center justify-end">
+                                        <div className="shrink-0 flex flex-col gap-2 items-end justify-center w-full md:w-auto">
+                                            <button
+                                                onClick={() => setReschedulingAppointment(app)}
+                                                className="w-full !px-4 !py-2 rounded-xl border border-amber-200 dark:border-amber-900/50 bg-amber-50 dark:bg-amber-950/30 text-amber-600 dark:text-amber-400 text-xs font-bold hover:bg-amber-100 dark:hover:bg-amber-900/50 transition-all cursor-pointer"
+                                            >
+                                                Reschedule
+                                            </button>
                                             <button
                                                 onClick={() => handleCancel(app.id)}
                                                 disabled={cancellingId === app.id}
-                                                className="!px-4 !py-2 rounded-xl border border-rose-200 dark:border-rose-900/50 bg-rose-50 dark:bg-rose-950/30 text-rose-600 dark:text-rose-400 text-xs font-bold hover:bg-rose-100 dark:hover:bg-rose-900/50 transition-all cursor-pointer disabled:opacity-50"
+                                                className="w-full !px-4 !py-2 rounded-xl border border-rose-200 dark:border-rose-900/50 bg-rose-50 dark:bg-rose-950/30 text-rose-600 dark:text-rose-400 text-xs font-bold hover:bg-rose-100 dark:hover:bg-rose-900/50 transition-all cursor-pointer disabled:opacity-50"
                                             >
-                                                {cancellingId === app.id ? "Cancelling…" : "Cancel Appointment"}
+                                                {cancellingId === app.id ? "Cancelling…" : "Cancel"}
+                                            </button>
+                                        </div>
+                                    )}
+
+                                    {app.status === 1 && (
+                                        <div className="shrink-0 flex flex-col gap-2 items-end justify-center w-full md:w-auto">
+                                            <button
+                                                onClick={() => setReviewingAppointment(app)}
+                                                className="w-full !px-4 !py-2 rounded-xl border border-emerald-200 dark:border-emerald-900/50 bg-emerald-50 dark:bg-emerald-950/30 text-emerald-600 dark:text-emerald-400 text-xs font-bold hover:bg-emerald-100 dark:hover:bg-emerald-900/50 transition-all cursor-pointer flex items-center justify-center gap-1.5"
+                                            >
+                                                <Star className="h-3.5 w-3.5" /> Leave Review
                                             </button>
                                         </div>
                                     )}

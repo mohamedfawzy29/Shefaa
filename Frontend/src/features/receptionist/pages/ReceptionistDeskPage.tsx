@@ -73,8 +73,8 @@ export default function ReceptionistDeskPage() {
     }, [appointments]);
 
     // Derive active branch name from the first appointment if available, fallback to localStorage
-    const activeBranchName = appointments.length > 0 
-        ? appointments[0].branchName 
+    const activeBranchName = appointments.length > 0
+        ? appointments[0].branchName
         : localStorage.getItem('receptionistActiveBranchName');
 
     // Compute Statistics
@@ -119,7 +119,7 @@ export default function ReceptionistDeskPage() {
     };
 
     return (
-        <div className="max-w-7xl mx-auto !p-6 space-y-8">
+        <div className="max-w-7x2 mx-auto !p-6 space-y-8">
             {/* Header */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 dark:border-slate-800 !pb-6">
                 <div>
@@ -130,7 +130,7 @@ export default function ReceptionistDeskPage() {
                         Manage today's branch check-ins and patient arrivals.
                     </p>
                 </div>
-                
+
                 {/* Branch Selection Control */}
                 <div className="flex items-center gap-3 bg-white dark:bg-[#12141c] border border-slate-200 dark:border-slate-700 !px-4 !py-2 rounded-2xl shadow-sm">
                     <div className="flex flex-col items-end">
@@ -151,7 +151,7 @@ export default function ReceptionistDeskPage() {
             </div>
 
             {/* Today's Stats Cards */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 !my-5">
                 <div className="bg-white dark:bg-[#12141c] rounded-3xl border border-slate-200/80 dark:border-slate-800 !p-5 shadow-sm space-y-2">
                     <div className="flex items-center justify-between">
                         <span className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Total Today</span>

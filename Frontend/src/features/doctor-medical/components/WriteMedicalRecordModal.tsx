@@ -9,7 +9,7 @@ import {
 import { Modal } from "../../../components/ui/Modal";
 import { Button } from "../../../components/ui/Button";
 import { useCreatePrescription } from "../hooks/useDoctorMedical";
-import { patientMedicalService } from "../../patient-medical/services/patientMedicalService";
+import { doctorMedicalService } from "../services/doctorMedicalService";
 import type { MedicalRecordResponse } from "../../patient-medical/types/patientMedical";
 
 // ── Zod Validation Schema ─────────────────────────────────────────────────────
@@ -58,7 +58,7 @@ export function WriteMedicalRecordModal({
         handleSubmit,
         reset,
         setValue,
-        watch,
+        getValues,
         control,
         formState: { errors },
     } = useForm<MedicalRecordFormData>({
@@ -78,10 +78,8 @@ export function WriteMedicalRecordModal({
         name: "medications",
     });
 
-    const medications = watch("medications") ?? [];
-
     // Auto-build treatmentPlan from structured medications
-    const syncTreatmentPlanFromMedications = (items: typeof medications) => {
+    const syncTreatmentPlanFromMedications = (items: { name: string; dosage: string; frequency: string; duration: string; instructions?: string }[]) => {
         if (!items || items.length === 0) return;
         const formatted = items
             .filter((m) => m.name && m.dosage)
@@ -109,21 +107,28 @@ export function WriteMedicalRecordModal({
                 followUpDate: "",
                 medications: [],
             });
+            // eslint-disable-next-line react-hooks/set-state-in-effect
             setServerError(null);
+            // eslint-disable-next-line react-hooks/set-state-in-effect
             setSuccessMsg(null);
+            // eslint-disable-next-line react-hooks/set-state-in-effect
             setActiveTab("writer");
 
-            // Attempt to check if record already exists
-            setLoadingRecord(true);
-            patientMedicalService
-                .getRecordByAppointment(appointmentId)
-                .then((rec) => {
-                    setExistingRecord(rec);
-                })
-                .catch(() => {
+            const fetchRecord = async () => {
+                setLoadingRecord(true);
+                try {
+                    const record = await doctorMedicalService.getRecordByAppointment(appointmentId);
+                    if (record) {
+                        setExistingRecord(record);
+                        setActiveTab("history");
+                    }
+                } catch {
                     setExistingRecord(null);
-                })
-                .finally(() => setLoadingRecord(false));
+                } finally {
+                    setLoadingRecord(false);
+                }
+            };
+            fetchRecord();
         }
     }, [isOpen, appointmentId, reset]);
 
@@ -312,7 +317,7 @@ export function WriteMedicalRecordModal({
                                                     type="text"
                                                     placeholder="Medication Name"
                                                     {...register(`medications.${index}.name` as const)}
-                                                    onChange={() => syncTreatmentPlanFromMedications(watch("medications") ?? [])}
+                                                    onChange={() => syncTreatmentPlanFromMedications(getValues("medications") ?? [])}
                                                     className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 !px-2.5 !py-1.5 text-xs outline-none"
                                                 />
                                             </div>
@@ -321,7 +326,7 @@ export function WriteMedicalRecordModal({
                                                     type="text"
                                                     placeholder="Dosage (e.g. 500mg)"
                                                     {...register(`medications.${index}.dosage` as const)}
-                                                    onChange={() => syncTreatmentPlanFromMedications(watch("medications") ?? [])}
+                                                    onChange={() => syncTreatmentPlanFromMedications(getValues("medications") ?? [])}
                                                     className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 !px-2.5 !py-1.5 text-xs outline-none"
                                                 />
                                             </div>
@@ -330,7 +335,7 @@ export function WriteMedicalRecordModal({
                                                     type="text"
                                                     placeholder="Frequency"
                                                     {...register(`medications.${index}.frequency` as const)}
-                                                    onChange={() => syncTreatmentPlanFromMedications(watch("medications") ?? [])}
+                                                    onChange={() => syncTreatmentPlanFromMedications(getValues("medications") ?? [])}
                                                     className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 !px-2.5 !py-1.5 text-xs outline-none"
                                                 />
                                             </div>
@@ -339,7 +344,7 @@ export function WriteMedicalRecordModal({
                                                     type="text"
                                                     placeholder="Duration"
                                                     {...register(`medications.${index}.duration` as const)}
-                                                    onChange={() => syncTreatmentPlanFromMedications(watch("medications") ?? [])}
+                                                    onChange={() => syncTreatmentPlanFromMedications(getValues("medications") ?? [])}
                                                     className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 !px-2.5 !py-1.5 text-xs outline-none"
                                                 />
                                             </div>
@@ -348,7 +353,7 @@ export function WriteMedicalRecordModal({
                                                     type="text"
                                                     placeholder="Instructions"
                                                     {...register(`medications.${index}.instructions` as const)}
-                                                    onChange={() => syncTreatmentPlanFromMedications(watch("medications") ?? [])}
+                                                    onChange={() => syncTreatmentPlanFromMedications(getValues("medications") ?? [])}
                                                     className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 !px-2.5 !py-1.5 text-xs outline-none"
                                                 />
                                             </div>
@@ -358,7 +363,7 @@ export function WriteMedicalRecordModal({
                                                     onClick={() => {
                                                         remove(index);
                                                         syncTreatmentPlanFromMedications(
-                                                            (watch("medications") ?? []).filter((_, i) => i !== index)
+                                                            (getValues("medications") ?? []).filter((_, i) => i !== index)
                                                         );
                                                     }}
                                                     className="!p-1.5 text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/40 rounded-lg transition-colors cursor-pointer"

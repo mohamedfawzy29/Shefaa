@@ -8,18 +8,8 @@ const BASE = API_ENDPOINTS.ADMIN.ORGANIZATIONS.BASE; // /Admin/Organizations —
 export const organizationService = {
     /** GET /api/Admin/Organizations */
     getAll: async (): Promise<OrganizationResponse[]> => {
-        try {
-            const response = await api.get<ApiResponse<OrganizationResponse[]>>(BASE);
-            return response.data.data ?? [];
-        } catch {
-            // Fallback check
-            try {
-                const fallback = await api.get<ApiResponse<OrganizationResponse[]>>("/Organizations");
-                return fallback.data.data ?? [];
-            } catch {
-                return [];
-            }
-        }
+        const response = await api.get<ApiResponse<OrganizationResponse[]>>(BASE);
+        return response.data.data ?? [];
     },
 
     /** GET /api/Admin/Organizations/{id} */

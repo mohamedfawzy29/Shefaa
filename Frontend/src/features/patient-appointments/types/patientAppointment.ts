@@ -40,6 +40,13 @@ export interface BookAppointmentRequest {
     visitReason?: string;
 }
 
+/** Request body for PUT /api/Patient/Appiontment/reschedule/{id} */
+export interface RescheduleAppointmentRequest {
+    newAppointmentDate: string;   // "YYYY-MM-DD"
+    newStartTime: string;         // "HH:mm:ss"
+    newEndTime: string;           // "HH:mm:ss"
+}
+
 /** Used by the booking modal to represent a selectable time slot */
 export interface TimeSlot {
     startTime: string;   // "HH:mm"

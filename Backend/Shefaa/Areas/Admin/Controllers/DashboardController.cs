@@ -129,13 +129,13 @@ namespace Shefaa.Areas.Admin.Controllers
 
             if (dto.Approve)
             {
-                
+                doctor.Status = DoctorStatus.Approved;
                 await _context.SaveChangesAsync();
                 return Ok(new ApiResponse<object> { IsSuccess = true, Message = " doctor accept" });
             }
             else
             {
-                _context.Doctors.Remove(doctor);
+                doctor.Status = DoctorStatus.Rejected;
                 await _context.SaveChangesAsync();
                 return Ok(new ApiResponse<object> { IsSuccess = true, Message = "doctor not accept" });
             }

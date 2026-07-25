@@ -35,3 +35,15 @@ export function useCancelPatientAppointment() {
         },
     });
 }
+
+export function useReschedulePatientAppointment() {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: ({ id, request }: { id: string, request: { newAppointmentDate: string; newStartTime: string; newEndTime: string } }) =>
+            patientAppointmentService.rescheduleAppointment(id, request),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: PATIENT_APPOINTMENTS_QUERY_KEYS.myAppointments });
+        },
+    });
+}

@@ -20,7 +20,7 @@ export const createReceptionistSchema = z.object({
     password: z.string().min(6, "Password must be at least 6 characters"),
     gender: z.string().min(1, "Gender is required"),
     dateOfBirth: z.string().min(1, "Date of birth is required"),
-    branchId: z.string().uuid("Invalid branch ID").min(1, "Branch is required"),
+    branchId: z.string().min(1, "Branch is required"),
     phoneNumbers: z.string().min(1, "At least one phone number is required"), // will split by comma
     profileImg: iconValidation,
 });

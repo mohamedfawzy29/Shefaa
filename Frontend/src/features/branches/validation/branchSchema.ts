@@ -8,7 +8,7 @@ export const createBranchSchema = z.object({
     governorate: z.string().min(1, "Governorate is required"),
     address: z.string().min(1, "Address is required"),
     isActive: z.boolean(),
-    organizationId: z.string().uuid("Invalid Organization ID").min(1, "Organization is required"),
+    organizationId: z.string().min(1, "Organization is required"),
 });
 
 export type CreateBranchFormData = z.infer<typeof createBranchSchema>;
@@ -21,7 +21,7 @@ export const editBranchSchema = z.object({
     governorate: z.string().min(1, "Governorate is required"),
     address: z.string().min(1, "Address is required"),
     isActive: z.boolean(),
-    organizationId: z.string().uuid("Invalid Organization ID").min(1, "Organization is required"),
+    organizationId: z.string().min(1, "Organization is required"),
 });
 
 export type EditBranchFormData = z.infer<typeof editBranchSchema>;
