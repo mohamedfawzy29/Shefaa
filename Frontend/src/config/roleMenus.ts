@@ -23,8 +23,7 @@ export const roleMenus: Record<string, MenuItem[]> = {
     Doctor: [
         { title: "Dashboard", path: "/dashboard", iconName: "dashboard" },
         { title: "My Clinic", path: "/doctor/clinic", iconName: "branches" },
-        { title: "Appointments", path: "/appointments", iconName: "appointments" },
-        { title: "Patients", path: "/patients", iconName: "patients" },
+        { title: "My Schedules", path: "/doctor/schedules", iconName: "calendar" },
         { title: "Notifications", path: "/notifications", iconName: "notifications" },
         { title: "Settings", path: "/settings", iconName: "settings" },
         { title: "Profile", path: "/profile", iconName: "profile" },
@@ -39,7 +38,7 @@ export const roleMenus: Record<string, MenuItem[]> = {
         { title: "Find Doctors", path: "/patient/doctors", iconName: "doctors" },
         { title: "My Appointments", path: "/patient/appointments", iconName: "appointments" },
         { title: "Medical History", path: "/patient/medical-history", iconName: "specializations" },
+        { title: "My Reviews", path: "/patient/reviews", iconName: "reviews" },
         { title: "Profile", path: "/profile", iconName: "profile" },
     ],
 };
-

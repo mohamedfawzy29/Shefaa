@@ -1,7 +1,7 @@
 import { useState } from "react";
 import type { OrganizationResponse } from "../types/organization";
 import { Table, type Column } from "../../../components/ui/Table";
-import { Pencil, Trash2, Building2 } from "lucide-react";
+import { Pencil, Trash2, Building2, Search } from "lucide-react";
 
 interface OrganizationsTableProps {
     organizations: OrganizationResponse[];
@@ -122,6 +122,18 @@ export function OrganizationsTable({
             data={organizations}
             isLoading={isLoading}
             keyExtractor={(o) => o.id}
+            onRowClick={(o) => onEdit(o)}
+            emptyState={
+                <div className="flex flex-col items-center justify-center py-12 px-4 border border-slate-200/80 dark:border-slate-800 rounded-2xl bg-white dark:bg-[#0F172A]">
+                    <div className="h-12 w-12 rounded-full bg-slate-50 dark:bg-slate-800/50 flex items-center justify-center mb-3">
+                        <Search className="h-6 w-6 text-slate-400" />
+                    </div>
+                    <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100">No organizations found</h3>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 text-center max-w-sm">
+                        We couldn't find any organizations matching your search criteria. Try adjusting your filters.
+                    </p>
+                </div>
+            }
         />
     );
 }

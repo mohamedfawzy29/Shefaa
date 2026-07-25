@@ -55,9 +55,9 @@ export function CreateSpecializationDialog({ isOpen, onClose }: CreateSpecializa
 
     const onSubmit = (data: CreateSpecializationFormData) => {
         const formData = new FormData();
-        formData.append("name", data.name);
-        if (data.description) formData.append("description", data.description);
-        if (data.icon) formData.append("icon", data.icon);
+        formData.append("Name", data.name);
+        if (data.description) formData.append("Description", data.description);
+        if (data.icon) formData.append("Icon", data.icon);
 
         createMutation.mutate(formData, { onSuccess: () => onClose() });
     };

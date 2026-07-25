@@ -29,6 +29,7 @@ export default function PublicNavbar() {
             { label: "Doctors", to: "/doctors" },
             { label: "My Appointments", to: "/patient/appointments" },
             { label: "Medical History", to: "/patient/medical-history" },
+            { label: "My Reviews", to: "/patient/reviews" },
             { label: "Profile", to: "/profile" },
             { label: "About", to: "/about" },
             { label: "Contact", to: "/contact" },

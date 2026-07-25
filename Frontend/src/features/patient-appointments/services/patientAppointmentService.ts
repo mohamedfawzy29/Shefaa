@@ -6,38 +6,25 @@ import type { PatientAppointment, BookAppointmentRequest } from "../types/patien
 const BASE = API_ENDPOINTS.PATIENT_APPOINTMENTS.BASE; // /Patient/Appiontment (Patient Area)
 
 export const patientAppointmentService = {
-    /** GET /api/Patient/Appiontment/GetMyAppointments (or my-appointments) */
+    /** GET /api/Patient/Appiontment/my-appointments */
     getMyAppointments: async (): Promise<PatientAppointment[]> => {
-        try {
-            const response = await api.get<PatientAppointment[]>(`${BASE}/GetMyAppointments`);
-            const data = response.data;
-            return Array.isArray(data) ? data : ((data as unknown as ApiResponse<PatientAppointment[]>).data ?? []);
-        } catch {
-            try {
-                const fallback = await api.get<PatientAppointment[]>("/Patient/Appointment/my-appointments");
-                const data = fallback.data;
-                return Array.isArray(data) ? data : ((data as unknown as ApiResponse<PatientAppointment[]>).data ?? []);
-            } catch {
-                return [];
-            }
-        }
+        const response = await api.get<PatientAppointment[]>(API_ENDPOINTS.PATIENT_APPOINTMENTS.MY_APPOINTMENTS);
+        const data = response.data;
+        return Array.isArray(data) ? data : ((data as unknown as ApiResponse<PatientAppointment[]>).data ?? []);
     },
 
     /** POST /api/Patient/Appiontment/book */
     bookAppointment: async (request: BookAppointmentRequest): Promise<void> => {
-        try {
-            await api.post(`${BASE}/book`, request);
-        } catch {
-            await api.post("/Patient/Appointment/book", request);
-        }
+        await api.post(API_ENDPOINTS.PATIENT_APPOINTMENTS.BOOK, request);
     },
 
-    /** PUT /api/Patient/Appiontment/CancelAppointment/{id} */
+    /** PUT /api/Patient/Appiontment/cancel/{id} */
     cancelAppointment: async (appointmentId: string): Promise<void> => {
-        try {
-            await api.put(`${BASE}/CancelAppointment/${appointmentId}`);
-        } catch {
-            await api.put(`/Patient/Appointment/cancel/${appointmentId}`);
-        }
+        await api.put(API_ENDPOINTS.PATIENT_APPOINTMENTS.CANCEL_APPOINTMENT(appointmentId));
+    },
+
+    /** PUT /api/Patient/Appiontment/reschedule/{id} */
+    rescheduleAppointment: async (appointmentId: string, request: { newAppointmentDate: string; newStartTime: string; newEndTime: string }): Promise<void> => {
+        await api.put(API_ENDPOINTS.PATIENT_APPOINTMENTS.RESCHEDULE_APPOINTMENT(appointmentId), request);
     },
 };

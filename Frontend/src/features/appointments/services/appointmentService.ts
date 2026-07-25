@@ -92,83 +92,9 @@ export function normalizeAppointmentData(item: any, currentRole?: string): Appoi
 }
 
 export const appointmentService = {
-    /**
-     * Dynamically fetches appointments based on the logged-in user's role
-     * with multi-endpoint fallback routing to ensure zero 404s.
-     */
-    getByRole: async (role: string | undefined | null): Promise<AppointmentResponse[]> => {
-        const normalizedRole = (role || "").trim();
-
-        if (normalizedRole === "Receptionist") {
-            const endpoints = ["/Receptionist/Appointment/Today", "/Admin/Appointment/Today", "/Appointment/Today"];
-            for (const ep of endpoints) {
-                try {
-                    const response = await api.get(ep);
-                    const raw = extractRawArray(response.data);
-                    if (raw.length > 0 || Array.isArray(response.data) || response.data?.data) {
-                        return raw.map((item) => normalizeAppointmentData(item, "Receptionist"));
-                    }
-                } catch {
-                    // Fallback
-                }
-            }
-            return [];
-        }
-
-        if (normalizedRole === "Doctor") {
-            const endpoints = ["/DoctorArea/DoctorClinic/TodayAppointments", "/Doctor/Clinic/TodayAppointments"];
-            for (const ep of endpoints) {
-                try {
-                    const response = await api.get(ep);
-                    const raw = extractRawArray(response.data);
-                    if (raw.length > 0 || Array.isArray(response.data) || response.data?.data) {
-                        return raw.map((item) => normalizeAppointmentData(item, "Doctor"));
-                    }
-                } catch {
-                    // Fallback
-                }
-            }
-            return [];
-        }
-
-        if (normalizedRole === "Patient") {
-            const endpoints = [
-                "/Patient/Appiontment/GetMyAppointments",
-                "/Patient/Appointment/my-appointments",
-                "/Patient/Appiontment/my-appointments",
-            ];
-            for (const ep of endpoints) {
-                try {
-                    const response = await api.get(ep);
-                    const raw = extractRawArray(response.data);
-                    if (raw.length > 0 || Array.isArray(response.data) || response.data?.data) {
-                        return raw.map((item) => normalizeAppointmentData(item, "Patient"));
-                    }
-                } catch {
-                    // Fallback
-                }
-            }
-            return [];
-        }
-
-        // Admin (or default)
-        const adminEndpoints = [
-            "/Appointment",
-            "/Appointment/all",
-            "/Admin/Appointment",
-            "/Admin/Appointment/all",
-        ];
-        for (const ep of adminEndpoints) {
-            try {
-                const response = await api.get(ep);
-                const raw = extractRawArray(response.data);
-                if (raw.length > 0 || Array.isArray(response.data) || response.data?.data) {
-                    return raw.map((item) => normalizeAppointmentData(item, "Admin"));
-                }
-            } catch {
-                // Fallback
-            }
-        }
-        return [];
+    getAll: async (): Promise<AppointmentResponse[]> => {
+        const response = await api.get("/Admin/Appointment");
+        const raw = extractRawArray(response.data);
+        return raw.map((item) => normalizeAppointmentData(item, "Admin"));
     },
 };

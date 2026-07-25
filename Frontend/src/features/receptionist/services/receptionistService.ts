@@ -16,92 +16,38 @@ function extractArray<T>(data: unknown): T[] {
 
 export const receptionistService = {
     getAll: async (): Promise<ReceptionistResponse[]> => {
-        const endpoints = [
-            API_ENDPOINTS.ADMIN.RECEPTIONISTS.FALLBACK,    // /Receptionist
-            `${API_ENDPOINTS.ADMIN.RECEPTIONISTS.FALLBACK}/all`,
-            API_ENDPOINTS.ADMIN.RECEPTIONISTS.BASE,        // /Admin/Receptionist
-            `${API_ENDPOINTS.ADMIN.RECEPTIONISTS.BASE}/all`,
-        ];
-
-        for (const ep of endpoints) {
-            try {
-                const response = await api.get(ep);
-                const list = extractArray<ReceptionistResponse>(response.data);
-                if (list.length > 0 || Array.isArray(response.data) || response.data?.data) {
-                    return list;
-                }
-            } catch {
-                // Try next fallback
-            }
-        }
-        return [];
+        const response = await api.get(API_ENDPOINTS.ADMIN.RECEPTIONISTS.BASE);
+        const list = extractArray<ReceptionistResponse>(response.data);
+        return list;
     },
 
     getPending: async (): Promise<ReceptionistResponse[]> => {
-        const endpoints = [
-            `${API_ENDPOINTS.ADMIN.RECEPTIONISTS.FALLBACK}/Pending`,
-            `${API_ENDPOINTS.ADMIN.RECEPTIONISTS.BASE}/Pending`,
-        ];
-
-        for (const ep of endpoints) {
-            try {
-                const response = await api.get(ep);
-                const list = extractArray<ReceptionistResponse>(response.data);
-                if (list.length > 0 || Array.isArray(response.data) || response.data?.data) {
-                    return list;
-                }
-            } catch {
-                // Try next fallback
-            }
-        }
-        return [];
+        const response = await api.get(`${API_ENDPOINTS.ADMIN.RECEPTIONISTS.BASE}/Pending`);
+        const list = extractArray<ReceptionistResponse>(response.data);
+        return list;
     },
 
     create: async (formData: FormData): Promise<ReceptionistResponse> => {
-        try {
-            const response = await api.post<ApiResponse<ReceptionistResponse>>(
-                API_ENDPOINTS.ADMIN.RECEPTIONISTS.FALLBACK,
-                formData
-            );
-            return response.data.data!;
-        } catch {
-            const response = await api.post<ApiResponse<ReceptionistResponse>>(
-                API_ENDPOINTS.ADMIN.RECEPTIONISTS.BASE,
-                formData
-            );
-            return response.data.data!;
-        }
+        const response = await api.post<ApiResponse<ReceptionistResponse>>(
+            API_ENDPOINTS.ADMIN.RECEPTIONISTS.BASE,
+            formData
+        );
+        return response.data.data!;
     },
 
     approve: async (id: string): Promise<void> => {
-        try {
-            await api.patch(`/Receptionist/${id}/Approve`);
-        } catch {
-            await api.patch(`/Admin/Receptionist/${id}/Approve`);
-        }
+        await api.patch(`/Admin/Receptionist/${id}/Approve`);
     },
 
     reject: async (id: string): Promise<void> => {
-        try {
-            await api.patch(`/Receptionist/${id}/Reject`);
-        } catch {
-            await api.patch(`/Admin/Receptionist/${id}/Reject`);
-        }
+        await api.patch(`/Admin/Receptionist/${id}/Reject`);
     },
 
     suspend: async (id: string): Promise<void> => {
-        try {
-            await api.patch(`/Receptionist/${id}/Suspend`);
-        } catch {
-            await api.patch(`/Admin/Receptionist/${id}/Suspend`);
-        }
+        await api.patch(`/Admin/Receptionist/${id}/Suspend`);
     },
 
     activate: async (id: string): Promise<void> => {
-        try {
-            await api.patch(`/Receptionist/${id}/Activate`);
-        } catch {
-            await api.patch(`/Admin/Receptionist/${id}/Activate`);
-        }
+        await api.patch(`/Admin/Receptionist/${id}/Activate`);
     },
 };

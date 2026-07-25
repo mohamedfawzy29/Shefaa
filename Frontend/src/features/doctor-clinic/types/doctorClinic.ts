@@ -1,4 +1,3 @@
-import type { ApiResponse } from "../../doctors/types/doctor";
 
 export interface AddDoctorBranchRequest {
     branchId: string;
@@ -23,6 +22,21 @@ export interface AddDoctorScheduleRequest {
     endTime: string;   // TimeSpan format e.g. "17:00:00"
     slotDurationMinutes: number;
     maxPatients: number;
+}
+
+export interface DoctorScheduleResponse {
+    id: string;
+    branchId: string;
+    dayOfWeek: number;
+    startTime: string;
+    endTime: string;
+    slotDurationMinutes: number;
+    maxPatients: number;
+    isActive: boolean;
+}
+
+export interface EnrichedDoctorSchedule extends DoctorScheduleResponse {
+    branchName: string;
 }
 
 export interface DoctorAppointmentResponse {

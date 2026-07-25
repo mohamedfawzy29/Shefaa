@@ -1,4 +1,4 @@
-﻿using Shefaa.DTOs.filter;
+using Shefaa.DTOs.filter;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Shefaa.DTOs.Response;
@@ -6,16 +6,20 @@ using Shefaa.DTOs.Response;
 namespace Shefaa.Areas.Patient.Controllers
 {
     [Area(CD.PATIENT_AREA)]
-    [Route("api/Patient/[controller]")]
+    [Route("api/[area]/[controller]")]
     [Authorize(Roles = CD.PATIENT_ROLE)]
     [ApiController]
     public class AppointmentController : ControllerBase
     {
-        IRepository<Appointment> _appointmentRepo;
+        IRepository<Appointment> _appointment;
+        IRepository<Models.Patient> _patient;
 
-        public AppointmentController(IRepository<Appointment> appointmentRepo)
+        public AppointmentController(
+            IRepository<Appointment> appointmentRepo,
+            IRepository<Models.Patient> patientRepo)
         {
-            _appointmentRepo = appointmentRepo;
+            _appointment = appointmentRepo;
+            _patient = patientRepo;
         }
 
 
@@ -27,12 +31,16 @@ namespace Shefaa.Areas.Patient.Controllers
             if (string.IsNullOrEmpty(patientId))
                 return Unauthorized(new { Message = " Login required" });
 
+            Guid patientGuid = Guid.Parse(patientId);
+            var patient = await _patient.GetOneAsynch(filter: p => p.UserId == patientGuid);
+            if (patient == null) return Unauthorized(new { Message = "Patient profile not found" });
+
             var appointment = new Appointment
             {
                 Id = Guid.NewGuid(),
                 DoctorId = dto.DoctorId,
                 BranchId = dto.BranchId,
-                PatientId = Guid.Parse(patientId),
+                PatientId = patient.PatientId,
                 AppointmentDate = dto.AppointmentDate,
                 StartTime = dto.StartTime,
                 EndTime = dto.EndTime,
@@ -42,8 +50,8 @@ namespace Shefaa.Areas.Patient.Controllers
                 UpdatedAt = DateTime.UtcNow
             };
 
-            await _appointmentRepo.AddAsync(appointment);
-            await _appointmentRepo.CommitChangesAsync();
+            await _appointment.AddAsync(appointment);
+            await _appointment.CommitChangesAsync();
 
             return Ok(new ApiResponse<IEnumerable<MedicalRecord>>
             {
@@ -61,15 +69,20 @@ namespace Shefaa.Areas.Patient.Controllers
             if (string.IsNullOrEmpty(patientId)) return Unauthorized();
 
             Guid patientGuid = Guid.Parse(patientId);
+            var patient = await _patient.GetOneAsynch(filter: p => p.UserId == patientGuid);
+            if (patient == null) return Unauthorized();
 
 
-            var appointments = await _appointmentRepo.GetAsync(
-                filter: a => a.PatientId == patientGuid &&
+            var appointments = await _appointment.GetAsync(
+                filter: a => a.PatientId == patient.PatientId &&
                             (!status.HasValue || a.Status == status.Value),
                 includes: new System.Linq.Expressions.Expression<Func<Appointment, object>>[]
                 {
                     a => a.Doctor,
                     a => a.Doctor.User,
+                    a => a.Doctor.Specialization,
+                    a => a.Patient,
+                    a => a.Patient.User,
                     a => a.Branch
                 }
             );
@@ -79,7 +92,38 @@ namespace Shefaa.Areas.Patient.Controllers
                 .OrderByDescending(a => a.AppointmentDate)
                 .ThenByDescending(a => a.StartTime);
 
-            return Ok(orderedAppointments);
+            var response = orderedAppointments.Select(a => new
+            {
+                Id = a.Id,
+                AppointmentDate = a.AppointmentDate,
+                StartTime = a.StartTime,
+                EndTime = a.EndTime,
+                VisitReason = a.VisitReason,
+                Status = a.Status,
+                Notes = a.Notes,
+                Doctor = a.Doctor == null ? null : new
+                {
+                    DoctorId = a.Doctor.DoctorId,
+                    User = a.Doctor.User == null ? null : new
+                    {
+                        FirstName = a.Doctor.User.FirstName,
+                        LastName = a.Doctor.User.LastName,
+                        ProfileImg = a.Doctor.User.ProfileImg
+                    },
+                    Specialization = a.Doctor.Specialization == null ? null : new
+                    {
+                        Name = a.Doctor.Specialization.Name
+                    }
+                },
+                Branch = a.Branch == null ? null : new
+                {
+                    Id = a.Branch.Id,
+                    BranchName = a.Branch.BranchName,
+                    Address = a.Branch.Address
+                }
+            }).ToList();
+
+            return Ok(response);
         }
 
 
@@ -90,10 +134,12 @@ namespace Shefaa.Areas.Patient.Controllers
             if (string.IsNullOrEmpty(patientId)) return Unauthorized();
 
             Guid patientGuid = Guid.Parse(patientId);
+            var patient = await _patient.GetOneAsynch(filter: p => p.UserId == patientGuid);
+            if (patient == null) return Unauthorized();
 
 
-            var appointment = await _appointmentRepo.GetOneAsynch(
-                filter: a => a.Id == id && a.PatientId == patientGuid
+            var appointment = await _appointment.GetOneAsynch(
+                filter: a => a.Id == id && a.PatientId == patient.PatientId
             );
 
             if (appointment == null)
@@ -116,8 +162,8 @@ namespace Shefaa.Areas.Patient.Controllers
             appointment.CancelledAt = DateTime.UtcNow;
             appointment.UpdatedAt = DateTime.UtcNow;
 
-            _appointmentRepo.Update(appointment);
-            await _appointmentRepo.CommitChangesAsync();
+            _appointment.Update(appointment);
+            await _appointment.CommitChangesAsync();
 
             return Ok(new ApiResponse<MedicalRecord>
             {
@@ -135,10 +181,12 @@ namespace Shefaa.Areas.Patient.Controllers
             if (string.IsNullOrEmpty(patientId)) return Unauthorized();
 
             Guid patientGuid = Guid.Parse(patientId);
+            var patient = await _patient.GetOneAsynch(filter: p => p.UserId == patientGuid);
+            if (patient == null) return Unauthorized();
 
 
-            var appointment = await _appointmentRepo.GetOneAsynch(
-                filter: a => a.Id == id && a.PatientId == patientGuid
+            var appointment = await _appointment.GetOneAsynch(
+                filter: a => a.Id == id && a.PatientId == patient.PatientId
             );
 
             if (appointment == null)
@@ -167,8 +215,8 @@ namespace Shefaa.Areas.Patient.Controllers
             appointment.Status = AppointmentStatus.Scheduled;
 
 
-            _appointmentRepo.Update(appointment);
-            await _appointmentRepo.CommitChangesAsync();
+            _appointment.Update(appointment);
+            await _appointment.CommitChangesAsync();
 
             return Ok(new ApiResponse<MedicalRecord>
             {

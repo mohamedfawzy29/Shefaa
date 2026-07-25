@@ -1,4 +1,5 @@
 import api from "../../../api/axios";
+import { API_ENDPOINTS } from "../../../api/endpoints";
 import type { PublicDoctorResponse } from "../../doctors/types/doctor";
 
 export interface PatientDoctorFilter {
@@ -30,40 +31,20 @@ function extractDoctorObject(data: unknown): PublicDoctorResponse | null {
 }
 
 export const patientDoctorService = {
-    /** GET /api/Patient/Doctor?searchQuery=...&specializationId=...&orderBy=rating */
+    /** GET /api/Patient/DoctorControlller?searchQuery=...&specializationId=...&orderBy=rating */
     getDoctors: async (filter?: PatientDoctorFilter): Promise<PublicDoctorResponse[]> => {
         const params: Record<string, string> = {};
         if (filter?.searchQuery) params.SearchQuery = filter.searchQuery;
         if (filter?.specializationId) params.SpecializationId = filter.specializationId;
         if (filter?.orderBy) params.OrderBy = filter.orderBy;
 
-        try {
-            const response = await api.get("/Patient/Doctor", { params });
-            const list = extractDoctorArray(response.data);
-            if (list.length > 0) return list;
-        } catch {
-            // Fallback to typo route if backend uses controller name
-        }
-
-        try {
-            const fallback = await api.get("/Patient/DoctorControlller", { params });
-            return extractDoctorArray(fallback.data);
-        } catch {
-            return [];
-        }
+        const response = await api.get(API_ENDPOINTS.PATIENT_DOCTORS.BASE, { params });
+        return extractDoctorArray(response.data);
     },
 
-    /** GET /api/Patient/Doctor/{id} — returns doctor with schedule for booking */
+    /** GET /api/Patient/DoctorControlller/{id} */
     getDoctorById: async (id: string): Promise<PublicDoctorResponse> => {
-        try {
-            const response = await api.get(`/Patient/Doctor/${id}`);
-            const doc = extractDoctorObject(response.data);
-            if (doc) return doc;
-        } catch {
-            // Fallback
-        }
-
-        const fallback = await api.get(`/Patient/DoctorControlller/${id}`);
-        return extractDoctorObject(fallback.data)!;
+        const response = await api.get(`${API_ENDPOINTS.PATIENT_DOCTORS.BASE}/${id}`);
+        return extractDoctorObject(response.data)!;
     },
 };

@@ -69,37 +69,48 @@ export const API_ENDPOINTS = {
             COUNTERS: "/Admin/Dashboard/counters",
             APPOINTMENT_CHART: "/Admin/Dashboard/appointment-chart",
             TOP_SPECIALIZATIONS_CHART: "/Admin/Dashboard/top-specializations-chart",
+            RECENT_ACTIVITIES: "/Admin/Dashboard/recent-activities",
         },
     },
 
     // ── DoctorArea Area Controllers ───────────────────────────────────────────
     DOCTOR_CLINIC: {
-        BASE: "/DoctorArea/DoctorClinic",
-        MY_BRANCHES: "/DoctorArea/DoctorClinic/MyBranches",
-        JOIN_BRANCH: "/DoctorArea/DoctorClinic/JoinBranch",
-        ADD_SCHEDULE: "/DoctorArea/DoctorClinic/AddSchedule",
-        TODAY_APPOINTMENTS: "/DoctorArea/DoctorClinic/TodayAppointments",
+        BASE: "/Doctor/DoctorClinic",
+        MY_BRANCHES: "/Doctor/DoctorClinic/MyBranches",
+        JOIN_BRANCH: "/Doctor/DoctorClinic/JoinBranch",
+        ADD_SCHEDULE: "/Doctor/DoctorClinic/AddSchedule",
+        MY_SCHEDULES: "/Doctor/DoctorClinic/MySchedules",
+        TODAY_APPOINTMENTS: "/Doctor/DoctorClinic/TodayAppointments",
     },
     DOCTOR_MEDICAL: {
-        BASE: "/DoctorArea/DoctorMedical",
-        CREATE_PRESCRIPTION: "/DoctorArea/DoctorMedical/CreatePrescription",
+        BASE: "/Doctor/DoctorMedical",
+        CREATE_PRESCRIPTION: "/Doctor/DoctorMedical/CreatePrescription",
+        BY_APPOINTMENT: (id: string) => `/Doctor/DoctorMedical/ByAppointment/${id}`,
     },
 
     // ── Patient Area Controllers ─────────────────────────────────────────────
     PATIENT_APPOINTMENTS: {
-        BASE: "/Patient/Appiontment",
-        BOOK: "/Patient/Appiontment/book",
-        MY_APPOINTMENTS: "/Patient/Appiontment/GetMyAppointments",
-        CANCEL_APPOINTMENT: (id: string) => `/Patient/Appiontment/CancelAppointment/${id}`,
+        BASE: "/Patient/Appointment",
+        BOOK: "/Patient/Appointment/book",
+        MY_APPOINTMENTS: "/Patient/Appointment/my-appointments",
+        CANCEL_APPOINTMENT: (id: string) => `/Patient/Appointment/cancel/${id}`,
+        RESCHEDULE_APPOINTMENT: (id: string) => `/Patient/Appointment/reschedule/${id}`,
     },
     PATIENT_DOCTORS: {
-        BASE: "/Patient/DoctorControlller",
-        FALLBACK: "/Patient/Doctor",
+        BASE: "/Patient/Doctor",
     },
     PATIENT_MEDICAL: {
         BASE: "/Patient/MedicalRecord",
         MY_HISTORY: "/Patient/MedicalRecord/myhistory",
         BY_APPOINTMENT: (id: string) => `/Patient/MedicalRecord/byappointment/${id}`,
+    },
+    PATIENT_REVIEWS: {
+        BASE: "/Patient/Reviews",
+        ADD: "/Patient/Reviews/add",
+        MY_REVIEWS: "/Patient/Reviews/myreviews",
+        UPDATE: (id: string) => `/Patient/Reviews/update/${id}`,
+        DELETE: (id: string) => `/Patient/Reviews/delete/${id}`,
+        BY_DOCTOR: (id: string) => `/Patient/Reviews/doctor/${id}`,
     },
 
     // ── Receptionist Area Controllers ─────────────────────────────────────────

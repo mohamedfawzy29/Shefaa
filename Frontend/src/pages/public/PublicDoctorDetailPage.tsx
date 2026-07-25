@@ -1,8 +1,12 @@
+import { useState } from "react";
 import { useParams, Link } from "react-router-dom";
-import { Star, Award, Stethoscope, ArrowLeft, ShieldCheck, Clock, CalendarDays, LogIn } from "lucide-react";
+import { Star, Award, Stethoscope, ArrowLeft, ShieldCheck, Clock, CalendarDays, LogIn, MapPin } from "lucide-react";
 import { usePublicDoctor } from "../../hooks/usePublicDoctors";
 import { useAuth } from "../../features/auth/hooks/useAuth";
 import { Avatar } from "../../components/ui/Avatar";
+import { useBranches } from "../../features/lookups/hooks/useLookups";
+import { BookAppointmentModal } from "../../features/patient-appointments/components/BookAppointmentModal";
+import type { PublicDoctorResponse } from "../../features/doctors/types/doctor";
 
 function StarRating({ rating }: { rating: number }) {
     return (
@@ -22,13 +26,17 @@ export default function PublicDoctorDetailPage() {
     const { id } = useParams<{ id: string }>();
     const { isAuthenticated } = useAuth();
     const { data: doctor, isLoading, isError } = usePublicDoctor(id);
+    const { data: branches = [] } = useBranches();
+    const [bookingDoctor, setBookingDoctor] = useState<PublicDoctorResponse | null>(null);
+
+    const DAY_NAMES = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 
     const apiBase = import.meta.env.VITE_API_BASE_URL || "https://localhost:7118/api";
     const hostBase = apiBase.replace(/\/api$/, "");
 
     if (isLoading) {
         return (
-            <div className="max-w-5xl mx-auto !px-6 !py-12 animate-pulse space-y-6">
+            <div className="max-w-5x2 mx-auto !px-6 !py-12 animate-pulse space-y-6">
                 <div className="h-8 bg-slate-200 dark:bg-slate-800 rounded w-32" />
                 <div className="bg-white dark:bg-[#12141c] rounded-2xl border border-slate-200 dark:border-slate-800 !p-8">
                     <div className="flex gap-6">
@@ -46,7 +54,7 @@ export default function PublicDoctorDetailPage() {
 
     if (isError || !doctor) {
         return (
-            <div className="max-w-5xl mx-auto !px-6 !py-20 text-center">
+            <div className="max-w-5x2 mx-auto !px-6 !py-20 text-center">
                 <Stethoscope className="h-14 w-14 text-slate-300 dark:text-slate-600 mx-auto !mb-4" />
                 <h2 className="text-xl font-bold text-slate-700 dark:text-slate-300">Doctor not found</h2>
                 <p className="text-sm text-slate-500 dark:text-slate-400 !mt-2">This doctor profile may not exist or is unavailable.</p>
@@ -67,8 +75,9 @@ export default function PublicDoctorDetailPage() {
 
     return (
         <div className="min-h-screen bg-slate-50/60 dark:bg-transparent">
+            <BookAppointmentModal doctor={bookingDoctor} onClose={() => setBookingDoctor(null)} />
             {/* Back + breadcrumb */}
-            <div className="max-w-5xl mx-auto !px-6 !pt-8 !pb-4">
+            <div className="max-w-5x2 mx-auto !px-6 !pt-8 !pb-4">
                 <Link
                     to="/doctors"
                     className="inline-flex items-center gap-1.5 text-sm text-slate-500 dark:text-slate-400 hover:text-cyan-600 dark:hover:text-cyan-400 transition-colors"
@@ -77,9 +86,9 @@ export default function PublicDoctorDetailPage() {
                 </Link>
             </div>
 
-            <div className="max-w-5xl mx-auto !px-6 !pb-16 space-y-6">
+            <div className="max-w-5x2 mx-auto !px-6 !pb-16 space-y-6">
                 {/* Profile card */}
-                <div className="bg-white dark:bg-[#12141c] rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-sm overflow-hidden">
+                <div className="bg-white dark:bg-[#12141c] rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-sm overflow-hidden !mb-5">
                     {/* Top accent */}
                     <div className="h-2 bg-gradient-to-r from-cyan-500 to-blue-600" />
 
@@ -118,7 +127,10 @@ export default function PublicDoctorDetailPage() {
 
                             {/* Book button */}
                             {isAuthenticated ? (
-                                <button className="shrink-0 !px-6 !py-3 rounded-2xl bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-bold text-sm shadow-md hover:shadow-cyan-500/40 hover:-translate-y-0.5 transition-all cursor-pointer">
+                                <button
+                                    onClick={() => setBookingDoctor(doctor)}
+                                    className="shrink-0 !px-6 !py-3 rounded-2xl bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-bold text-sm shadow-md hover:shadow-cyan-500/40 hover:-translate-y-0.5 transition-all cursor-pointer"
+                                >
                                     Book Appointment
                                 </button>
                             ) : (
@@ -137,7 +149,7 @@ export default function PublicDoctorDetailPage() {
                     {/* Left: Details */}
                     <div className="md:col-span-2 space-y-6">
                         {/* Professional Info */}
-                        <div className="bg-white dark:bg-[#12141c] rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-sm !p-6">
+                        <div className="bg-white dark:bg-[#12141c] rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-sm !p-6 !mb-5">
                             <h2 className="font-bold text-slate-900 dark:text-slate-100 !mb-4 text-base border-b border-slate-100 dark:border-slate-800 !pb-3">Professional Information</h2>
                             <dl className="space-y-3">
                                 <div className="flex items-center justify-between">
@@ -157,7 +169,7 @@ export default function PublicDoctorDetailPage() {
 
                         {/* Biography */}
                         {doctor.bio && (
-                            <div className="bg-white dark:bg-[#12141c] rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-sm !p-6">
+                            <div className="h-[22vh] bg-white dark:bg-[#12141c] rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-sm !p-6">
                                 <h2 className="font-bold text-slate-900 dark:text-slate-100 !mb-3 text-base border-b border-slate-100 dark:border-slate-800 !pb-3">About Dr. {doctor.lastName}</h2>
                                 <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed whitespace-pre-line">{doctor.bio}</p>
                             </div>
@@ -172,22 +184,43 @@ export default function PublicDoctorDetailPage() {
                                 Availability
                             </h2>
                             <div className="space-y-2">
-                                {["Monday", "Tuesday", "Wednesday", "Thursday", "Sunday"].map((day) => (
-                                    <div key={day} className="flex items-center justify-between !py-1.5 border-b border-slate-100 dark:border-slate-800 last:border-0">
-                                        <span className="text-sm text-slate-600 dark:text-slate-400">{day}</span>
-                                        <span className="text-xs font-semibold text-emerald-600 dark:text-emerald-400">9:00 – 17:00</span>
+                                {doctor.doctorSchedules && doctor.doctorSchedules.length > 0 ? (
+                                    doctor.doctorSchedules.map((schedule) => {
+                                        const branch = branches.find(b => b.id === schedule.branchId);
+                                        return (
+                                            <div key={schedule.id} className="flex flex-col !py-2.5 border-b border-slate-100 dark:border-slate-800 last:border-0 gap-1.5">
+                                                <div className="flex items-center justify-between">
+                                                    <span className="text-sm font-semibold text-slate-700 dark:text-slate-300">
+                                                        {DAY_NAMES[schedule.dayOfWeek]}
+                                                    </span>
+                                                    <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400">
+                                                        {schedule.startTime.slice(0, 5)} – {schedule.endTime.slice(0, 5)}
+                                                    </span>
+                                                </div>
+                                                <span className="text-xs text-slate-500 dark:text-slate-500 flex items-center gap-1">
+                                                    <MapPin className="h-3 w-3" /> {branch ? branch.name : "Branch"}
+                                                </span>
+                                            </div>
+                                        );
+                                    })
+                                ) : (
+                                    <div className="!py-4 text-center text-slate-400 text-xs font-semibold">
+                                        No schedules available at the moment.
                                     </div>
-                                ))}
+                                )}
                             </div>
                         </div>
 
                         {/* CTA */}
-                        <div className="bg-gradient-to-br from-cyan-600 to-blue-700 rounded-2xl !p-6 text-white text-center space-y-3">
-                            <CalendarDays className="h-8 w-8 mx-auto text-cyan-200" />
+                        <div className="bg-gradient-to-br from-cyan-600 to-blue-700 rounded-2xl !p-6 text-white text-center space-y-3 !mt-5 h-[22vh]">
+                            <CalendarDays className="h-5 w-8 mx-auto text-cyan-200" />
                             <h3 className="font-bold text-base">Ready to Book?</h3>
                             <p className="text-xs text-cyan-100 leading-relaxed">Choose a convenient time and book your appointment instantly.</p>
                             {isAuthenticated ? (
-                                <button className="w-full !py-2.5 rounded-xl bg-white text-slate-900 font-bold text-sm hover:bg-cyan-50 transition-all cursor-pointer">
+                                <button
+                                    onClick={() => setBookingDoctor(doctor)}
+                                    className="w-full !py-2.5 rounded-xl bg-white text-slate-900 font-bold text-sm hover:bg-cyan-50 transition-all cursor-pointer"
+                                >
                                     Book Appointment
                                 </button>
                             ) : (

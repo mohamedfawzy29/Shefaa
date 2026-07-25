@@ -7,12 +7,8 @@ const BASE = API_ENDPOINTS.ADMIN.SPECIALIZATIONS.BASE; // /Admin/Specializations
 export const specializationService = {
     /** GET /api/Admin/Specializations */
     getAll: async (): Promise<SpecializationResponse[]> => {
-        try {
-            const response = await api.get<ApiResponse<SpecializationResponse[]>>(BASE);
-            return response.data.data ?? [];
-        } catch {
-            return [];
-        }
+        const response = await api.get<ApiResponse<SpecializationResponse[]>>(BASE);
+        return response.data.data ?? [];
     },
 
     /** GET /api/Admin/Specializations/{id} */
@@ -26,7 +22,10 @@ export const specializationService = {
      * Sends multipart/form-data — Axios automatically adds boundary when body is FormData.
      */
     create: async (formData: FormData): Promise<SpecializationResponse> => {
-        const response = await api.post<ApiResponse<SpecializationResponse>>(BASE, formData);
+        const response = await api.post<ApiResponse<SpecializationResponse>>(
+            BASE,
+            formData
+        );
         return response.data.data!;
     },
 
@@ -37,7 +36,8 @@ export const specializationService = {
     update: async (id: string, formData: FormData): Promise<SpecializationResponse> => {
         const response = await api.put<ApiResponse<SpecializationResponse>>(
             `${BASE}/${id}`,
-            formData
+            formData,
+            { headers: { "Content-Type": "multipart/form-data" } }
         );
         return response.data.data!;
     },

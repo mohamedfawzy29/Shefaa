@@ -5,7 +5,7 @@ export const DOCTORS_QUERY_KEY = ["admin", "doctors"] as const;
 
 export type DoctorFilterTab = "all" | "pending" | "approved" | "suspended" | "rejected";
 
-export function useDoctors(tab: DoctorFilterTab = "all") {
+export function useDoctors(tab: DoctorFilterTab = "all", options?: { enabled?: boolean }) {
     return useQuery({
         queryKey: [...DOCTORS_QUERY_KEY, tab],
         queryFn: async () => {
@@ -18,6 +18,7 @@ export function useDoctors(tab: DoctorFilterTab = "all") {
             if (tab === "suspended") return list.filter((d) => d.status === 3);
             return list;
         },
+        enabled: options?.enabled,
     });
 }
 

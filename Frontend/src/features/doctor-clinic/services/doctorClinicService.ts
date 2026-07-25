@@ -4,6 +4,7 @@ import type {
     AddDoctorBranchRequest,
     MyBranchResponse,
     AddDoctorScheduleRequest,
+    DoctorScheduleResponse,
     DoctorAppointmentResponse,
 } from "../types/doctorClinic";
 
@@ -27,42 +28,32 @@ export const doctorClinicService = {
      * Fallbacks: /api/DoctorClinic/MyBranches, /api/Doctor/MyBranches
      */
     getMyBranches: async (): Promise<MyBranchResponse[]> => {
-        const endpoints = [
-            API_ENDPOINTS.DOCTOR_CLINIC.MY_BRANCHES,
-            "/DoctorClinic/MyBranches",
-            "/Doctor/MyBranches",
-        ];
+        const response = await api.get(API_ENDPOINTS.DOCTOR_CLINIC.MY_BRANCHES);
+        const list = extractList<MyBranchResponse>(response.data);
+        return list;
+    },
 
-        for (const ep of endpoints) {
-            try {
-                const response = await api.get(ep);
-                const list = extractList<MyBranchResponse>(response.data);
-                if (list.length > 0 || Array.isArray(response.data) || response.data?.data) {
-                    return list;
-                }
-            } catch {
-                // Fallback to next endpoint
-            }
-        }
-        return [];
+    /**
+     * GET /api/Doctor/DoctorClinic/MySchedules
+     */
+    getMySchedules: async (): Promise<DoctorScheduleResponse[]> => {
+        const response = await api.get(API_ENDPOINTS.DOCTOR_CLINIC.MY_SCHEDULES);
+        const list = extractList<DoctorScheduleResponse>(response.data);
+        return list;
     },
 
     /** POST /api/DoctorArea/DoctorClinic/JoinBranch */
     joinBranch: async (request: AddDoctorBranchRequest): Promise<void> => {
-        try {
-            await api.post(API_ENDPOINTS.DOCTOR_CLINIC.JOIN_BRANCH, request);
-        } catch {
-            await api.post("/DoctorClinic/JoinBranch", request);
-        }
+        await api.post("/DoctorArea/DoctorClinic/JoinBranch", request);
+    },
+
+    leaveBranch: async (branchId: string): Promise<void> => {
+        await api.delete(`/DoctorArea/DoctorClinic/LeaveBranch/${branchId}`);
     },
 
     /** POST /api/DoctorArea/DoctorClinic/AddSchedule */
     addSchedule: async (request: AddDoctorScheduleRequest): Promise<void> => {
-        try {
-            await api.post(API_ENDPOINTS.DOCTOR_CLINIC.ADD_SCHEDULE, request);
-        } catch {
-            await api.post("/DoctorClinic/AddSchedule", request);
-        }
+        await api.post(API_ENDPOINTS.DOCTOR_CLINIC.ADD_SCHEDULE, request);
     },
 
     /**
@@ -70,24 +61,8 @@ export const doctorClinicService = {
      * Fallbacks: /api/DoctorArea/DoctorClinic, /api/DoctorClinic/TodayAppointments, /api/DoctorClinic
      */
     getTodayAppointments: async (): Promise<DoctorAppointmentResponse[]> => {
-        const endpoints = [
-            API_ENDPOINTS.DOCTOR_CLINIC.TODAY_APPOINTMENTS, // /DoctorArea/DoctorClinic/TodayAppointments
-            BASE,                                           // /DoctorArea/DoctorClinic
-            "/DoctorClinic/TodayAppointments",              // /DoctorClinic/TodayAppointments
-            "/DoctorClinic",                                // /DoctorClinic
-        ];
-
-        for (const ep of endpoints) {
-            try {
-                const response = await api.get(ep);
-                const list = extractList<DoctorAppointmentResponse>(response.data);
-                if (list.length > 0 || Array.isArray(response.data) || response.data?.data) {
-                    return list;
-                }
-            } catch {
-                // Fallback to next endpoint
-            }
-        }
-        return [];
+        const response = await api.get(API_ENDPOINTS.DOCTOR_CLINIC.TODAY_APPOINTMENTS);
+        const list = extractList<DoctorAppointmentResponse>(response.data);
+        return list;
     },
 };
