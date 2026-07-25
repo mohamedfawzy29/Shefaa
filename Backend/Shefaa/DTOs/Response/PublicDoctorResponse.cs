@@ -23,6 +23,15 @@ namespace Shefaa.DTOs.Response
         /// </summary>
         public IEnumerable<PublicScheduleResponse> DoctorSchedules { get; set; }
             = Enumerable.Empty<PublicScheduleResponse>();
+
+        public IEnumerable<PublicBookedSlotResponse> BookedSlots { get; set; }
+            = Enumerable.Empty<PublicBookedSlotResponse>();
+    }
+
+    public class PublicBookedSlotResponse
+    {
+        public DateOnly Date { get; set; }
+        public TimeOnly StartTime { get; set; }
     }
 
     /// <summary>

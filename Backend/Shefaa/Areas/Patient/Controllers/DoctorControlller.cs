@@ -65,7 +65,8 @@ namespace Shefaa.Areas.Patient.Controllers
                 {
                     d => d.User,
                     d => d.Specialization,
-                    d => d.DoctorSchedules
+                    d => d.DoctorSchedules,
+                    d => d.Appointments
                 }
             );
 
@@ -78,6 +79,8 @@ namespace Shefaa.Areas.Patient.Controllers
                 });
             }
 
+            var today = DateOnly.FromDateTime(DateTime.UtcNow);
+            
             var response = new PublicDoctorResponse
             {
                 DoctorId          = doctor.DoctorId,
@@ -99,7 +102,14 @@ namespace Shefaa.Areas.Patient.Controllers
                     SlotDurationMinutes = s.SlotDurationMinutes,
                     MaxPatients         = s.MaxPatients,
                     IsActive            = s.IsActive
-                })
+                }),
+                BookedSlots = doctor.Appointments
+                    .Where(a => a.AppointmentDate >= today && a.Status == AppointmentStatus.Scheduled)
+                    .Select(a => new PublicBookedSlotResponse
+                    {
+                        Date = a.AppointmentDate,
+                        StartTime = a.StartTime
+                    })
             };
 
             return Ok(new ApiResponse<PublicDoctorResponse>

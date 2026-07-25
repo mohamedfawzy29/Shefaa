@@ -35,6 +35,12 @@ export interface PublicDoctorResponse {
     averageRating: number;
     status: number; // 0=Pending, 1=Approved, 2=Rejected, 3=Suspended
     doctorSchedules: PublicScheduleResponse[];
+    bookedSlots?: PublicBookedSlotResponse[];
+}
+
+export interface PublicBookedSlotResponse {
+    date: string; // "YYYY-MM-DD"
+    startTime: string; // "HH:mm:ss"
 }
 
 /**

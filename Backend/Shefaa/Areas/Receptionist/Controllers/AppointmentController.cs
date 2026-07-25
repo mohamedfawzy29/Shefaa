@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -32,8 +32,8 @@ namespace Shefaa.Areas.ReceptionistArea.Controllers
             _userManager = userManager;
         }
 
-        [HttpGet("Today")]
-        public async Task<IActionResult> GetTodayAppointments()
+        [HttpGet]
+        public async Task<IActionResult> GetAppointments([FromQuery] DateTime? date)
         {
             var receptionist = await GetCurrentReceptionistAsync();
 
@@ -46,7 +46,7 @@ namespace Shefaa.Areas.ReceptionistArea.Controllers
                 });
             }
 
-
+            var targetDate = date.HasValue ? DateOnly.FromDateTime(date.Value) : DateOnly.FromDateTime(DateTime.Today);
 
             var appointments = await _context.Appointments
            .Include(a => a.Patient)
@@ -55,7 +55,7 @@ namespace Shefaa.Areas.ReceptionistArea.Controllers
                .ThenInclude(d => d.User)
            .Include(a => a.Branch)
            .Where(a => a.BranchId == receptionist.BranchId &&
-                       a.AppointmentDate == DateOnly.FromDateTime(DateTime.Today))
+                       a.AppointmentDate == targetDate)
            .ToListAsync();
 
 

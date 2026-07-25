@@ -33,15 +33,17 @@ const PRIMARY_BASE = API_ENDPOINTS.RECEPTIONIST_APPOINTMENTS.BASE; // /Reception
 
 export const receptionistAppointmentService = {
     /**
-     * GET /api/Receptionist/Appointment/Today
-     * Retrieves today's appointment queue for the receptionist's assigned branch.
+     * GET /api/Receptionist/Appointment
+     * Retrieves appointment queue for the receptionist's assigned branch.
+     * Can filter by date. Defaults to today on the backend if no date is provided.
      */
-    getTodayAppointments: async (): Promise<ReceptionistAppointmentResponse[]> => {
+    getTodayAppointments: async (date?: string): Promise<ReceptionistAppointmentResponse[]> => {
+        const queryParams = date ? `?date=${date}` : "";
         const endpoints = [
-            `${PRIMARY_BASE}/Today`,
-            PRIMARY_BASE,
-            "/Appointment/Today",
-            "/Appointment",
+            `${PRIMARY_BASE}${queryParams}`,
+            `${PRIMARY_BASE}/Today${queryParams}`,
+            `/Appointment${queryParams}`,
+            `/Appointment/Today${queryParams}`,
         ];
 
         for (const ep of endpoints) {
