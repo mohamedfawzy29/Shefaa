@@ -49,10 +49,10 @@ The system enforces **branch-based scheduling** — a doctor must be affiliated 
 ## 📸 Screenshots
 
 ### Home Page
-![HomePage](Images/Home Page.png)
+![HomePage](Images/Home%20Page.png)
 
 ### Doctors
-![Doctors](Images/Doctors Page.png)
+![Doctors](Images/Doctors%20Page.png)
 
 ### Login
 ![Login](Images/Login.png)
@@ -61,14 +61,14 @@ The system enforces **branch-based scheduling** — a doctor must be affiliated 
 ![Register](Images/Register.png)
 
 ### Patient Booking Flow
-![BookingModal](Images/Booking Modal1.png)
-![BookingModal](Images/Booking Modal2.png)
+![BookingModal](Images/Booking%20Modal1.png)
+![BookingModal](Images/Booking%20Modal2.png)
 
 ### My Appointments
-![MyAppointments](Images/My Appointments.png)
+![MyAppointments](Images/My%20Appointments.png)
 
 ### Admin Dashboard
-![AdminDashboard](Images/Admin DashBoard.png)
+![AdminDashboard](Images/Admin%20DashBoard.png)
 ---
 ## 🛠️ Tech Stack
 
