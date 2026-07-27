@@ -61,14 +61,14 @@ The system enforces **branch-based scheduling** — a doctor must be affiliated 
 ![Register](Images/Register.png)
 
 ### Patient Booking Flow
-![BookingModal](Images/Booking%20Modal1.png)
-![BookingModal](Images/Booking%20Modal2.png)
+![BookingModal](Images/Booking%20Modal%201.png)
+![BookingModal](Images/Booking%20Modal%202.png)
 
 ### My Appointments
 ![MyAppointments](Images/My%20Appointments.png)
 
 ### Admin Dashboard
-![AdminDashboard](Images/Admin%20DashBoard.png)
+![AdminDashboard](Images/Admin%20Dashboard.png)
 ---
 ## 🛠️ Tech Stack
 
