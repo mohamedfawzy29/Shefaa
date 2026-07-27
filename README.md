@@ -46,7 +46,30 @@ The system enforces **branch-based scheduling** — a doctor must be affiliated 
 - 📖 **Interactive API Documentation** — Built-in OpenAPI spec with a [Scalar](https://scalar.com/) UI for exploring and testing endpoints
 
 ---
+## 📸 Screenshots
 
+### Home Page
+![HomePage](Images/Home%20Page.png)
+
+### Doctors
+![Doctors](Images/Doctors%20Page.png)
+
+### Login
+![Login](Images/Login.png)
+
+### Register
+![Register](Images/Register.png)
+
+### Patient Booking Flow
+![BookingModal](Images/Booking%20Modal%201.png)
+![BookingModal](Images/Booking%20Modal%202.png)
+
+### My Appointments
+![MyAppointments](Images/My%20Appointments.png)
+
+### Admin Dashboard
+![AdminDashboard](Images/Admin%20Dashboard.png)
+---
 ## 🛠️ Tech Stack
 
 ### Backend
