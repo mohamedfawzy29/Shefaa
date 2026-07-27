@@ -52,7 +52,7 @@ The system enforces **branch-based scheduling** — a doctor must be affiliated 
 ![HomePage](Images/Home Page.png)
 
 ### Doctors
-![Doctor](Images/Doctors.png)
+![Doctors](Images/Doctors Page.png)
 
 ### Login
 ![Login](Images/Login.png)
