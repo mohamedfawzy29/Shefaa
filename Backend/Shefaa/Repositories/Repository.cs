@@ -1,14 +1,17 @@
-﻿
+
 namespace Shefaa.Repositories
 {
     public class Repository<T> : IRepository<T> where T : class
     {
         protected ApplicationDbContext context;
         DbSet<T> set;
-        public Repository(ApplicationDbContext context)
+        private readonly ILogger<Repository<T>> _logger;
+
+        public Repository(ApplicationDbContext context, ILogger<Repository<T>> logger)
         {
             this.context = context;
             set = context.Set<T>();
+            _logger = logger;
         }
 
         public async Task<int> CommitChangesAsync()
@@ -19,7 +22,20 @@ namespace Shefaa.Repositories
             }
             catch (Exception ex)
             {
-                return 0;
+                // Log with full stack trace (Exception overload) so the cause is visible
+                // in whatever sink is configured (console in dev, structured logs in prod).
+                _logger.LogError(
+                    ex,
+                    "Database error in Repository<{EntityType}>.CommitChangesAsync() — " +
+                    "{ExceptionType}: {ExceptionMessage}",
+                    typeof(T).Name,
+                    ex.GetType().Name,
+                    ex.Message);
+
+                // Rethrow: silent return-0 is dangerous in a healthcare app.
+                // The global exception handler in Program.cs will return a well-formed
+                // ApiResponse<object> 500 to the client. No data-loss goes unnoticed.
+                throw;
             }
         }
 

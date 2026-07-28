@@ -10,7 +10,7 @@ using Microsoft.AspNetCore.Authorization;
 namespace Shefaa.Areas.Admin.Controllers
 {
     [Area(CD.ADMIN_AREA)]
-    [Route("api/ [Area]/[controller]")]
+    [Route("api/[Area]/[controller]")]
     [Authorize(Roles = CD.ADMIN_ROLE)]
     [ApiController]
     public class DashboardController : ControllerBase
@@ -97,7 +97,11 @@ namespace Shefaa.Areas.Admin.Controllers
                 .Include(d => d.Specialization)
                 .Select(d => new
                 {
+<<<<<<< HEAD
                     DoctorId = d.Id,
+=======
+                    DoctorId = d.DoctorId,
+>>>>>>> 230c220864a825afec575f0000ab00412668c75f
                     FullName = d.User.FirstName + " " + d.User.LastName,
                     Email = d.User.Email,
                     Specialization = d.Specialization.Name,
@@ -117,7 +121,11 @@ namespace Shefaa.Areas.Admin.Controllers
         [HttpPut("review-doctor/{doctorId}")]
         public async Task<IActionResult> ReviewDoctor(Guid doctorId, [FromBody] ReviewStatusDto dto)
         {
+<<<<<<< HEAD
             var doctor = await _context.Doctors.Include(d => d.User).FirstOrDefaultAsync(d => d.Id == doctorId);
+=======
+            var doctor = await _context.Doctors.Include(d => d.User).FirstOrDefaultAsync(d => d.DoctorId == doctorId);
+>>>>>>> 230c220864a825afec575f0000ab00412668c75f
             if (doctor == null)
             {
                 return NotFound(new ApiResponse<object>
@@ -129,13 +137,21 @@ namespace Shefaa.Areas.Admin.Controllers
 
             if (dto.Approve)
             {
+<<<<<<< HEAD
                 
+=======
+                doctor.Status = DoctorStatus.Approved;
+>>>>>>> 230c220864a825afec575f0000ab00412668c75f
                 await _context.SaveChangesAsync();
                 return Ok(new ApiResponse<object> { IsSuccess = true, Message = " doctor accept" });
             }
             else
             {
+<<<<<<< HEAD
                 _context.Doctors.Remove(doctor);
+=======
+                doctor.Status = DoctorStatus.Rejected;
+>>>>>>> 230c220864a825afec575f0000ab00412668c75f
                 await _context.SaveChangesAsync();
                 return Ok(new ApiResponse<object> { IsSuccess = true, Message = "doctor not accept" });
             }

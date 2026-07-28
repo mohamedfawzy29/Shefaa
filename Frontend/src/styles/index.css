@@ -1,0 +1,198 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+@import "tailwindcss";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme {
+    /* ── Custom slate tones ──────────────────────────────── */
+    --color-slate-850: #0f1623;
+    --color-slate-950: #020617;
+    --color-slate-450: #94a3b8;
+
+    /* ── Brand accent (cyan/teal) ────────────────────────── */
+    --color-brand-50: #ecfeff;
+    --color-brand-500: #06b6d4;
+    --color-brand-600: #0891b2;
+
+    /* ── Primary ─────────────────────────────────────────── */
+    --color-primary: #2563EB;
+    --color-primary-hover: #1D4ED8;
+    --color-primary-active: #1E40AF;
+
+    /* ── Semantic ────────────────────────────────────────── */
+    --color-success: #10B981;
+    --color-warning: #F59E0B;
+    --color-danger: #EF4444;
+    --color-info: #3B82F6;
+
+    /* ── Backgrounds ─────────────────────────────────────── */
+    --color-bg-light: #F8FAFC;
+    --color-bg-dark: #020617;
+
+    /* ── Cards ───────────────────────────────────────────── */
+    --color-card-light: #FFFFFF;
+    --color-card-dark: #0F172A;
+
+    /* ── Borders ─────────────────────────────────────────── */
+    --color-border-light: #E2E8F0;
+    --color-border-dark: #334155;
+
+    /* ── Text ────────────────────────────────────────────── */
+    --color-text-primary: #0F172A;
+    --color-text-secondary: #64748B;
+    --color-text-light: #F8FAFC;
+
+    /* ── Typography ──────────────────────────────────────── */
+    --font-sans: "Inter", "system-ui", sans-serif;
+}
+
+/* ── Base reset ─────────────────────────────────────────── */
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    scroll-behavior: smooth;
+}
+
+body {
+    font-family: "Inter", system-ui, -apple-system, sans-serif;
+    background-color: #ebf0ed;
+}
+
+.dark body {
+    background-color: #090b0e;
+}
+
+/* ── Scrollbar styling ─────────────────────────────────── */
+::-webkit-scrollbar {
+    width: 5px;
+    height: 5px;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 9999px;
+}
+
+.dark ::-webkit-scrollbar-thumb {
+    background: #1e293b;
+}
+
+/* ── Dialog styles ──────────────────────────────────────── */
+dialog {
+    margin: auto;
+}
+
+dialog::backdrop {
+    background: rgba(9, 11, 14, 0.65);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+}
+
+/* ── Animations ────────────────────────────────────────── */
+@keyframes fade-in {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fade-in-scale {
+    from {
+        opacity: 0;
+        transform: scale(0.95) translateY(8px);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+@keyframes skeleton-pulse {
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.35;
+    }
+}
+
+@keyframes slide-in-left {
+    from {
+        opacity: 0;
+        transform: translateX(-16px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes counter-up {
+    from {
+        opacity: 0;
+        transform: translateY(6px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fade-in-scale {
+    from {
+        opacity: 0;
+        transform: translateY(-8px) scale(.96);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.animate-fade-in-scale {
+    animation: fade-in-scale .18s ease-out;
+}
+
+.animate-fade-in {
+    animation: fade-in 0.3s ease-out both;
+}
+
+.animate-fade-in-scale {
+    animation: fade-in-scale 0.25s ease-out both;
+}
+
+.animate-skeleton {
+    animation: skeleton-pulse 1.8s ease-in-out infinite;
+}
+
+.animate-slide-in-left {
+    animation: slide-in-left 0.3s ease-out both;
+}
+
+.animate-counter-up {
+    animation: counter-up 0.4s ease-out both;
+}

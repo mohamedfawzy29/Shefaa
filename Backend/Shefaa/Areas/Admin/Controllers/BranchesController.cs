@@ -1,4 +1,4 @@
-﻿
+
 
 namespace Shefaa.Areas.Admin.Controllers
 {
@@ -89,15 +89,13 @@ namespace Shefaa.Areas.Admin.Controllers
                     Message = "Organization not found"
                 });
             }
-            branch.Organization = organization;
 
             await _branchRepository.AddAsync(branch);
             await _branchRepository.CommitChangesAsync();
 
             var response = branch.Adapt<BranchResponse>();
 
-            return CreatedAtAction(nameof(GetById), new { id = branch.Id },
-                new ApiResponse<BranchResponse>
+            return Ok(new ApiResponse<BranchResponse>
                 {
                     IsSuccess = true,
                     Message = "Branch created successfully",

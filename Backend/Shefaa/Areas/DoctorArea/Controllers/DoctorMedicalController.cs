@@ -1,4 +1,5 @@
-﻿using System.Security.Claims;
+using System.Security.Claims;
+using Mapster;
 
 
 namespace Shefaa.Areas.DoctorArea.Controllers
@@ -49,6 +50,15 @@ namespace Shefaa.Areas.DoctorArea.Controllers
                 });
             }
 
+            if (appointment.Status != AppointmentStatus.CheckedIn)
+            {
+                return BadRequest(new ApiResponse<object>
+                {
+                    IsSuccess = false,
+                    Message = "Medical records can only be created for checked-in appointments."
+                });
+            }
+
             var recordExists = await _context.MedicalRecords.AnyAsync(m => m.AppointmentId == request.AppointmentId);
             if (recordExists)
             {
@@ -59,19 +69,13 @@ namespace Shefaa.Areas.DoctorArea.Controllers
                 });
             }
 
-            var medicalRecord = new MedicalRecord
-            {
-                Id = Guid.NewGuid(),
-                AppointmentId = request.AppointmentId,
-                DoctorId = doctorId.Value,
-                PatientId = appointment.PatientId,
-                ChiefComplaint = request.ChiefComplaint,
-                Diagnosis = request.Diagnosis,
-                TreatmentPlan = request.TreatmentPlan,
-                DoctorNotes = request.DoctorNotes,
-                FollowUpDate = request.FollowUpDate
-            };
+            var medicalRecord = request.Adapt<MedicalRecord>();
+            medicalRecord.Id = Guid.NewGuid();
+            medicalRecord.DoctorId = doctorId.Value;
+            medicalRecord.PatientId = appointment.PatientId;
 
+            appointment.Status = AppointmentStatus.Completed;
+            appointment.UpdatedAt = DateTime.UtcNow;
 
             _context.MedicalRecords.Add(medicalRecord);
             await _context.SaveChangesAsync();
@@ -80,6 +84,39 @@ namespace Shefaa.Areas.DoctorArea.Controllers
             {
                 IsSuccess = true,
                 Message = "Prescription and medical record created successfully, and appointment status updated to Completed."
+            });
+        }
+
+        [HttpGet("ByAppointment/{appointmentId}")]
+        public async Task<IActionResult> GetRecordByAppointment(Guid appointmentId)
+        {
+            var doctorId = await GetCurrentDoctorIdAsync();
+            if (doctorId == null)
+                return Unauthorized(new ApiResponse<object>
+                {
+                    IsSuccess = false,
+                    Message = "Unauthorized."
+                });
+
+            var record = await _context.MedicalRecords
+                .Include(mr => mr.Doctor)
+                    .ThenInclude(d => d.User)
+                .FirstOrDefaultAsync(mr => mr.AppointmentId == appointmentId && mr.DoctorId == doctorId);
+
+            if (record == null)
+            {
+                return NotFound(new ApiResponse<object>
+                {
+                    IsSuccess = false,
+                    Message = "record not found"
+                });
+            }
+
+            return Ok(new ApiResponse<MedicalRecord>
+            {
+                IsSuccess = true,
+                Message = "record fetched successfully",
+                Data = record
             });
         }
     }

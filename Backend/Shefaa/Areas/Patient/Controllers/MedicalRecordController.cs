@@ -1,9 +1,17 @@
+<<<<<<< HEAD
 ﻿using System.Security.Claims;
 
 namespace Shefaa.Areas.Patient.Controllers
 {
     [Area(CD.PATIENT_AREA)]
     [Route("api/Patient/[controller]")]
+=======
+using System.Security.Claims;
+namespace Shefaa.Areas.Patient.Controllers
+{
+    [Area(CD.PATIENT_AREA)]
+    [Route("api/[area]/[controller]")]
+>>>>>>> 230c220864a825afec575f0000ab00412668c75f
     [Authorize(Roles = CD.PATIENT_ROLE)]
     [ApiController]
     public class MedicalRecordController : ControllerBase
@@ -19,7 +27,11 @@ namespace Shefaa.Areas.Patient.Controllers
             _patientRepo = patientRepo;
         }
 
+<<<<<<< HEAD
        
+=======
+
+>>>>>>> 230c220864a825afec575f0000ab00412668c75f
         private async Task<Guid?> GetCurrentPatientIdAsync()
         {
             var userIdStr = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
@@ -30,7 +42,11 @@ namespace Shefaa.Areas.Patient.Controllers
             return patient?.PatientId;
         }
 
+<<<<<<< HEAD
         
+=======
+
+>>>>>>> 230c220864a825afec575f0000ab00412668c75f
         [HttpGet("myhistory")]
         public async Task<IActionResult> GetMyMedicalHistory()
         {
@@ -57,6 +73,7 @@ namespace Shefaa.Areas.Patient.Controllers
 
             var sortedHistory = history.OrderByDescending(mr => mr.Appointment.AppointmentDate);
 
+<<<<<<< HEAD
             
             return Ok(new ApiResponse<IEnumerable<MedicalRecord>>
             {
@@ -67,6 +84,49 @@ namespace Shefaa.Areas.Patient.Controllers
         }
 
         
+=======
+            var response = sortedHistory.Select(mr => new
+            {
+                id = mr.Id,
+                appointmentId = mr.AppointmentId,
+                doctorId = mr.DoctorId,
+                patientId = mr.PatientId,
+                chiefComplaint = mr.ChiefComplaint,
+                diagnosis = mr.Diagnosis,
+                treatmentPlan = mr.TreatmentPlan,
+                doctorNotes = mr.DoctorNotes,
+                followUpDate = mr.FollowUpDate,
+                doctor = mr.Doctor != null ? new
+                {
+                    doctorId = mr.Doctor.DoctorId,
+                    user = mr.Doctor.User != null ? new
+                    {
+                        firstName = mr.Doctor.User.FirstName,
+                        lastName = mr.Doctor.User.LastName,
+                        profileImg = mr.Doctor.User.ProfileImg
+                    } : null
+                } : null,
+                appointment = mr.Appointment != null ? new
+                {
+                    id = mr.Appointment.Id,
+                    appointmentDate = mr.Appointment.AppointmentDate,
+                    startTime = mr.Appointment.StartTime,
+                    endTime = mr.Appointment.EndTime,
+                    visitReason = mr.Appointment.VisitReason
+                } : null
+            });
+
+
+            return Ok(new ApiResponse<object>
+            {
+                IsSuccess = true,
+                Message = "medical history ",
+                Data = response
+            });
+        }
+
+
+>>>>>>> 230c220864a825afec575f0000ab00412668c75f
         [HttpGet("byappointment/{appointmentId}")]
         public async Task<IActionResult> GetRecordByAppointment(Guid appointmentId)
         {
@@ -93,7 +153,11 @@ namespace Shefaa.Areas.Patient.Controllers
 
             if (record == null)
             {
+<<<<<<< HEAD
                 return NotFound(new ApiResponse<MedicalRecord>
+=======
+                return NotFound(new ApiResponse<object>
+>>>>>>> 230c220864a825afec575f0000ab00412668c75f
                 {
                     IsSuccess = false,
                     Message = "record not found",
@@ -101,6 +165,7 @@ namespace Shefaa.Areas.Patient.Controllers
                 });
             }
 
+<<<<<<< HEAD
             return Ok(new ApiResponse<MedicalRecord>
             {
                 IsSuccess = true,
@@ -109,5 +174,45 @@ namespace Shefaa.Areas.Patient.Controllers
             });
         }
 
+=======
+            var response = new
+            {
+                id = record.Id,
+                appointmentId = record.AppointmentId,
+                doctorId = record.DoctorId,
+                patientId = record.PatientId,
+                chiefComplaint = record.ChiefComplaint,
+                diagnosis = record.Diagnosis,
+                treatmentPlan = record.TreatmentPlan,
+                doctorNotes = record.DoctorNotes,
+                followUpDate = record.FollowUpDate,
+                doctor = record.Doctor != null ? new
+                {
+                    doctorId = record.Doctor.DoctorId,
+                    user = record.Doctor.User != null ? new
+                    {
+                        firstName = record.Doctor.User.FirstName,
+                        lastName = record.Doctor.User.LastName,
+                        profileImg = record.Doctor.User.ProfileImg
+                    } : null
+                } : null,
+                appointment = record.Appointment != null ? new
+                {
+                    id = record.Appointment.Id,
+                    appointmentDate = record.Appointment.AppointmentDate,
+                    startTime = record.Appointment.StartTime,
+                    endTime = record.Appointment.EndTime,
+                    visitReason = record.Appointment.VisitReason
+                } : null
+            };
+
+            return Ok(new ApiResponse<object>
+            {
+                IsSuccess = true,
+                Message = "record fetched successfully",
+                Data = response
+            });
+        }
+>>>>>>> 230c220864a825afec575f0000ab00412668c75f
     }
 }

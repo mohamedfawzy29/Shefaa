@@ -1,4 +1,4 @@
-﻿namespace Shefaa.DTOs.Request
+namespace Shefaa.DTOs.Request
 {
     public class CreateBranchRequest
     {
@@ -10,6 +10,6 @@
         public required string Address { get; set; }
         public bool IsActive { get; set; } = true;
 
-        public Guid? OrganizationId { get; set; } = Guid.Empty;
+        public Guid OrganizationId { get; set; }
     }
 }

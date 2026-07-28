@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Shefaa.Data;
@@ -9,6 +9,7 @@ using System;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using Mapster;
 
 namespace Shefaa.Areas.DoctorArea.Controllers
 {
@@ -106,7 +107,34 @@ namespace Shefaa.Areas.DoctorArea.Controllers
             return Ok(new ApiResponse<object> { IsSuccess = true, Message = "Your branches have been brought in.", Data = branches });
         }
 
-        
+        [HttpGet("MySchedules")]
+        public async Task<IActionResult> GetMySchedules()
+        {
+            var doctorId = await GetCurrentDoctorIdAsync();
+            if (doctorId == null) return Unauthorized(new ApiResponse<object> { IsSuccess = false, Message = "Unauthorized." });
+
+            var schedules = await _context.DoctorSchedules
+                .Where(ds => ds.DoctorId == doctorId)
+                .Select(ds => new
+                {
+                    ds.Id,
+                    ds.BranchId,
+                    ds.DayOfWeek,
+                    ds.StartTime,
+                    ds.EndTime,
+                    ds.SlotDurationMinutes,
+                    ds.MaxPatients,
+                    ds.IsActive
+                })
+                .ToListAsync();
+
+            return Ok(new ApiResponse<object>
+            {
+                IsSuccess = true,
+                Message = "Your schedules have been retrieved.",
+                Data = schedules
+            });
+        }
 
 
         [HttpPost("AddSchedule")]
@@ -165,18 +193,7 @@ namespace Shefaa.Areas.DoctorArea.Controllers
                     .ThenInclude(p => p.User)
                 .Include(a => a.Branch) 
                 .OrderBy(a => a.StartTime)
-                .Select(a => new DoctorAppointmentResponse
-                {
-                    AppointmentId = a.Id,
-                    PatientId = a.PatientId,
-                    PatientName = (a.Patient.User != null) ? $"{a.Patient.User.FirstName} {a.Patient.User.LastName}" : "مريض غير معروف",
-                    VisitReason = a.VisitReason,
-                    StartTime = a.StartTime,
-                    EndTime = a.EndTime,
-                    Status = a.Status,
-                    Notes = a.Notes,
-                    BranchName = a.Branch.BranchName
-                })
+                .ProjectToType<DoctorAppointmentResponse>()
                 .ToListAsync();
 
             return Ok(new ApiResponse<object>
@@ -187,6 +204,38 @@ namespace Shefaa.Areas.DoctorArea.Controllers
             });
         }
 
+        [HttpDelete("LeaveBranch/{branchId}")]
+        public async Task<IActionResult> LeaveBranch(Guid branchId)
+        {
+            var doctorId = await GetCurrentDoctorIdAsync();
+            if (doctorId == null) return Unauthorized(new ApiResponse<object> { IsSuccess = false, Message = "Unauthorized." });
+
+            var doctorBranch = await _context.DoctorBranches.FirstOrDefaultAsync(db => db.DoctorId == doctorId && db.BranchId == branchId);
+            if (doctorBranch == null)
+            {
+                return NotFound(new ApiResponse<object> { IsSuccess = false, Message = "You are not registered in this branch." });
+            }
+
+            var hasUpcomingAppointments = await _context.Appointments
+                .AnyAsync(a => a.DoctorId == doctorId && a.BranchId == branchId && (a.Status == AppointmentStatus.Scheduled || a.Status == AppointmentStatus.CheckedIn));
+
+            if (hasUpcomingAppointments)
+            {
+                return BadRequest(new ApiResponse<object> { IsSuccess = false, Message = "You cannot leave this branch because you have upcoming appointments." });
+            }
+
+            _context.DoctorBranches.Remove(doctorBranch);
+
+            var schedules = await _context.DoctorSchedules.Where(ds => ds.DoctorId == doctorId && ds.BranchId == branchId).ToListAsync();
+            if (schedules.Any())
+            {
+                _context.DoctorSchedules.RemoveRange(schedules);
+            }
+
+            await _context.SaveChangesAsync();
+
+            return Ok(new ApiResponse<object> { IsSuccess = true, Message = "You have successfully left the branch." });
+        }
 
     }
 }

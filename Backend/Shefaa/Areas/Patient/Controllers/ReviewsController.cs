@@ -1,13 +1,20 @@
+<<<<<<< HEAD
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Shefaa.Repositories;
+=======
+>>>>>>> 230c220864a825afec575f0000ab00412668c75f
 using System.Security.Claims;
 using Shefaa.DTOs.filter;
 namespace Shefaa.Areas.Patient.Controllers
 {
     [Area(CD.PATIENT_AREA)]
+<<<<<<< HEAD
     [Route("api/Patient/[controller]")]
+=======
+    [Route("api/[area]/[controller]")]
+>>>>>>> 230c220864a825afec575f0000ab00412668c75f
     [Authorize(Roles = CD.PATIENT_ROLE)]
     [ApiController]
     public class ReviewsController : ControllerBase
@@ -15,18 +22,34 @@ namespace Shefaa.Areas.Patient.Controllers
         private readonly IRepository<Review> _reviewRepo;
         private readonly IRepository<Shefaa.Models.Patient> _patientRepo;
         private readonly IRepository<Appointment> _appointmentRepo;
+<<<<<<< HEAD
+=======
+        private readonly IDoctorService _doctorService;
+>>>>>>> 230c220864a825afec575f0000ab00412668c75f
 
         public ReviewsController(
             IRepository<Review> reviewRepo,
             IRepository<Shefaa.Models.Patient> patientRepo,
+<<<<<<< HEAD
             IRepository<Appointment> appointmentRepo)
+=======
+            IRepository<Appointment> appointmentRepo,
+            IDoctorService doctorService)
+>>>>>>> 230c220864a825afec575f0000ab00412668c75f
         {
             _reviewRepo = reviewRepo;
             _patientRepo = patientRepo;
             _appointmentRepo = appointmentRepo;
+<<<<<<< HEAD
         }
 
         
+=======
+            _doctorService = doctorService;
+        }
+
+
+>>>>>>> 230c220864a825afec575f0000ab00412668c75f
         private async Task<Guid?> GetCurrentPatientIdAsync()
         {
             var userIdStr = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
@@ -37,7 +60,11 @@ namespace Shefaa.Areas.Patient.Controllers
             return patient?.PatientId;
         }
 
+<<<<<<< HEAD
         
+=======
+
+>>>>>>> 230c220864a825afec575f0000ab00412668c75f
         [HttpPost("add")]
         public async Task<IActionResult> AddReview([FromBody] AddReview dto)
         {
@@ -54,7 +81,11 @@ namespace Shefaa.Areas.Patient.Controllers
             var patientId = await GetCurrentPatientIdAsync();
             if (patientId == null) return Unauthorized();
 
+<<<<<<< HEAD
             
+=======
+
+>>>>>>> 230c220864a825afec575f0000ab00412668c75f
             var completedAppointment = await _appointmentRepo.GetOneAsynch(a =>
                 a.Id == dto.AppointmentId &&
                 a.PatientId == patientId &&
@@ -67,10 +98,17 @@ namespace Shefaa.Areas.Patient.Controllers
                 {
                     IsSuccess = false,
                     Message = "book first"
+<<<<<<< HEAD
                 } );
             }
 
             
+=======
+                });
+            }
+
+
+>>>>>>> 230c220864a825afec575f0000ab00412668c75f
             var existingReview = await _reviewRepo.GetOneAsynch(r => r.AppointmentId == dto.AppointmentId);
             if (existingReview != null)
             {
@@ -81,7 +119,11 @@ namespace Shefaa.Areas.Patient.Controllers
                 });
             }
 
+<<<<<<< HEAD
             
+=======
+
+>>>>>>> 230c220864a825afec575f0000ab00412668c75f
             var newReview = new Review
             {
                 Id = Guid.NewGuid(),
@@ -95,6 +137,13 @@ namespace Shefaa.Areas.Patient.Controllers
             await _reviewRepo.AddAsync(newReview);
             await _reviewRepo.CommitChangesAsync();
 
+<<<<<<< HEAD
+=======
+            // Recalculate doctor's average rating after new review.
+            // completedAppointment.DoctorId is already in scope — no extra query needed.
+            await _doctorService.UpdateDoctorAverageRatingAsync(completedAppointment.DoctorId);
+
+>>>>>>> 230c220864a825afec575f0000ab00412668c75f
             return Ok(new ApiResponse<object>
             {
                 IsSuccess = true,
@@ -102,7 +151,11 @@ namespace Shefaa.Areas.Patient.Controllers
             });
         }
 
+<<<<<<< HEAD
         
+=======
+
+>>>>>>> 230c220864a825afec575f0000ab00412668c75f
         [HttpGet("myreviews")]
         public async Task<IActionResult> GetMyReviews()
         {
@@ -115,6 +168,7 @@ namespace Shefaa.Areas.Patient.Controllers
                 {
                     r => r.Appointment,
                     r => r.Appointment.Doctor,
+<<<<<<< HEAD
                     r => r.Appointment.Doctor.User
                 }
             );
@@ -128,6 +182,34 @@ namespace Shefaa.Areas.Patient.Controllers
         }
 
         
+=======
+                    r => r.Appointment.Doctor.User,
+                    r => r.Patient,
+                    r => r.Patient.User
+                }
+            );
+
+            var response = reviews.Select(r => new
+            {
+                ReviewId = r.Id,
+                AppointmentId = r.AppointmentId,
+                PatientName = (r.Patient?.User != null) ? $"{r.Patient.User.FirstName} {r.Patient.User.LastName}" : "Unknown",
+                DoctorName = (r.Appointment?.Doctor?.User != null) ? $"{r.Appointment.Doctor.User.FirstName} {r.Appointment.Doctor.User.LastName}" : "Unknown",
+                Rating = r.Rating,
+                Comment = r.Comment,
+                CreatedAt = r.CreatedAt
+            }).ToList();
+
+            return Ok(new ApiResponse<object>
+            {
+                IsSuccess = true,
+                Message = "your reviw",
+                Data = response
+            });
+        }
+
+
+>>>>>>> 230c220864a825afec575f0000ab00412668c75f
         [HttpPut("update/{reviewId}")]
         public async Task<IActionResult> UpdateReview(Guid reviewId, [FromBody] UpdateReviewDto dto)
         {
@@ -160,6 +242,17 @@ namespace Shefaa.Areas.Patient.Controllers
             _reviewRepo.Update(review);
             await _reviewRepo.CommitChangesAsync();
 
+<<<<<<< HEAD
+=======
+            // Fetch appointment in a separate no-tracking query to get DoctorId.
+            // Avoids loading Appointment as a navigation property on the Review entity,
+            // which would cause EF to emit an unintended UPDATE on the Appointments table
+            // when _reviewRepo.Update(review) marks all tracked entities as Modified.
+            var updatedAppointment = await _appointmentRepo.GetOneAsynch(a => a.Id == review.AppointmentId);
+            if (updatedAppointment != null)
+                await _doctorService.UpdateDoctorAverageRatingAsync(updatedAppointment.DoctorId);
+
+>>>>>>> 230c220864a825afec575f0000ab00412668c75f
             return Ok(new ApiResponse<object>
             {
                 IsSuccess = true,
@@ -167,7 +260,11 @@ namespace Shefaa.Areas.Patient.Controllers
             });
         }
 
+<<<<<<< HEAD
         
+=======
+
+>>>>>>> 230c220864a825afec575f0000ab00412668c75f
         [HttpDelete("delete/{reviewId}")]
         public async Task<IActionResult> DeleteReview(Guid reviewId)
         {
@@ -184,9 +281,23 @@ namespace Shefaa.Areas.Patient.Controllers
                 });
             }
 
+<<<<<<< HEAD
             _reviewRepo.Delete(review);
             await _reviewRepo.CommitChangesAsync();
 
+=======
+            // Capture AppointmentId before the entity is deleted from the change tracker.
+            var appointmentId = review.AppointmentId;
+
+            _reviewRepo.Delete(review);
+            await _reviewRepo.CommitChangesAsync();
+
+            // Separate no-tracking query — same safe pattern as UpdateReview.
+            var deletedAppointment = await _appointmentRepo.GetOneAsynch(a => a.Id == appointmentId);
+            if (deletedAppointment != null)
+                await _doctorService.UpdateDoctorAverageRatingAsync(deletedAppointment.DoctorId);
+
+>>>>>>> 230c220864a825afec575f0000ab00412668c75f
             return Ok(new ApiResponse<object>
             {
                 IsSuccess = true,
@@ -194,7 +305,11 @@ namespace Shefaa.Areas.Patient.Controllers
             });
         }
 
+<<<<<<< HEAD
         
+=======
+
+>>>>>>> 230c220864a825afec575f0000ab00412668c75f
         [AllowAnonymous]
         [HttpGet("doctor/{doctorId}")]
         public async Task<IActionResult> GetDoctorReviews(Guid doctorId)
@@ -205,6 +320,7 @@ namespace Shefaa.Areas.Patient.Controllers
                 {
                     r => r.Patient,
                     r => r.Patient.User,
+<<<<<<< HEAD
                     r => r.Appointment
                 }
             );
@@ -214,11 +330,39 @@ namespace Shefaa.Areas.Patient.Controllers
                 IsSuccess = true,
                 Message = "review fot adoctor",
                 Data = reviews
+=======
+                    r => r.Appointment,
+                    r => r.Appointment.Doctor,
+                    r => r.Appointment.Doctor.User
+                }
+            );
+
+            var response = reviews.Select(r => new
+            {
+                ReviewId = r.Id,
+                AppointmentId = r.AppointmentId,
+                PatientName = (r.Patient?.User != null) ? $"{r.Patient.User.FirstName} {r.Patient.User.LastName}" : "Unknown",
+                DoctorName = (r.Appointment?.Doctor?.User != null) ? $"{r.Appointment.Doctor.User.FirstName} {r.Appointment.Doctor.User.LastName}" : "Unknown",
+                Rating = r.Rating,
+                Comment = r.Comment,
+                CreatedAt = r.CreatedAt
+            }).ToList();
+
+            return Ok(new ApiResponse<object>
+            {
+                IsSuccess = true,
+                Message = "review fot adoctor",
+                Data = response
+>>>>>>> 230c220864a825afec575f0000ab00412668c75f
             });
         }
     }
 
+<<<<<<< HEAD
     
+=======
+
+>>>>>>> 230c220864a825afec575f0000ab00412668c75f
     public class UpdateReviewDto
     {
         [System.ComponentModel.DataAnnotations.Required]
@@ -227,4 +371,8 @@ namespace Shefaa.Areas.Patient.Controllers
         public string Comment { get; set; } = string.Empty;
 
     }
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> 230c220864a825afec575f0000ab00412668c75f
