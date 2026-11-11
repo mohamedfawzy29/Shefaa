@@ -35,7 +35,8 @@ namespace Shefaa
             builder.Services.AddIdentity<ApplicationUser, ApplicationRole>(options =>
             {
                 options.User.RequireUniqueEmail = true;
-                options.SignIn.RequireConfirmedEmail = true;
+                // Local development has no reliable SMTP, so accounts can sign in without confirming.
+                options.SignIn.RequireConfirmedEmail = !builder.Environment.IsDevelopment();
             })
             .AddEntityFrameworkStores<ApplicationDbContext>()
             .AddDefaultTokenProviders();
@@ -176,6 +177,9 @@ namespace Shefaa
 
 
             app.MapControllers();
+
+            // Serve the built React app for any non-API route (client-side routing).
+            app.MapFallbackToFile("index.html");
 
             app.Run();
         }
